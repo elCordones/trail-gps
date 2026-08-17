@@ -32,22 +32,23 @@
     - **Botons Flotants d'Acció Ràpida (Thumb Dock)**: Columna vertical a la dreta accessible amb el polze dret (`🎯 On sóc / Centrar`, `🧭 Rumb / Nord`, `⛰️ Toggle Altimetria`, `➕ / ➖ Zoom`).
     - **Perfil d'Altimetria Semitransparent ClimbPro**: Targeta flotant translúcida (`rgba(15, 23, 42, 0.78)` + blur) que permet veure el mapa per darrere, amb botó ràpid de tancament (`✕`).
     - **Alliberament visual**: Ara el **85-90% de la pantalla està lliure per al mapa**.
-  - [x] **Preparació de Git i GitHub Pages**:
-    - Repositori Git inicialitzat a la branca `main`.
-    - Fitxer `.gitignore` configurat i `index.html` sincronitzat a l'arrel per a càrrega directa a GitHub Pages.
-    - Commit inicial unificat creat.
+  - [x] **Publicació a GitHub Pages**:
+    - Repositori remot connectat: `https://github.com/elCordones/trail-gps.git`
+    - Codi publicat a la branca `main`.
+    - URL de producció PWA: **`https://elcordones.github.io/trail-gps/`**
 
 - **Punt exacte on ens hem quedat**:
   - Interfície d'usuari completament redissenyada, neta, àgil i optimitzada per a manillar.
-  - Repositori local llest per connectar amb el repositori remot de GitHub i activar GitHub Pages.
+  - Codi pujat a GitHub; pendent activar Pages a la configuració del repositori per tenir la URL viva i instal·lar com a PWA a l'iPhone.
 
 ---
 
 ## 3. Full de Ruta per a la Propera Sessió (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **Publicació a GitHub Pages**: Crear el repositori remot a GitHub, fer `git push` i activar Pages des de la branca `main`.
-  - [ ] **Instal·lació PWA a l'iPhone**: Obrir l'adreça HTTPS a Safari i afegir com a app autònoma a la pantalla d'inici.
+  - [x] **Pujar codi a GitHub**: Repositori `elCordones/trail-gps` sincronitzat.
+  - [ ] **Activar GitHub Pages a GitHub Settings**: `Settings > Pages > Branch: main / (root)`.
+  - [ ] **Instal·lació PWA a l'iPhone**: Obrir `https://elcordones.github.io/trail-gps/` a Safari i afegir com a app autònoma a la pantalla d'inici.
   - [ ] **Proves de camp**: Provar la navegació, el seguiment de track i la gravació REC en una sortida real en bicicleta.
   - [ ] **Fase Nativa iOS (`trail-gps/` o Capacitor)**: Generar el paquet `.ipa` per a instal·lació per cable (Sideloadly / AltStore) o TestFlight d'Apple.
 - **Millores futures**:
