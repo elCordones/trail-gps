@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
 > **Darrera actualització:** 17 d'agost de 2026 (Tancament de sessió)  
-> **Estat general:** Versió PWA completada i optimitzada per a iOS / Pendent desplegament a GitHub Pages o Netlify Drop
+> **Estat general:** Versió PWA v2.0 completada, redissenyada per a manillar, blindada amb llicències GNU AGPLv3/CC BY-SA 4.0 i publicada a GitHub Pages (`https://elcordones.github.io/trail-gps/`)
 
 ---
 
