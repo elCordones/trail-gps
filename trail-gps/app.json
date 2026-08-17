@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "TrailGPS MTB",
+    "slug": "trail-gps",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0F172A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dcordone.trailgps",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TrailGPS utilitza la teva posició per mostrar el rumb en temps real sobre el mapa i guiar-te pel traçat GPX.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "TrailGPS utilitza la ubicació en segon pla per avisar-te amb so si et desvies del track GPX durant la ruta.",
+        "UIBackgroundModes": [
+          "location",
+          "audio"
+        ],
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "GPX File",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Owner",
+            "LSItemContentTypes": [
+              "com.topografix.gpx",
+              "public.xml"
+            ]
+          }
+        ],
+        "UTExportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "com.topografix.gpx",
+            "UTTypeDescription": "GPS Exchange Format (GPX)",
+            "UTTypeConformsTo": [
+              "public.xml",
+              "public.data"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "gpx",
+                "GPX"
+              ],
+              "public.mime-type": [
+                "application/gpx+xml",
+                "application/gpx"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F172A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
