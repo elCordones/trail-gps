@@ -333,32 +333,70 @@
       background: rgba(51, 65, 85, 0.8);
     }
 
-    /* GENERIC MODALS STYLES */
-    .app-modal {
-      position: absolute;
-      top: calc(max(env(safe-area-inset-top, 14px), 14px) + 54px);
-      right: 12px;
-      z-index: 9999;
-      background: rgba(15, 23, 42, 0.98);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1.5px solid var(--card-border);
-      border-radius: 20px;
-      padding: 16px;
-      width: 300px;
-      max-width: calc(100vw - 24px);
-      box-shadow: 0 18px 45px rgba(0,0,0,0.75);
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      animation: fadeInDown 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
-      max-height: calc(100vh - 180px);
-      overflow-y: auto;
+    /* UNIFIED BOTTOM SHEETS & MODALS STYLES */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9990;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.15, 0.9, 0.25, 1);
     }
 
-    @keyframes fadeInDown {
-      0% { opacity: 0; transform: translateY(-8px); }
-      100% { opacity: 1; transform: translateY(0); }
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .app-modal {
+      position: absolute;
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 68px);
+      left: 12px;
+      right: 12px;
+      margin: 0 auto;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid var(--card-border);
+      border-radius: 22px;
+      padding: 10px 16px 16px 16px;
+      width: auto;
+      max-width: 440px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.85);
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      animation: sheetSlideUp 0.22s cubic-bezier(0.15, 0.9, 0.25, 1);
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+      user-select: none;
+      will-change: transform, opacity;
+    }
+
+    @keyframes sheetSlideUp {
+      0% { opacity: 0; transform: translateY(22px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-drag-handle {
+      width: 44px;
+      height: 5px;
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 3px;
+      margin: 2px auto 6px auto;
+      cursor: grab;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .modal-drag-handle:active {
+      background: var(--accent-cyan);
+      transform: scale(1.1);
     }
 
     .modal-header {
@@ -384,6 +422,38 @@
       font-size: 18px;
       padding: 4px 8px;
       border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal-close-btn:active {
+      color: #FFFFFF;
+      background: rgba(51, 65, 85, 0.5);
+    }
+
+    .btn-dismiss-sheet {
+      width: 100%;
+      padding: 11px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+
+    .btn-dismiss-sheet:active {
+      background: rgba(51, 65, 85, 0.9);
+      color: #FFFFFF;
+      transform: scale(0.98);
     }
 
     /* LAYERS & STYLE MODAL */
@@ -1249,8 +1319,12 @@
       </div>
     </div>
 
+    <!-- MODAL BACKDROP (TOUCH-OUTSIDE TO DISMISS) -->
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+
     <!-- MAP LAYERS & TRACK STYLING MODAL -->
     <div id="layers-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Estil del Mapa</span>
         <button class="modal-close-btn" data-close="layers-modal">✕</button>
@@ -1315,6 +1389,7 @@
 
     <!-- OFFLINE DOWNLOAD MODAL -->
     <div id="offline-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Mapa Offline (Mode Avió)</span>
         <button class="modal-close-btn" data-close="offline-modal">✕</button>
@@ -1349,6 +1424,7 @@
 
     <!-- WAYPOINTS & POIs MODAL -->
     <div id="waypoints-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Punts d'Interès (Waypoints)</span>
         <button class="modal-close-btn" data-close="waypoints-modal">✕</button>
@@ -1365,6 +1441,7 @@
 
     <!-- ROUTES LIBRARY & RECENT GPX MODAL -->
     <div id="routes-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Biblioteca de Rutes</span>
         <button class="modal-close-btn" data-close="routes-modal">✕</button>
@@ -1379,7 +1456,8 @@
     </div>
 
     <!-- EXPANDED CYCLING METRICS / STATS MODAL -->
-    <div id="stats-modal" class="app-modal" style="width: 320px;">
+    <div id="stats-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Ciclocomputador & Telemetria</span>
         <button class="modal-close-btn" data-close="stats-modal">✕</button>
@@ -1419,10 +1497,15 @@
           <div class="stat-card-val"><span id="stat-dist-rem">0.0</span><span class="stat-card-unit">km</span></div>
         </div>
       </div>
+
+      <button class="btn-dismiss-sheet" data-close="stats-modal">
+        <span>✕ Amagar Ciclocomputador</span>
+      </button>
     </div>
 
     <!-- APP INFO & LICENSE MODAL -->
-    <div id="info-modal" class="app-modal" style="width: 320px;">
+    <div id="info-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">Sobre TrailGPS MTB</span>
         <button class="modal-close-btn" data-close="info-modal">✕</button>
@@ -1454,6 +1537,10 @@
           🔒 100% autònoma i privada · Sense telemetria ni servidors externs
         </div>
       </div>
+
+      <button class="btn-dismiss-sheet" data-close="info-modal">
+        <span>✕ Tancar Informació</span>
+      </button>
     </div>
 
     <!-- GPS ACTIVATION BANNER -->
@@ -1550,7 +1637,8 @@
     </div>
 
     <!-- TOOLS ACTION SHEET MODAL -->
-    <div id="tools-modal" class="app-modal tools-sheet-modal">
+    <div id="tools-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
         <span class="modal-title">⚡ Eines & Opcions de Ruta</span>
         <button class="modal-close-btn" data-close="tools-modal">✕</button>
@@ -1581,6 +1669,10 @@
           <span class="label">SIMULAR</span>
         </button>
       </div>
+
+      <button class="btn-dismiss-sheet" data-close="tools-modal">
+        <span>✕ Tancar Eines</span>
+      </button>
     </div>
   </div>
 
@@ -1804,6 +1896,10 @@
       map.on('dragstart', () => {
         cameraMode = 'free';
         updateCameraModeUI();
+      });
+
+      map.on('click', () => {
+        closeAllModals();
       });
 
       // Load initial route
@@ -2851,8 +2947,34 @@
       }, 2500);
     }
 
+    // --- MODAL CONTROLLERS & GESTURES ---
+    function openModal(modalId) {
+      const modal = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+      if (!modal) return;
+      closeAllModals();
+      modal.style.display = 'flex';
+      modal.style.transform = '';
+      modal.style.opacity = '';
+      modal.style.transition = '';
+      const backdrop = document.getElementById('modal-backdrop');
+      if (backdrop) {
+        backdrop.classList.add('active');
+        backdrop.style.opacity = '';
+      }
+    }
+
     function closeAllModals() {
-      document.querySelectorAll('.app-modal').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.app-modal').forEach(m => {
+        m.style.display = 'none';
+        m.style.transform = '';
+        m.style.opacity = '';
+        m.style.transition = '';
+      });
+      const backdrop = document.getElementById('modal-backdrop');
+      if (backdrop) {
+        backdrop.classList.remove('active');
+        backdrop.style.opacity = '';
+      }
       document.getElementById('btn-layers')?.classList.remove('active');
       document.getElementById('btn-offline')?.classList.remove('active');
       document.getElementById('btn-waypoints')?.classList.remove('active');
@@ -2869,10 +2991,9 @@
       const isCurrentlyOpen = modal.style.display === 'flex' || (!modal.style.display && window.getComputedStyle(modal).display === 'flex');
       
       if (isCurrentlyOpen) {
-        modal.style.display = 'none';
-      } else {
         closeAllModals();
-        modal.style.display = 'flex';
+      } else {
+        openModal('tools-modal');
       }
     }
 
@@ -2886,15 +3007,103 @@
       const isCurrentlyOpen = statsModal.style.display === 'flex' || (!statsModal.style.display && window.getComputedStyle(statsModal).display === 'flex');
       
       if (isCurrentlyOpen) {
-        statsModal.style.display = 'none';
-      } else {
         closeAllModals();
-        statsModal.style.display = 'flex';
+      } else {
+        openModal('stats-modal');
       }
     }
 
     window.toggleToolsModal = toggleToolsModal;
     window.toggleStatsModal = toggleStatsModal;
+    window.openModal = openModal;
+    window.closeAllModals = closeAllModals;
+
+    // --- TOUCH & SWIPE-TO-DISMISS GESTURE ENGINE ---
+    function setupModalGestures() {
+      const backdrop = document.getElementById('modal-backdrop');
+      if (backdrop) {
+        backdrop.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeAllModals();
+        });
+        backdrop.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeAllModals();
+        }, { passive: false });
+      }
+
+      document.querySelectorAll('.app-modal').forEach(modal => {
+        let startY = 0;
+        let currentY = 0;
+        let startTime = 0;
+        let isDragging = false;
+
+        modal.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          // Only start swipe-down if scroll is near top
+          if (modal.scrollTop > 6) return;
+          startY = e.touches[0].clientY;
+          currentY = startY;
+          startTime = Date.now();
+          isDragging = true;
+          modal.style.transition = 'none';
+        }, { passive: true });
+
+        modal.addEventListener('touchmove', (e) => {
+          if (!isDragging || e.touches.length !== 1) return;
+          currentY = e.touches[0].clientY;
+          const deltaY = currentY - startY;
+
+          // Dragging downwards (swipe to dismiss)
+          if (deltaY > 0 && modal.scrollTop <= 0) {
+            if (e.cancelable) e.preventDefault();
+            modal.style.transform = `translateY(${deltaY}px)`;
+            if (backdrop) {
+              const opacity = Math.max(0, 1 - deltaY / 260);
+              backdrop.style.opacity = opacity.toString();
+            }
+          } else if (deltaY < 0 && modal.scrollTop <= 0) {
+            modal.style.transform = `translateY(${deltaY * 0.15}px)`;
+          }
+        }, { passive: false });
+
+        const finishDrag = () => {
+          if (!isDragging) return;
+          isDragging = false;
+          const deltaY = currentY - startY;
+          const elapsed = Date.now() - startTime;
+          const velocity = deltaY / (elapsed || 1);
+
+          if ((deltaY > 55 || velocity > 0.4) && deltaY > 15) {
+            modal.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.18s ease-out';
+            modal.style.transform = 'translateY(120%)';
+            modal.style.opacity = '0';
+            if (backdrop) backdrop.style.opacity = '0';
+            if (navigator.vibrate) {
+              try { navigator.vibrate(15); } catch(err){}
+            }
+            setTimeout(() => {
+              closeAllModals();
+            }, 190);
+          } else {
+            modal.style.transition = 'transform 0.22s cubic-bezier(0.15, 0.9, 0.25, 1)';
+            modal.style.transform = 'translateY(0)';
+            if (backdrop && modal.style.display === 'flex') {
+              backdrop.style.opacity = '1';
+            }
+            setTimeout(() => {
+              modal.style.transition = '';
+              modal.style.transform = '';
+            }, 220);
+          }
+        };
+
+        modal.addEventListener('touchend', finishDrag, { passive: true });
+        modal.addEventListener('touchcancel', finishDrag, { passive: true });
+      });
+    }
 
     // --- ATTACH EVENT LISTENERS (CROSS-PLATFORM & IOS SAFE) ---
     function setupEventListeners() {
@@ -2907,6 +3116,9 @@
           fn(e);
         });
       }
+
+      // Initialize gestures
+      setupModalGestures();
 
       // Tools Sheet Toggles
       bindAction('btn-open-tools-drawer', toggleToolsModal);
@@ -2921,13 +3133,12 @@
       bindAction('btn-zoom-in', () => map && map.zoomIn());
       bindAction('btn-zoom-out', () => map && map.zoomOut());
 
-      // Modal Close Buttons
-      document.querySelectorAll('.modal-close-btn').forEach(btn => {
+      // Modal Close Buttons & Dismiss Bars
+      document.querySelectorAll('[data-close]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const modalId = btn.getAttribute('data-close');
-          if (modalId) document.getElementById(modalId).style.display = 'none';
+          closeAllModals();
         });
       });
 
@@ -2936,9 +3147,10 @@
       const layersModal = document.getElementById('layers-modal');
       bindAction('btn-layers', () => {
         const isVisible = layersModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          layersModal.style.display = 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('layers-modal');
           layersBtn.classList.add('active');
         }
       });
@@ -2948,9 +3160,10 @@
       const offlineModal = document.getElementById('offline-modal');
       bindAction('btn-offline', () => {
         const isVisible = offlineModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          offlineModal.style.display = 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('offline-modal');
           offlineBtn.classList.add('active');
           updateOfflineEstimates();
         }
@@ -2961,9 +3174,10 @@
       const waypointsModal = document.getElementById('waypoints-modal');
       bindAction('btn-waypoints', () => {
         const isVisible = waypointsModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          waypointsModal.style.display = 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('waypoints-modal');
           waypointsBtn.classList.add('active');
           renderWaypointsModalList();
         }
@@ -2976,9 +3190,10 @@
       const routesModal = document.getElementById('routes-modal');
       bindAction('btn-routes-lib', () => {
         const isVisible = routesModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          routesModal.style.display = 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('routes-modal');
           routesBtn.classList.add('active');
           renderRoutesHistoryList();
         }
@@ -3031,9 +3246,10 @@
       bindAction('brand-menu-btn', () => {
         requestGpsPermission();
         const isVisible = infoModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          infoModal.style.display = 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('info-modal');
         }
       });
 
