@@ -2503,7 +2503,8 @@
         map.fitBounds(trackPolylineLayer.getBounds(), { padding: [50, 50] });
       }
 
-      document.getElementById('track-name')?.textContent = '📍 ' + track.name;
+      const tnEl = document.getElementById('track-name');
+      if (tnEl) tnEl.textContent = '📍 ' + track.name;
     }
 
     // --- USER MARKER WITH DELTA HEADING ARROW ---
@@ -2884,7 +2885,7 @@
       bindAction('btn-rec', toggleRecordingModal);
       bindAction('btn-rec-toggle-pause', togglePauseRecording);
       bindAction('btn-rec-finish', finishAndExportGpx);
-      bindAction('btn-rec-discard', discardRecording);
+      bindAction('btn-rec-cancel', discardRecording);
 
       // Zoom Controls
       bindAction('btn-zoom-in', () => map && map.zoomIn());
