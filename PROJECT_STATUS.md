@@ -28,20 +28,19 @@
 ## 2. Estat Actual i Punt de Control (Sessió: 18/08/2026)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Ajust de Pantalla Completa i Eliminació de la Franja Fosca Inferior**:
-    - Identificat i resolt el bug de WebKit/Safari on el calaix d'eines (`tools-drawer-content`) amb CSS Grid ocupava espai fantasma invisible (~110px) fins i tot amb `max-height: 0`.
-    - Canviat a `display: none` per defecte i `display: grid` només en `.open`, aconseguint que el cockpit inferior sigui autènticament compacte (només ~76px) i alliberant tot l'espai buit inferior.
-    - Fixació de `html, body` i `#app-container` a `position: fixed` amb suport `100dvh` i `-webkit-fill-available`.
+  - [x] **Redisseny del Cockpit com a Illa Flotant Arrodonida (Eliminació definitiva del peu de pantalla fosc)**:
+    - En lloc d'un bloc sòlid fixat a `bottom: 0`, el Cockpit s'ha transformat en una **targeta/illa flotant** amb cantonades 100% arrodonides (`20px`), marges laterals (`12px`) i separada de la base del vidre (`bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 4px)`).
+    - El mapa Leaflet ara és visible tot al voltant i per sota del Cockpit, eliminant completament la sensació de "franja fosca" o barra tallada a la part inferior d'iOS tant a Safari com en mode App PWA autònoma.
   - [x] **Optimització de Transparència Real ClimbPro**:
     - Fons ajustat a `rgba(15, 23, 42, 0.38)` amb blur lleuger (`8px`) i subtil vora cian `rgba(0, 229, 255, 0.35)` per veure clarament senders, camins i corbes de nivell del mapa per darrere.
     - Gradient suau de l'SVG (`0.40` a `0.02`) que maximitza la translucidesa del terreny.
-  - [x] **Ajust del Botó de Zoom i Thumb Dock**:
-    - Redimensionats els botons flotants de polze a 44px/38px amb separació de 6px.
-    - Reubicats a `bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 84px)` garantint una separació neta i elegant respecte a la barra d'eines inferior.
-    - Animació dinàmica sincronitzada amb el calaix d'eines (`drawer-open`).
+  - [x] **Separació Neta del Botó de Zoom (`−`) i Thumb Dock**:
+    - Botons de polze compactats a 42px/36px amb separació de 6px.
+    - Posició vertical elevada que garanteix **22px nets de mapa visible entre el botó `−` i la part superior del Cockpit**, evitant qualsevol contacte o solapament.
+    - Sincronització fluida amb l'obertura del calaix d'eines (`drawer-open`).
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície PWA 100% compacta, neta i sense espais buits residuals a l'iPhone.
+  - Interfície PWA redissenyada amb Cockpit flotant, ClimbPro translúcid i màxima llibertat per al mapa sense cap franja bloquejant la pantalla.
   - Canvis aplicats a [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) i [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html).
 
 ---
