@@ -85,6 +85,10 @@
     .control-btn, 
     .btn-zoom, 
     .hud-card, 
+    .hud-card-strip,
+    .cockpit-dock,
+    .metric-box,
+    .btn-dock-tools,
     .brand-badge, 
     .layer-option, 
     .color-pill, 
@@ -1508,7 +1512,7 @@
     </div>
 
     <!-- COCKPIT FLOATING ISLAND HUD (COMPACT & MODERN) -->
-    <div class="cockpit-dock" id="cockpit-dock">
+    <div class="cockpit-dock" id="cockpit-dock" role="button" tabindex="0" onclick="toggleStatsModal(event)" title="Toca per veure/amagar el ciclocomputador">
       <div class="cockpit-progress-bg">
         <div class="cockpit-progress-fill" id="cockpit-progress-fill" style="width: 0%;"></div>
       </div>
@@ -1538,7 +1542,7 @@
           </div>
         </div>
 
-        <button id="btn-open-tools-drawer" class="btn-dock-tools" title="Obrir menú d'eines i rutes">
+        <button id="btn-open-tools-drawer" class="btn-dock-tools" onclick="event.stopPropagation(); toggleToolsModal(event);" title="Obrir menú d'eines i rutes">
           <span>⚡</span>
           <span class="tools-label">Eines</span>
         </button>
@@ -2872,6 +2876,26 @@
       }
     }
 
+    function toggleStatsModal(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const statsModal = document.getElementById('stats-modal');
+      if (!statsModal) return;
+      const isCurrentlyOpen = statsModal.style.display === 'flex' || (!statsModal.style.display && window.getComputedStyle(statsModal).display === 'flex');
+      
+      if (isCurrentlyOpen) {
+        statsModal.style.display = 'none';
+      } else {
+        closeAllModals();
+        statsModal.style.display = 'flex';
+      }
+    }
+
+    window.toggleToolsModal = toggleToolsModal;
+    window.toggleStatsModal = toggleStatsModal;
+
     // --- ATTACH EVENT LISTENERS (CROSS-PLATFORM & IOS SAFE) ---
     function setupEventListeners() {
       function bindAction(elementId, fn) {
@@ -2960,33 +2984,7 @@
         }
       });
 
-      // Full Stats Dashboard Modal (Toggle on Cockpit Tap)
-      const statsModal = document.getElementById('stats-modal');
-      const cockpitDock = document.getElementById('cockpit-dock');
-
-      function toggleStatsModal(e) {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        if (!statsModal) return;
-        const isCurrentlyOpen = statsModal.style.display === 'flex' || (!statsModal.style.display && window.getComputedStyle(statsModal).display === 'flex');
-        
-        if (isCurrentlyOpen) {
-          statsModal.style.display = 'none';
-        } else {
-          closeAllModals();
-          statsModal.style.display = 'flex';
-        }
-      }
-
-      if (cockpitDock) {
-        cockpitDock.addEventListener('click', (e) => {
-          if (e.target.closest('#btn-open-tools-drawer')) return;
-          toggleStatsModal(e);
-        });
-      }
-
+      // Full Stats Dashboard Modal Toggle
       bindAction('btn-open-stats', toggleStatsModal);
 
       // Map layer options
