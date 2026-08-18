@@ -25,34 +25,30 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Sessió: 17/08/2026)
+## 2. Estat Actual i Punt de Control (Sessió: 18/08/2026)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Redisseny de Manillar Compacte (Opcions A + C)**:
-    - **Cockpit Dock inferior ultra-compacte**: Reduït a només 54px d'alçada amb 3 mètriques clau d'alt contrast (Velocitat en gran de 30px, Distància restant i Desviació al track en verd/vermell).
-    - **Safata d'Eines Desplegable (Smart Drawer)**: La fila inferior de botons s'ha transformat en un calaix retràctil suau (`▲ Eines & Rutes`) que s'obre en tocar el tirador o des de la barra superior.
-    - **Botons Flotants d'Acció Ràpida (Thumb Dock)**: Columna vertical a la dreta accessible amb el polze dret (`🎯 On sóc / Centrar`, `🧭 Rumb / Nord`, `⛰️ Toggle Altimetria`, `➕ / ➖ Zoom`).
-    - **Perfil d'Altimetria Semitransparent ClimbPro**: Targeta flotant translúcida (`rgba(15, 23, 42, 0.78)` + blur) que permet veure el mapa per darrere, amb botó ràpid de tancament (`✕`).
-    - **Alliberament visual**: Ara el **85-90% de la pantalla està lliure per al mapa**.
-  - [x] **Publicació a GitHub Pages**:
-    - Repositori remot connectat: `https://github.com/elCordones/trail-gps.git`
-    - Codi publicat a la branca `main`.
-    - URL de producció PWA: **`https://elcordones.github.io/trail-gps/`**
+  - [x] **Ajust de Pantalla Completa a iPhone (Eliminació de franja fosca inferior)**:
+    - Fixació de `html, body` i `#app-container` a `position: fixed` amb suport `100dvh` i `-webkit-fill-available`.
+    - Integració perfecta del mapa Leaflet ocupant el 100% de la pantalla física darrere de la barra d'inici (Home Indicator) d'iOS.
+    - Ancoratge de la barra inferior de cockpit al límit inferior de la pantalla amb padding dinàmic `max(env(safe-area-inset-bottom, 12px), 12px)`.
+  - [x] **Optimització de Transparència Real ClimbPro**:
+    - Fons ajustat a `rgba(15, 23, 42, 0.38)` amb blur lleuger (`8px`) i subtil vora cian `rgba(0, 229, 255, 0.35)` per veure clarament senders, camins i corbes de nivell del mapa per darrere.
+    - Gradient suau de l'SVG (`0.40` a `0.02`) que maximitza la translucidesa del terreny.
+  - [x] **Solució de Superposició i Posicionament**:
+    - Reubicació vertical del perfil ClimbPro i dels botons flotants (Thumb Dock) amb `bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px)`, quedant completament visibles per sobre del cockpit sense solapar-se.
+    - Sincronització intel·ligent amb el calaix d'eines (`drawer-open`): en obrir el calaix d'eines, el perfil ClimbPro i els botons llisquen suaument cap amunt.
+    - Correcció del sistema de coordenades viewBox (`0 0 400 50`) i posició del punt GPS de l'usuari sobre la gràfica.
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície d'usuari completament redissenyada, neta, àgil i optimitzada per a manillar.
-  - Codi pujat a GitHub; pendent activar Pages a la configuració del repositori per tenir la URL viva i instal·lar com a PWA a l'iPhone.
+  - Interfície PWA refinada al 100% per a iOS/iPhone (sense marges buits, amb ClimbPro realment transparent i perfectament ubicat).
+  - Canvis aplicats a [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) i [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html).
 
 ---
 
-## 3. Full de Ruta per a la Propera Sessió (Roadmap)
+## 3. Full de Ruta per a Properes Tasques (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [x] **Pujar codi a GitHub**: Repositori `elCordones/trail-gps` sincronitzat.
-  - [ ] **Activar GitHub Pages a GitHub Settings**: `Settings > Pages > Branch: main / (root)`.
-  - [ ] **Instal·lació PWA a l'iPhone**: Obrir `https://elcordones.github.io/trail-gps/` a Safari i afegir com a app autònoma a la pantalla d'inici.
-  - [ ] **Proves de camp**: Provar la navegació, el seguiment de track i la gravació REC en una sortida real en bicicleta.
-  - [ ] **Fase Nativa iOS (`trail-gps/` o Capacitor)**: Generar el paquet `.ipa` per a instal·lació per cable (Sideloadly / AltStore) o TestFlight d'Apple.
-- **Millores futures**:
-  - [ ] Connexió de sensors BLE de freqüència cardíaca, cadència o canvi electrònic (SRAM AXS / Shimano Di2).
-  - [ ] Mode d'estalvi de bateria *Screen Wake on Turn*.
+  - [ ] **Pujar canvis a GitHub** (`git commit & push`) perquè la PWA a GitHub Pages s'actualitzi automàticament.
+  - [ ] **Proves a Safari/iPhone** per validar la translucidesa i l'encaix de pantalla completa.
+  - [ ] **Fase Nativa iOS (`trail-gps/` o Capacitor)** o connexió de sensors BLE / Mode estalvi de bateria.

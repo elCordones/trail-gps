@@ -41,22 +41,35 @@
     }
 
     body, html {
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      height: -webkit-fill-available;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       background-color: var(--bg-dark);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       color: var(--text-main);
       user-select: none;
       -webkit-user-select: none;
+      -webkit-text-size-adjust: 100%;
     }
 
     #app-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      height: -webkit-fill-available;
+      overflow: hidden;
     }
 
     /* MAP CONTAINER */
@@ -64,6 +77,8 @@
       position: absolute;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
       z-index: 1;
@@ -234,12 +249,17 @@
     .map-floating-controls {
       position: absolute;
       right: 12px;
-      bottom: 82px;
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px);
       z-index: 8500;
       display: flex;
       flex-direction: column;
       gap: 8px;
       pointer-events: none;
+      transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .map-floating-controls.drawer-open {
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 165px);
     }
 
     .btn-float-action {
@@ -792,18 +812,22 @@
     /* ELEVATION PROFILE (SEMITRANSPARENT & FLOATING) */
     .elevation-container {
       position: absolute;
-      bottom: 80px;
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px);
       left: 12px;
       right: 70px;
       z-index: 8000;
-      background: rgba(15, 23, 42, 0.78);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1.5px solid rgba(51, 65, 85, 0.65);
+      background: rgba(15, 23, 42, 0.38);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(0, 229, 255, 0.35);
       border-radius: 16px;
       padding: 6px 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-      transition: all 0.25s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+
+    .elevation-container.drawer-open {
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 165px);
     }
 
     .elevation-header {
@@ -816,14 +840,15 @@
     .elevation-title {
       font-size: 8.5px;
       font-weight: 800;
-      color: var(--text-muted);
+      color: rgba(248, 250, 252, 0.75);
       letter-spacing: 0.8px;
     }
 
     .elevation-stats {
       font-size: 11px;
       font-weight: 800;
-      color: var(--text-main);
+      color: #FFFFFF;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
 
     .slope-badge {
@@ -833,12 +858,13 @@
       font-weight: 900;
       background: var(--accent-green);
       color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
 
     .btn-close-ele {
       background: transparent;
       border: none;
-      color: var(--text-muted);
+      color: rgba(248, 250, 252, 0.7);
       font-size: 14px;
       padding: 0 4px;
       cursor: pointer;
@@ -846,7 +872,7 @@
 
     #elevation-svg {
       width: 100%;
-      height: 44px;
+      height: 48px;
       overflow: visible;
     }
 
@@ -863,7 +889,7 @@
       border-top: 1.5px solid rgba(51, 65, 85, 0.85);
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      padding: 4px 14px max(env(safe-area-inset-bottom, 10px), 10px);
+      padding: 4px 14px max(env(safe-area-inset-bottom, 12px), 12px);
       box-shadow: 0 -8px 28px rgba(0,0,0,0.55);
       pointer-events: auto;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1416,16 +1442,16 @@
           <button id="btn-close-ele" class="btn-close-ele" title="Amagar perfil">✕</button>
         </div>
       </div>
-      <svg id="elevation-svg" viewBox="0 0 400 44" preserveAspectRatio="none">
+      <svg id="elevation-svg" viewBox="0 0 400 50" preserveAspectRatio="none">
         <defs>
           <linearGradient id="eleGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.45"/>
+            <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.40"/>
             <stop offset="100%" stop-color="var(--accent-cyan)" stop-opacity="0.02"/>
           </linearGradient>
         </defs>
         <path id="ele-fill-path" fill="url(#eleGrad)" d=""></path>
         <path id="ele-line-path" stroke="var(--accent-cyan)" stroke-width="2.5" fill="none" d=""></path>
-        <circle id="ele-user-dot" cx="0" cy="22" r="5" fill="var(--accent-cyan)" stroke="#FFFFFF" stroke-width="2"/>
+        <circle id="ele-user-dot" cx="0" cy="25" r="5" fill="var(--accent-cyan)" stroke="#FFFFFF" stroke-width="2"/>
       </svg>
     </div>
 
@@ -2469,11 +2495,11 @@
       const { points, minEle, maxEle } = track;
       const eleDiff = Math.max(20, maxEle - minEle);
       const width = 400;
-      const height = 65;
+      const height = 50;
 
       const svgPts = points.map((p, i) => {
         const x = (i / (points.length - 1)) * width;
-        const y = height - ((p.ele - minEle) / eleDiff) * (height - 16) - 5;
+        const y = height - ((p.ele - minEle) / eleDiff) * (height - 14) - 4;
         return { x, y };
       });
 
@@ -2535,7 +2561,7 @@
 
       const dotX = (progress / 100) * 400;
       const eleDiff = Math.max(20, track.maxEle - track.minEle);
-      const dotY = 65 - ((nearestPt.ele - track.minEle) / eleDiff) * 48 - 5;
+      const dotY = 50 - ((nearestPt.ele - track.minEle) / eleDiff) * (50 - 14) - 4;
       const dotEl = document.getElementById('ele-user-dot');
       dotEl.setAttribute('cx', dotX);
       dotEl.setAttribute('cy', dotY);
@@ -2740,6 +2766,8 @@
     function toggleDrawer() {
       const drawer = document.getElementById('tools-drawer');
       const chevron = document.getElementById('drawer-chevron');
+      const ele = document.getElementById('elevation-container');
+      const floatCtrls = document.querySelector('.map-floating-controls');
       if (!drawer) return;
       const isOpen = drawer.classList.contains('open');
       if (isOpen) {
@@ -2747,14 +2775,20 @@
       } else {
         drawer.classList.add('open');
         if (chevron) chevron.textContent = '▼';
+        if (ele) ele.classList.add('drawer-open');
+        if (floatCtrls) floatCtrls.classList.add('drawer-open');
       }
     }
 
     function closeDrawer() {
       const drawer = document.getElementById('tools-drawer');
       const chevron = document.getElementById('drawer-chevron');
+      const ele = document.getElementById('elevation-container');
+      const floatCtrls = document.querySelector('.map-floating-controls');
       if (drawer) drawer.classList.remove('open');
       if (chevron) chevron.textContent = '▲';
+      if (ele) ele.classList.remove('drawer-open');
+      if (floatCtrls) floatCtrls.classList.remove('drawer-open');
     }
 
     // --- ATTACH EVENT LISTENERS (CROSS-PLATFORM & IOS SAFE) ---
