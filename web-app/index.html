@@ -249,29 +249,29 @@
     .map-floating-controls {
       position: absolute;
       right: 12px;
-      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px);
+      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 84px);
       z-index: 8500;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
       transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .map-floating-controls.drawer-open {
-      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 165px);
+      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 210px);
     }
 
     .btn-float-action {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1.5px solid var(--card-border);
-      border-radius: 15px;
+      border-radius: 14px;
       color: var(--text-main);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -299,8 +299,9 @@
 
     .btn-zoom {
       width: 44px;
-      height: 40px;
+      height: 38px;
       font-size: 20px;
+      font-weight: 900;
       border-radius: 12px;
     }
 
@@ -812,9 +813,9 @@
     /* ELEVATION PROFILE (SEMITRANSPARENT & FLOATING) */
     .elevation-container {
       position: absolute;
-      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px);
+      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 84px);
       left: 12px;
-      right: 70px;
+      right: 66px;
       z-index: 8000;
       background: rgba(15, 23, 42, 0.38);
       backdrop-filter: blur(8px);
@@ -827,7 +828,7 @@
     }
 
     .elevation-container.drawer-open {
-      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 165px);
+      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 210px);
     }
 
     .elevation-header {
@@ -889,7 +890,7 @@
       border-top: 1.5px solid rgba(51, 65, 85, 0.85);
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      padding: 4px 14px max(env(safe-area-inset-bottom, 12px), 12px);
+      padding: 3px 14px max(env(safe-area-inset-bottom, 8px), 8px);
       box-shadow: 0 -8px 28px rgba(0,0,0,0.55);
       pointer-events: auto;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1022,21 +1023,17 @@
 
     /* EXPANDABLE TOOLS DRAWER */
     .tools-drawer-content {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      display: grid;
+      display: none;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-    }
-
-    .tools-drawer-content.open {
-      max-height: 240px;
-      opacity: 1;
       margin-top: 8px;
       padding-top: 8px;
       border-top: 1px solid rgba(51, 65, 85, 0.6);
+      animation: fadeInDown 0.18s ease;
+    }
+
+    .tools-drawer-content.open {
+      display: grid !important;
     }
 
     .drawer-btn {

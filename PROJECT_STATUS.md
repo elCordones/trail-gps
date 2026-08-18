@@ -28,20 +28,20 @@
 ## 2. Estat Actual i Punt de Control (Sessió: 18/08/2026)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Ajust de Pantalla Completa a iPhone (Eliminació de franja fosca inferior)**:
+  - [x] **Ajust de Pantalla Completa i Eliminació de la Franja Fosca Inferior**:
+    - Identificat i resolt el bug de WebKit/Safari on el calaix d'eines (`tools-drawer-content`) amb CSS Grid ocupava espai fantasma invisible (~110px) fins i tot amb `max-height: 0`.
+    - Canviat a `display: none` per defecte i `display: grid` només en `.open`, aconseguint que el cockpit inferior sigui autènticament compacte (només ~76px) i alliberant tot l'espai buit inferior.
     - Fixació de `html, body` i `#app-container` a `position: fixed` amb suport `100dvh` i `-webkit-fill-available`.
-    - Integració perfecta del mapa Leaflet ocupant el 100% de la pantalla física darrere de la barra d'inici (Home Indicator) d'iOS.
-    - Ancoratge de la barra inferior de cockpit al límit inferior de la pantalla amb padding dinàmic `max(env(safe-area-inset-bottom, 12px), 12px)`.
   - [x] **Optimització de Transparència Real ClimbPro**:
     - Fons ajustat a `rgba(15, 23, 42, 0.38)` amb blur lleuger (`8px`) i subtil vora cian `rgba(0, 229, 255, 0.35)` per veure clarament senders, camins i corbes de nivell del mapa per darrere.
     - Gradient suau de l'SVG (`0.40` a `0.02`) que maximitza la translucidesa del terreny.
-  - [x] **Solució de Superposició i Posicionament**:
-    - Reubicació vertical del perfil ClimbPro i dels botons flotants (Thumb Dock) amb `bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 90px)`, quedant completament visibles per sobre del cockpit sense solapar-se.
-    - Sincronització intel·ligent amb el calaix d'eines (`drawer-open`): en obrir el calaix d'eines, el perfil ClimbPro i els botons llisquen suaument cap amunt.
-    - Correcció del sistema de coordenades viewBox (`0 0 400 50`) i posició del punt GPS de l'usuari sobre la gràfica.
+  - [x] **Ajust del Botó de Zoom i Thumb Dock**:
+    - Redimensionats els botons flotants de polze a 44px/38px amb separació de 6px.
+    - Reubicats a `bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 84px)` garantint una separació neta i elegant respecte a la barra d'eines inferior.
+    - Animació dinàmica sincronitzada amb el calaix d'eines (`drawer-open`).
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície PWA refinada al 100% per a iOS/iPhone (sense marges buits, amb ClimbPro realment transparent i perfectament ubicat).
+  - Interfície PWA 100% compacta, neta i sense espais buits residuals a l'iPhone.
   - Canvis aplicats a [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) i [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html).
 
 ---
