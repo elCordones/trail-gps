@@ -40,14 +40,23 @@
       -webkit-touch-callout: none;
     }
 
-    body, html {
+    html {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+    }
+
+    body {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      height: -webkit-fill-available;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -60,15 +69,13 @@
     }
 
     #app-container {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      height: -webkit-fill-available;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
     }
 
@@ -1816,6 +1823,17 @@
       requestWakeLock();
       initRideStatsTimer();
       renderRoutesHistoryList();
+
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 200);
+
+      window.addEventListener('resize', () => {
+        if (map) map.invalidateSize();
+      });
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+      });
     }
 
     // --- SCREEN WAKE LOCK API ---
