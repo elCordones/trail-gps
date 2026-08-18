@@ -2952,16 +2952,22 @@
         }
       });
 
-      // Full Stats Dashboard Modal
+      // Full Stats Dashboard Modal (Toggle on Cockpit Tap)
       const statsModal = document.getElementById('stats-modal');
       bindAction('hud-card-main', () => {
+        const isVisible = statsModal.style.display === 'flex';
         closeAllModals();
-        statsModal.style.display = 'flex';
+        if (!isVisible) {
+          statsModal.style.display = 'flex';
+        }
       });
 
       bindAction('btn-open-stats', () => {
+        const isVisible = statsModal.style.display === 'flex';
         closeAllModals();
-        statsModal.style.display = 'flex';
+        if (!isVisible) {
+          statsModal.style.display = 'flex';
+        }
       });
 
       // Map layer options

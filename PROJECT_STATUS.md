@@ -36,12 +36,13 @@
     - Això deixa més de **200px de distància neta de mapa lliure per sobre del cockpit**, fent físicament impossible cap contacte o solapament visual entre el botó de zoom `−` i la part inferior.
   - [x] **Transparència Cristal·lina ClimbPro i Simplificació de la Barra Superior**:
     - Fons de la targeta d'altimetria ajustat a `rgba(15, 23, 42, 0.28)` amb blur lleuger (`8px`) i gradient SVG de baixa densitat (`0.22` a `0.01`) per permetre la visió nítida dels camins i senders per sota del gràfic.
-    - Eliminat el botó redundant `⚡ Eines` de la barra superior: ara només queda al Cockpit inferior (ergonomia òptima per a ús amb polze), deixant la barra superior completament neta amb només el logotip/GPS i el botó `REC`.
+  - [x] **Comportament Bidireccional (Toggle) del Ciclocomputador al Cockpit**:
+    - Ara en tocar el Cockpit (mètriques de velocitat, distància o desviació), el panell de telemetria completa (`#stats-modal`) s'obre si estava tancat, i **es tanca automàticament si ja estava obert**, sense obligar l'usuari a tocar la `✕` superior.
   - [x] **Sincronització de Fitxers i Codi**:
     - Totes les millores s'han aplicat i verificat tant a `index.html` com a `web-app/index.html`.
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície d'usuari ultra-neta, amb ClimbPro d'alta transparència, controls ergonòmics i codi validat sense errors de sintaxi.
+  - Interfície d'usuari ultra-neta, amb ClimbPro translúcid, controls ergonòmics, commutador ràpid de telemetria al cockpit i codi validat.
   - Codi pujat a GitHub (`elCordones/trail-gps`).
 
 ---
