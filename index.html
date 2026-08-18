@@ -61,20 +61,20 @@
       left: 0;
       right: 0;
       bottom: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
     }
 
-    /* MAP CONTAINER (Oversized to guarantee edge-to-edge rendering beyond safe areas) */
+    /* MAP CONTAINER */
     #map {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      bottom: -120px;
+      bottom: 0;
       width: 100%;
-      height: calc(100% + 120px);
+      height: 100%;
       z-index: 1;
       background-color: var(--bg-dark);
     }
@@ -837,7 +837,7 @@
     /* ELEVATION PROFILE (CLIMBPRO CARD) */
     .elevation-container {
       position: absolute;
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 66px);
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 72px);
       left: 12px;
       right: 12px;
       max-width: 440px;
@@ -934,7 +934,7 @@
     /* COCKPIT FLOATING ISLAND HUD (COMPACT & MODERN) */
     .cockpit-dock {
       position: absolute;
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 4px);
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 8px);
       left: 12px;
       right: 12px;
       max-width: 440px;
