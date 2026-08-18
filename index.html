@@ -849,13 +849,13 @@
       max-width: 440px;
       margin: 0 auto;
       z-index: 8000;
-      background: rgba(15, 23, 42, 0.72);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1.5px solid rgba(0, 229, 255, 0.38);
+      background: rgba(15, 23, 42, 0.28);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(0, 229, 255, 0.35);
       border-radius: 18px;
       padding: 8px 12px 6px 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
       transition: opacity 0.25s ease;
     }
 
@@ -1210,9 +1210,6 @@
         <button id="btn-rec" class="btn-top btn-rec" title="Gravar recorregut propi en directe">
           <span>⏺️</span> <span id="rec-btn-text">REC</span>
         </button>
-        <button id="btn-top-drawer" class="btn-top" title="Desplegar menú d'eines">
-          <span>⚡</span> Eines
-        </button>
       </div>
     </div>
 
@@ -1492,8 +1489,8 @@
         <svg id="elevation-svg" viewBox="0 0 360 65" preserveAspectRatio="none">
           <defs>
             <linearGradient id="eleGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.45"/>
-              <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.03"/>
+              <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.01"/>
             </linearGradient>
           </defs>
           <!-- Grid Guide Lines -->
@@ -2851,17 +2848,14 @@
       document.getElementById('btn-offline')?.classList.remove('active');
       document.getElementById('btn-waypoints')?.classList.remove('active');
       document.getElementById('btn-routes-lib')?.classList.remove('active');
-      document.getElementById('btn-top-drawer')?.classList.remove('active');
     }
 
     function toggleToolsModal() {
       const modal = document.getElementById('tools-modal');
-      const btn = document.getElementById('btn-top-drawer');
       const isVisible = modal.style.display === 'flex';
       closeAllModals();
       if (!isVisible) {
         modal.style.display = 'flex';
-        btn?.classList.add('active');
       }
     }
 
@@ -2878,7 +2872,6 @@
       }
 
       // Tools Sheet Toggles
-      bindAction('btn-top-drawer', toggleToolsModal);
       bindAction('btn-open-tools-drawer', toggleToolsModal);
 
       bindAction('btn-sim', toggleSimulator);

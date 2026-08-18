@@ -34,24 +34,21 @@
   - [x] **Separació Total i Redisseny dels Controls de Zoom (Pastilla Connectada al Centre Dret)**:
     - Els controls flotants (🎯 On sóc, 🧭 Rumb/Nord, ⛰️ ClimbPro) i la nova pastilla unificada de zoom `[ + | − ]` s'han situat al **centre vertical dret de la pantalla (`top: 48%; transform: translateY(-50%)`)**.
     - Això deixa més de **200px de distància neta de mapa lliure per sobre del cockpit**, fent físicament impossible cap contacte o solapament visual entre el botó de zoom `−` i la part inferior.
-  - [x] **Redisseny Integral del Perfil d'Altimetria ClimbPro**:
-    - Format panoràmic flotant centrat (`left: 12px; right: 12px; max-width: 440px;`) situat just a sobre del cockpit.
-    - Vidre fumat translúcid (`rgba(15, 23, 42, 0.72)`) amb `backdrop-filter: blur(14px)` que permet veure el mapa i els senders per darrere.
-    - Càlcul precís del desnivell positiu acumulat del track (`totalAscent`) i visualització clara a la capçalera: `⛰️ CLIMBPRO ▲ +435m • 160→595m`.
-    - Línies de referència de cota màxima i mínima, eix de distàncies (`0 km`, `2.3 km`, `4.6 km`), guia vertical sincronitzada i punt d'usuari interactiu.
-    - Badge de pendent dinàmic per colors de dificultat (Verd per pla/suau, Groc moderat, Taronja fort, Vermell dur i Blau cel per a baixades).
+  - [x] **Transparència Cristal·lina ClimbPro i Simplificació de la Barra Superior**:
+    - Fons de la targeta d'altimetria ajustat a `rgba(15, 23, 42, 0.28)` amb blur lleuger (`8px`) i gradient SVG de baixa densitat (`0.22` a `0.01`) per permetre la visió nítida dels camins i senders per sota del gràfic.
+    - Eliminat el botó redundant `⚡ Eines` de la barra superior: ara només queda al Cockpit inferior (ergonomia òptima per a ús amb polze), deixant la barra superior completament neta amb només el logotip/GPS i el botó `REC`.
   - [x] **Sincronització de Fitxers i Codi**:
     - Totes les millores s'han aplicat i verificat tant a `index.html` com a `web-app/index.html`.
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície d'usuari totalment polida i optimitzada per a l'iPhone (Safari i PWA autònoma).
-  - Codi a punt per fer commit i pujar a GitHub (`elCordones/trail-gps`).
+  - Interfície d'usuari ultra-neta, amb ClimbPro d'alta transparència, controls ergonòmics i codi validat sense errors de sintaxi.
+  - Codi pujat a GitHub (`elCordones/trail-gps`).
 
 ---
 
 ## 3. Full de Ruta per a Properes Tasques (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **Pujar canvis a GitHub** (`git commit & push`) per actualitzar GitHub Pages.
-  - [ ] **Validació final a l'iPhone** en condicions reals de manillar.
-  - [ ] **Integració de funcionalitats complementàries**: sensors de cadència/polímetre Bluetooth BLE o exportació avançada de sessions gravades.
+  - [ ] **Validació visual a l'iPhone (Safari i PWA autònoma)**.
+  - [ ] **Ajust de configuració de pestanyes a Safari** (*Ajustos > Safari > Pestanya única a dalt*) si es vol eliminar la barra inferior nativa de Safari en navegar per web.
+  - [ ] **Fase de telemetria avançada**: sensors BLE o millores en el seguiment en segon pla.
