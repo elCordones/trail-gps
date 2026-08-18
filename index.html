@@ -2954,21 +2954,28 @@
 
       // Full Stats Dashboard Modal (Toggle on Cockpit Tap)
       const statsModal = document.getElementById('stats-modal');
-      bindAction('hud-card-main', () => {
-        const isVisible = statsModal.style.display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
-          statsModal.style.display = 'flex';
-        }
-      });
+      const cockpitDock = document.getElementById('cockpit-dock');
 
-      bindAction('btn-open-stats', () => {
-        const isVisible = statsModal.style.display === 'flex';
+      function toggleStatsModal(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        const isVisible = statsModal.style.display === 'flex' || window.getComputedStyle(statsModal).display === 'flex';
         closeAllModals();
         if (!isVisible) {
           statsModal.style.display = 'flex';
         }
-      });
+      }
+
+      if (cockpitDock) {
+        cockpitDock.addEventListener('click', (e) => {
+          if (e.target.closest('#btn-open-tools-drawer')) return;
+          toggleStatsModal(e);
+        });
+      }
+
+      bindAction('btn-open-stats', toggleStatsModal);
 
       // Map layer options
       document.querySelectorAll('.layer-option').forEach(opt => {
@@ -3083,7 +3090,7 @@
       // Close modal on tap outside
       document.addEventListener('click', (e) => {
         const openModal = document.querySelector('.app-modal[style*="display: flex"]');
-        if (openModal && !openModal.contains(e.target) && !e.target.closest('.btn-top') && !e.target.closest('.drawer-btn') && !e.target.closest('#hud-card-main') && !e.target.closest('.btn-dock-tools')) {
+        if (openModal && !openModal.contains(e.target) && !e.target.closest('.btn-top') && !e.target.closest('.drawer-btn') && !e.target.closest('#cockpit-dock') && !e.target.closest('.btn-dock-tools')) {
           closeAllModals();
         }
       });
