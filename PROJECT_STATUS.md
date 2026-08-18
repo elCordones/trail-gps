@@ -25,31 +25,36 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Sessió: 18/08/2026)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 18/08/2026)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Eliminació definitiva de la Franja Fosca Inferior (Cockpit Nano-Dock 52px)**:
-    - S'ha extret el panell d'eines de l'interior del Cockpit cap a un **Action Sheet Modal independent (`#tools-modal`)**, evitant reserves d'espai buit o alçades fantasma.
-    - El Cockpit s'ha convertit en una nano-càpsula flotant d'alçada ultra-ajustada (`52px`), amb cantonades arrodonides (`18px`), línia superior de progrés en temps real (`#cockpit-progress-fill`) i 3 mètriques clau (*Velocitat*, *Restant*, *Al Track* en verd/vermell) més botó `⚡ Eines`.
+  - [x] **Redisseny del Cockpit a Nano-Càpsula Flotant (52px)**:
+    - Extracció del calaix d'eines cap a un **Action Sheet Modal independent (`#tools-modal`)**, evitant reserves d'espai buit o alçades fantasma.
+    - Càpsula flotant ergonòmica amb línia de progrés cian neó (`#cockpit-progress-fill`) i 3 mètriques clau (*Velocitat*, *Restant*, *Al Track* en verd/vermell) amb accés directe `⚡ Eines`.
   - [x] **Separació Total i Redisseny dels Controls de Zoom (Pastilla Connectada al Centre Dret)**:
-    - Els controls flotants (🎯 On sóc, 🧭 Rumb/Nord, ⛰️ ClimbPro) i la nova pastilla unificada de zoom `[ + | − ]` s'han situat al **centre vertical dret de la pantalla (`top: 48%; transform: translateY(-50%)`)**.
-    - Això deixa més de **200px de distància neta de mapa lliure per sobre del cockpit**, fent físicament impossible cap contacte o solapament visual entre el botó de zoom `−` i la part inferior.
+    - Els controls flotants (🎯 On sóc, 🧭 Rumb/Nord, ⛰️ ClimbPro) i la nova pastilla unificada de zoom `[ + | − ]` s'han situat al **centre vertical dret (`top: 48%; transform: translateY(-50%)`)**.
+    - Distància lliure de mapa de més de 200px sobre el cockpit inferior (0% col·lisions visuals).
   - [x] **Transparència Cristal·lina ClimbPro i Simplificació de la Barra Superior**:
-    - Fons de la targeta d'altimetria ajustat a `rgba(15, 23, 42, 0.28)` amb blur lleuger (`8px`) i gradient SVG de baixa densitat (`0.22` a `0.01`) per permetre la visió nítida dels camins i senders per sota del gràfic.
-  - [x] **Comportament Bidireccional (Toggle) del Ciclocomputador al Cockpit**:
-    - Ara en tocar el Cockpit (mètriques de velocitat, distància o desviació), el panell de telemetria completa (`#stats-modal`) s'obre si estava tancat, i **es tanca automàticament si ja estava obert**, sense obligar l'usuari a tocar la `✕` superior.
-  - [x] **Sincronització de Fitxers i Codi**:
-    - Totes les millores s'han aplicat i verificat tant a `index.html` com a `web-app/index.html`.
+    - Fons de la targeta d'altimetria ajustat a `rgba(15, 23, 42, 0.28)` amb blur lleuger (`8px`) i gradient SVG atenuat (`0.22` a `0.01`) per permetre veure senders i camins per sota de la corba.
+    - Eliminat el botó redundant `⚡ Eines` de la barra superior, deixant-la completament neta amb només el logotip/GPS i el botó `REC`.
+  - [x] **Ajust del Layout de Pantalla Completa per a iOS (Safari i PWA)**:
+    - Eliminació de restriccions `100vh` que provocaven talls a la part inferior en mode autònom a iPhone.
+  - [x] **Sincronització de Codi i Validació**:
+    - `index.html` i `web-app/index.html` sincronitzats al 100%, validats sense errors de sintaxi JS i pujats a GitHub Pages (`main`).
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície d'usuari ultra-neta, amb ClimbPro translúcid, controls ergonòmics, commutador ràpid de telemetria al cockpit i codi validat.
-  - Codi pujat a GitHub (`elCordones/trail-gps`).
+  - Interfície d'usuari (ClimbPro, pastilla de zoom i cockpit nano-dock) visualment polida i integrada.
+  - Pendent d'investigar i redissenyar una interacció més còmoda i directa per tancar el panell de telemetria/ciclocomputador a iPhone (com un gest de lliscament cap avall *swipe down*, un botó d'amagar gran o un toc a qualsevol zona del mapa).
 
 ---
 
-## 3. Full de Ruta per a Properes Tasques (Roadmap)
+## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **Validació visual a l'iPhone (Safari i PWA autònoma)**.
-  - [ ] **Ajust de configuració de pestanyes a Safari** (*Ajustos > Safari > Pestanya única a dalt*) si es vol eliminar la barra inferior nativa de Safari en navegar per web.
-  - [ ] **Fase de telemetria avançada**: sensors BLE o millores en el seguiment en segon pla.
+  - [ ] **Mètode de Tancament Fàcil del Ciclocomputador a Manillar**:
+    - Dissenyar una alternativa tàctil ergonòmica (p. ex. gest de lliscament cap avall *swipe to dismiss*, botó flotant inferior d'amagar o tancament immediat tocant fora a qualsevol punt del mapa).
+  - [ ] **Validació de la navegació en ruta real amb track GPX**.
+  - [ ] **Alertes Sonores i Vibració en Girs / Desviacions de Track**:
+    - Notificacions acústiques clares quan el ciclista se separa més de 25m del traçat.
+  - [ ] **Telemetria Avançada i Sensors Bluetooth BLE**:
+    - Connexió amb sensors de banda cardíaca i cadència via Web Bluetooth API.
