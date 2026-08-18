@@ -939,7 +939,7 @@
       right: 12px;
       max-width: 440px;
       margin: 0 auto;
-      z-index: 9000;
+      z-index: 10005;
       background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -2855,11 +2855,19 @@
       document.getElementById('btn-routes-lib')?.classList.remove('active');
     }
 
-    function toggleToolsModal() {
+    function toggleToolsModal(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const modal = document.getElementById('tools-modal');
-      const isVisible = modal.style.display === 'flex';
-      closeAllModals();
-      if (!isVisible) {
+      if (!modal) return;
+      const isCurrentlyOpen = modal.style.display === 'flex' || (!modal.style.display && window.getComputedStyle(modal).display === 'flex');
+      
+      if (isCurrentlyOpen) {
+        modal.style.display = 'none';
+      } else {
+        closeAllModals();
         modal.style.display = 'flex';
       }
     }
@@ -2961,9 +2969,13 @@
           e.preventDefault();
           e.stopPropagation();
         }
-        const isVisible = statsModal.style.display === 'flex' || window.getComputedStyle(statsModal).display === 'flex';
-        closeAllModals();
-        if (!isVisible) {
+        if (!statsModal) return;
+        const isCurrentlyOpen = statsModal.style.display === 'flex' || (!statsModal.style.display && window.getComputedStyle(statsModal).display === 'flex');
+        
+        if (isCurrentlyOpen) {
+          statsModal.style.display = 'none';
+        } else {
+          closeAllModals();
           statsModal.style.display = 'flex';
         }
       }
