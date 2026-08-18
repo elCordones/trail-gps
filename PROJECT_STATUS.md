@@ -53,9 +53,17 @@
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **Alertes Sonores i Vibració en Girs / Desviacions de Track**:
+  - [ ] **🎨 Disseny d'Icona i Favicon Professional (PWA & App Nativa)**:
+    - Disseny vectorial modern i distintiu (fletxa delta / muntanya / ciclisme tech).
+    - Generació d'assets per a PWA (`apple-touch-icon`, `favicon.svg`, `favicon.png`, `manifest.json`).
+    - Paquet d'icones per a App Store i Expo / React Native (`icon.png`, `adaptive-icon.png`, `splash.png`).
+  - [ ] **🔊 Alertes Sonores i Vibració en Girs / Desviacions de Track**:
     - Notificacions acústiques clares (Web Audio API) en separar-se més de 25m del traçat i en recuperar la ruta.
-  - [ ] **Telemetria Avançada i Sensors Bluetooth BLE**:
+  - [ ] **💓 Telemetria Avançada i Sensors Bluetooth BLE**:
     - Connexió amb sensors de banda cardíaca (HRM) i cadència via Web Bluetooth API.
+  - [ ] **🍏 Sincronització amb Apple Salut & Entrenaments (Apple HealthKit)**:
+    - Integració a la versió nativa per desar automàticament les sessions de ciclisme a Apple Health / Fitness (freqüència cardíaca, desnivell +D, velocitats, calories actives i distància).
+  - [ ] **⌚ Interacció i Pantalla Remota amb Apple Watch (watchOS)**:
+    - Companion app / HUD al canell per visualitzar telemetria clau en directe i rebre vibracions hàptiques en desviacions de track o girs imminents.
   - [ ] **Validació de la navegació en ruta real amb track GPX**.
   - [ ] **Portabilitat a l'App Nativa (`trail-gps` - Expo / React Native)**.

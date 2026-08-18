@@ -116,8 +116,17 @@ npx cloudflared tunnel --url http://127.0.0.1:3000
 ## 📝 5. Full de Ruta per a Futures Sessions (Roadmap Pendent)
 
 - [x] **Fases 1 a 6:** Navegació, fletxa direccional, 5 capes de mapa, perfil ClimbPro, geolocalització iOS, descàrrega offline, gravador REC, waypoints i ciclocomputador.
-- [ ] **Fase 7: Prova de camp i portabilitat a React Native (`trail-gps`):**
-  - Portar les noves eines de gravació i waypoints al projecte Expo si es vol compilar `.ipa`.
-- [ ] **Fase 8: Telemetria Avançada i Sensors Bluetooth (Opcional):**
-  - Connexió de sensors BLE de freqüència cardíaca (banda de pit), cadència o canvi electrònic (SRAM AXS / Shimano Di2).
+- [x] **Fase 6.2 (UI & Tàctil):** Redisseny del nano-dock de 52px, pastilla de zoom dreta, perfil ClimbPro d'alta transparència, motor de gestos *Swipe-to-Dismiss*, fons backdrop i botons amples d'amagar.
+- [ ] **Fase 7: Disseny d'Icona & Identitat Visual (PWA / App Store):**
+  - Creació de la icona oficial i favicon professional (fletxa delta / muntanya tech) en SVG, PNG d'alta resolució, `apple-touch-icon` per a pantalla d'inici iOS i `manifest.json`.
+  - Icona nativa per al paquet Expo / React Native (`icon.png`, `adaptive-icon.png`, `splash.png`).
+- [ ] **Fase 8: Alertes Acústiques & Hàptiques Dinàmiques:**
+  - Sons i notificacions per a desviacions de ruta (>25m / >40m), retorn a traçat i proximitat a waypoints.
+- [ ] **Fase 9: Telemetria Avançada i Sensors Bluetooth (BLE):**
+  - Connexió de sensors BLE de freqüència cardíaca (banda de pit), cadència de pedaleig o canvi electrònic (SRAM AXS / Shimano Di2).
   - Mode d'estalvi de bateria *Screen Wake on Turn*.
+- [ ] **Fase 10: Integració amb l'Ecosistema Apple (HealthKit & Apple Watch):**
+  - Sincronització automàtica de sortides amb **Apple Salut / Entrenaments** (freqüència cardíaca, calories, +D, velocitats, distància).
+  - **Companion App per a Apple Watch (watchOS)**: Pantalla de telemetria al canell i alertes hàptiques de gir o pèrdua de camí.
+- [ ] **Fase 11: Portabilitat a React Native / Expo (`trail-gps`):**
+  - Sincronització de mòduls natius per compilar i generar paquet instal·lable `.ipa`.
