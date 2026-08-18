@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 17 d'agost de 2026 (Tancament de sessió)  
-> **Estat general:** Versió PWA v2.0 completada, redissenyada per a manillar, blindada amb llicències GNU AGPLv3/CC BY-SA 4.0 i publicada a GitHub Pages (`https://elcordones.github.io/trail-gps/`)
+> **Darrera actualització:** 18 d'agost de 2026 (Redisseny Integral UI Manillar & ClimbPro v2.1)  
+> **Estat general:** Versió PWA v2.1 completada, arquitectura de capes i controls reorganitzada per a iPhone (pantalla completa sense franges), pastilla de zoom flotant al centre dret, càpsula nano-dock de 52px i perfil d'altimetria ClimbPro professional amb càlcul de desnivell acumulat i telemetria per colors de pendent.
 
 ---
 
@@ -28,26 +28,30 @@
 ## 2. Estat Actual i Punt de Control (Sessió: 18/08/2026)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Redisseny del Cockpit com a Illa Flotant Arrodonida (Eliminació definitiva del peu de pantalla fosc)**:
-    - En lloc d'un bloc sòlid fixat a `bottom: 0`, el Cockpit s'ha transformat en una **targeta/illa flotant** amb cantonades 100% arrodonides (`20px`), marges laterals (`12px`) i separada de la base del vidre (`bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 4px)`).
-    - El mapa Leaflet ara és visible tot al voltant i per sota del Cockpit, eliminant completament la sensació de "franja fosca" o barra tallada a la part inferior d'iOS tant a Safari com en mode App PWA autònoma.
-  - [x] **Optimització de Transparència Real ClimbPro**:
-    - Fons ajustat a `rgba(15, 23, 42, 0.38)` amb blur lleuger (`8px`) i subtil vora cian `rgba(0, 229, 255, 0.35)` per veure clarament senders, camins i corbes de nivell del mapa per darrere.
-    - Gradient suau de l'SVG (`0.40` a `0.02`) que maximitza la translucidesa del terreny.
-  - [x] **Separació Neta del Botó de Zoom (`−`) i Thumb Dock**:
-    - Botons de polze compactats a 42px/36px amb separació de 6px.
-    - Posició vertical elevada que garanteix **22px nets de mapa visible entre el botó `−` i la part superior del Cockpit**, evitant qualsevol contacte o solapament.
-    - Sincronització fluida amb l'obertura del calaix d'eines (`drawer-open`).
+  - [x] **Eliminació definitiva de la Franja Fosca Inferior (Cockpit Nano-Dock 52px)**:
+    - S'ha extret el panell d'eines de l'interior del Cockpit cap a un **Action Sheet Modal independent (`#tools-modal`)**, evitant reserves d'espai buit o alçades fantasma.
+    - El Cockpit s'ha convertit en una nano-càpsula flotant d'alçada ultra-ajustada (`52px`), amb cantonades arrodonides (`18px`), línia superior de progrés en temps real (`#cockpit-progress-fill`) i 3 mètriques clau (*Velocitat*, *Restant*, *Al Track* en verd/vermell) més botó `⚡ Eines`.
+  - [x] **Separació Total i Redisseny dels Controls de Zoom (Pastilla Connectada al Centre Dret)**:
+    - Els controls flotants (🎯 On sóc, 🧭 Rumb/Nord, ⛰️ ClimbPro) i la nova pastilla unificada de zoom `[ + | − ]` s'han situat al **centre vertical dret de la pantalla (`top: 48%; transform: translateY(-50%)`)**.
+    - Això deixa més de **200px de distància neta de mapa lliure per sobre del cockpit**, fent físicament impossible cap contacte o solapament visual entre el botó de zoom `−` i la part inferior.
+  - [x] **Redisseny Integral del Perfil d'Altimetria ClimbPro**:
+    - Format panoràmic flotant centrat (`left: 12px; right: 12px; max-width: 440px;`) situat just a sobre del cockpit.
+    - Vidre fumat translúcid (`rgba(15, 23, 42, 0.72)`) amb `backdrop-filter: blur(14px)` que permet veure el mapa i els senders per darrere.
+    - Càlcul precís del desnivell positiu acumulat del track (`totalAscent`) i visualització clara a la capçalera: `⛰️ CLIMBPRO ▲ +435m • 160→595m`.
+    - Línies de referència de cota màxima i mínima, eix de distàncies (`0 km`, `2.3 km`, `4.6 km`), guia vertical sincronitzada i punt d'usuari interactiu.
+    - Badge de pendent dinàmic per colors de dificultat (Verd per pla/suau, Groc moderat, Taronja fort, Vermell dur i Blau cel per a baixades).
+  - [x] **Sincronització de Fitxers i Codi**:
+    - Totes les millores s'han aplicat i verificat tant a `index.html` com a `web-app/index.html`.
 
 - **Punt exacte on ens hem quedat**:
-  - Interfície PWA redissenyada amb Cockpit flotant, ClimbPro translúcid i màxima llibertat per al mapa sense cap franja bloquejant la pantalla.
-  - Canvis aplicats a [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) i [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html).
+  - Interfície d'usuari totalment polida i optimitzada per a l'iPhone (Safari i PWA autònoma).
+  - Codi a punt per fer commit i pujar a GitHub (`elCordones/trail-gps`).
 
 ---
 
 ## 3. Full de Ruta per a Properes Tasques (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **Pujar canvis a GitHub** (`git commit & push`) perquè la PWA a GitHub Pages s'actualitzi automàticament.
-  - [ ] **Proves a Safari/iPhone** per validar la translucidesa i l'encaix de pantalla completa.
-  - [ ] **Fase Nativa iOS (`trail-gps/` o Capacitor)** o connexió de sensors BLE / Mode estalvi de bateria.
+  - [ ] **Pujar canvis a GitHub** (`git commit & push`) per actualitzar GitHub Pages.
+  - [ ] **Validació final a l'iPhone** en condicions reals de manillar.
+  - [ ] **Integració de funcionalitats complementàries**: sensors de cadència/polímetre Bluetooth BLE o exportació avançada de sessions gravades.

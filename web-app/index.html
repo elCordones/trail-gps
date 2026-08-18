@@ -245,31 +245,28 @@
       color: #FFFFFF;
     }
 
-    /* FLOATING MAP THUMB CONTROLS (RIGHT DOCK - GLOVE FRIENDLY) */
+    /* FLOATING MAP THUMB CONTROLS (VERTICAL CENTER RIGHT) */
     .map-floating-controls {
       position: absolute;
       right: 12px;
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 82px);
+      top: 48%;
+      transform: translateY(-50%);
       z-index: 8500;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      gap: 7px;
       pointer-events: none;
-      transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .map-floating-controls.drawer-open {
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 215px);
     }
 
     .btn-float-action {
       width: 42px;
       height: 42px;
-      background: var(--card-bg);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1.5px solid var(--card-border);
-      border-radius: 13px;
+      border: 1.5px solid rgba(51, 65, 85, 0.9);
+      border-radius: 14px;
       color: var(--text-main);
       font-size: 18px;
       font-weight: 800;
@@ -297,12 +294,45 @@
       box-shadow: 0 0 14px rgba(0, 229, 255, 0.45);
     }
 
-    .btn-zoom {
+    /* CONNECTED ZOOM PILL */
+    .zoom-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       width: 42px;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(51, 65, 85, 0.9);
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    .btn-zoom-part {
+      width: 100%;
       height: 36px;
-      font-size: 19px;
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      font-size: 20px;
       font-weight: 900;
-      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-zoom-part:active {
+      background: rgba(2, 132, 199, 0.5);
+    }
+
+    .zoom-divider {
+      width: 70%;
+      height: 1px;
+      background: rgba(51, 65, 85, 0.8);
     }
 
     /* GENERIC MODALS STYLES */
@@ -810,39 +840,47 @@
       color: #FEE2E2;
     }
 
-    /* ELEVATION PROFILE (SEMITRANSPARENT & FLOATING) */
+    /* ELEVATION PROFILE (CLIMBPRO CARD) */
     .elevation-container {
       position: absolute;
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 82px);
+      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 66px);
       left: 12px;
-      right: 64px;
+      right: 12px;
+      max-width: 440px;
+      margin: 0 auto;
       z-index: 8000;
-      background: rgba(15, 23, 42, 0.38);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(0, 229, 255, 0.35);
-      border-radius: 16px;
-      padding: 6px 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-      transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
-    }
-
-    .elevation-container.drawer-open {
-      bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 215px);
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(0, 229, 255, 0.38);
+      border-radius: 18px;
+      padding: 8px 12px 6px 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease;
     }
 
     .elevation-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
-    .elevation-title {
-      font-size: 8.5px;
-      font-weight: 800;
-      color: rgba(248, 250, 252, 0.75);
+    .elevation-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .elevation-badge {
+      font-size: 9px;
+      font-weight: 900;
+      color: var(--accent-cyan);
       letter-spacing: 0.8px;
+      background: rgba(0, 229, 255, 0.15);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 229, 255, 0.3);
     }
 
     .elevation-stats {
@@ -852,10 +890,16 @@
       text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
 
+    .elevation-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .slope-badge {
-      padding: 1.5px 6px;
+      padding: 2px 7px;
       border-radius: 6px;
-      font-size: 9.5px;
+      font-size: 10px;
       font-weight: 900;
       background: var(--accent-green);
       color: #FFFFFF;
@@ -871,10 +915,26 @@
       cursor: pointer;
     }
 
+    .elevation-svg-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
     #elevation-svg {
       width: 100%;
-      height: 48px;
+      height: 52px;
       overflow: visible;
+      display: block;
+    }
+
+    .elevation-axis-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     /* COCKPIT FLOATING ISLAND HUD (COMPACT & MODERN) */
@@ -883,91 +943,42 @@
       bottom: calc(max(env(safe-area-inset-bottom, 8px), 8px) + 4px);
       left: 12px;
       right: 12px;
+      max-width: 440px;
+      margin: 0 auto;
       z-index: 9000;
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1.5px solid rgba(51, 65, 85, 0.85);
-      border-radius: 20px;
-      padding: 6px 14px 8px 14px;
-      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+      border-radius: 18px;
+      padding: 6px 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       pointer-events: auto;
-      transition: bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s ease;
+      overflow: hidden;
     }
 
-    .drawer-handle-bar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      padding: 2px 0 4px 0;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+    .cockpit-progress-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background: rgba(51, 65, 85, 0.4);
     }
 
-    .drawer-pill {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(148, 163, 184, 0.4);
-      transition: background 0.15s;
-    }
-
-    .drawer-handle-bar:active .drawer-pill {
+    .cockpit-progress-fill {
+      height: 100%;
       background: var(--accent-cyan);
-    }
-
-    .drawer-hint {
-      font-size: 8px;
-      font-weight: 800;
-      color: #64748B;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      display: flex;
-      align-items: center;
-      gap: 3px;
+      box-shadow: 0 0 8px var(--accent-cyan);
+      transition: width 0.3s ease;
     }
 
     /* HUD STRIP */
     .hud-card-strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .track-row-compact {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 10px;
-      padding-bottom: 3px;
-      margin-bottom: 3px;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
-    }
-
-    .track-name {
-      color: var(--accent-cyan);
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60%;
-    }
-
-    .track-progress {
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .metrics-grid-compact {
       display: grid;
-      grid-template-columns: 1.25fr 1fr 1fr;
+      grid-template-columns: 1.25fr 1fr 1fr auto;
       align-items: center;
+      gap: 6px;
     }
 
     .metric-box {
@@ -976,7 +987,7 @@
     }
 
     .metric-box.border-left {
-      padding-left: 10px;
+      padding-left: 8px;
       border-left: 1px solid rgba(51, 65, 85, 0.5);
     }
 
@@ -996,23 +1007,23 @@
 
     .metric-val-big {
       font-family: var(--font-mono);
-      font-size: 30px;
+      font-size: 26px;
       font-weight: 900;
       color: #FFFFFF;
-      letter-spacing: -1.2px;
+      letter-spacing: -1px;
       line-height: 1;
     }
 
     .metric-val {
       font-family: var(--font-mono);
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       color: #FFFFFF;
       line-height: 1;
     }
 
     .metric-unit {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 700;
       color: var(--text-muted);
     }
@@ -1020,19 +1031,55 @@
     .val-good { color: var(--accent-green); }
     .val-bad { color: var(--accent-red); }
 
-    /* EXPANDABLE TOOLS DRAWER */
-    .tools-drawer-content {
-      display: none;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(51, 65, 85, 0.6);
-      animation: fadeInDown 0.18s ease;
+    .btn-dock-tools {
+      background: rgba(51, 65, 85, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 12px;
+      padding: 5px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s;
     }
 
-    .tools-drawer-content.open {
-      display: grid !important;
+    .btn-dock-tools:active {
+      background: #0284C7;
+      border-color: #38BDF8;
+      transform: scale(0.94);
+    }
+
+    .btn-dock-tools span {
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .btn-dock-tools .tools-label {
+      font-size: 7px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* TOOLS ACTION SHEET MODAL */
+    .tools-sheet-modal {
+      top: auto !important;
+      bottom: calc(max(env(safe-area-inset-bottom, 12px), 12px) + 68px) !important;
+      left: 12px !important;
+      right: 12px !important;
+      width: auto !important;
+      max-width: 440px !important;
+      margin: 0 auto !important;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
 
     .drawer-btn {
@@ -1139,8 +1186,11 @@
       <button class="btn-float-action" id="btn-recenter" title="Centrar al ciclista (On sóc?)">🎯</button>
       <button class="btn-float-action active" id="btn-heading" title="Canviar mode de càmera (Rumb / Nord)">🧭</button>
       <button class="btn-float-action active" id="btn-ele-toggle" title="Mostrar/Amagar perfil altimètric">⛰️</button>
-      <button class="btn-float-action btn-zoom" id="btn-zoom-in" title="Apropar zoom">+</button>
-      <button class="btn-float-action btn-zoom" id="btn-zoom-out" title="Allunyar zoom">−</button>
+      <div class="zoom-pill">
+        <button class="btn-zoom-part" id="btn-zoom-in" title="Apropar zoom">+</button>
+        <div class="zoom-divider"></div>
+        <button class="btn-zoom-part" id="btn-zoom-out" title="Allunyar zoom">−</button>
+      </div>
     </div>
 
     <!-- TOAST NOTIFICATION -->
@@ -1426,100 +1476,111 @@
       </div>
     </div>
 
-    <!-- ELEVATION PROFILE (SEMITRANSPARENT & FLOATING) -->
+    <!-- ELEVATION PROFILE (CLIMBPRO CARD) -->
     <div id="elevation-container" class="elevation-container">
       <div class="elevation-header">
-        <div>
-          <span class="elevation-title">PERFIL CLIMBPRO</span>
-          <span id="elevation-stats" class="elevation-stats"> 160-595 m</span>
+        <div class="elevation-header-left">
+          <span class="elevation-badge">⛰️ CLIMBPRO</span>
+          <span id="elevation-stats" class="elevation-stats">▲ +435m • 160→595m</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
+        <div class="elevation-header-right">
           <div id="slope-badge" class="slope-badge">+7%</div>
           <button id="btn-close-ele" class="btn-close-ele" title="Amagar perfil">✕</button>
         </div>
       </div>
-      <svg id="elevation-svg" viewBox="0 0 400 50" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="eleGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.40"/>
-            <stop offset="100%" stop-color="var(--accent-cyan)" stop-opacity="0.02"/>
-          </linearGradient>
-        </defs>
-        <path id="ele-fill-path" fill="url(#eleGrad)" d=""></path>
-        <path id="ele-line-path" stroke="var(--accent-cyan)" stroke-width="2.5" fill="none" d=""></path>
-        <circle id="ele-user-dot" cx="0" cy="25" r="5" fill="var(--accent-cyan)" stroke="#FFFFFF" stroke-width="2"/>
-      </svg>
-    </div>
-
-    <!-- COCKPIT BOTTOM DOCK (COMPACT HANDLEBAR HUD + SMART DRAWER) -->
-    <div class="cockpit-dock" id="cockpit-dock">
-      <div class="drawer-handle-bar" id="drawer-handle" title="Toca per desplegar eines">
-        <div class="drawer-pill"></div>
-        <div class="drawer-hint"><span id="drawer-chevron">▲</span> Eines & Rutes</div>
-      </div>
-
-      <div class="hud-card-strip" id="hud-card-main" title="Toca per obrir el Ciclocomputador complet">
-        <div style="flex: 1; min-width: 0;">
-          <div class="track-row-compact">
-            <span id="track-name" class="track-name">📍 Carregant ruta...</span>
-            <span id="track-progress" class="track-progress">0%</span>
-          </div>
-
-          <div class="metrics-grid-compact">
-            <div class="metric-box">
-              <span class="metric-label">VELOCITAT</span>
-              <div class="metric-val-row">
-                <span id="metric-speed" class="metric-val-big">0.0</span>
-                <span class="metric-unit">km/h</span>
-              </div>
-            </div>
-
-            <div class="metric-box border-left">
-              <span class="metric-label">RESTANT</span>
-              <div class="metric-val-row">
-                <span id="metric-dist" class="metric-val">0.0</span>
-                <span class="metric-unit">km</span>
-              </div>
-            </div>
-
-            <div class="metric-box border-left">
-              <span class="metric-label">AL TRACK</span>
-              <div class="metric-val-row">
-                <span id="metric-offtrack" class="metric-val val-good">0</span>
-                <span class="metric-unit">m</span>
-              </div>
-            </div>
-          </div>
+      <div class="elevation-svg-wrapper">
+        <svg id="elevation-svg" viewBox="0 0 360 65" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="eleGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.03"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid Guide Lines -->
+          <line x1="0" y1="12" x2="360" y2="12" stroke="rgba(255,255,255,0.12)" stroke-dasharray="3,3" stroke-width="1"/>
+          <line x1="0" y1="50" x2="360" y2="50" stroke="rgba(255,255,255,0.12)" stroke-dasharray="3,3" stroke-width="1"/>
+          
+          <!-- Elevation Area and Line Paths -->
+          <path id="ele-fill-path" fill="url(#eleGrad)" d=""></path>
+          <path id="ele-line-path" stroke="#00E5FF" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" d=""></path>
+          
+          <!-- User Marker Line & Dot -->
+          <line id="ele-user-guide" x1="0" y1="6" x2="0" y2="54" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="2,2" opacity="0.8"/>
+          <circle id="ele-user-dot" cx="0" cy="25" r="5" fill="#00E5FF" stroke="#FFFFFF" stroke-width="2"/>
+        </svg>
+        <div class="elevation-axis-row">
+          <span id="ele-axis-start">0 km</span>
+          <span id="ele-axis-mid">2.3 km</span>
+          <span id="ele-axis-end">4.6 km</span>
         </div>
       </div>
+    </div>
 
-      <!-- EXPANDABLE DRAWER PANEL -->
-      <div id="tools-drawer" class="tools-drawer-content">
+    <!-- COCKPIT FLOATING ISLAND HUD (COMPACT & MODERN) -->
+    <div class="cockpit-dock" id="cockpit-dock">
+      <div class="cockpit-progress-bg">
+        <div class="cockpit-progress-fill" id="cockpit-progress-fill" style="width: 0%;"></div>
+      </div>
+
+      <div class="hud-card-strip" id="hud-card-main">
+        <div class="metric-box">
+          <span class="metric-label">VELOCITAT</span>
+          <div class="metric-val-row">
+            <span id="metric-speed" class="metric-val-big">0.0</span>
+            <span class="metric-unit">km/h</span>
+          </div>
+        </div>
+
+        <div class="metric-box border-left">
+          <span class="metric-label">RESTANT</span>
+          <div class="metric-val-row">
+            <span id="metric-dist" class="metric-val">0.0</span>
+            <span class="metric-unit">km</span>
+          </div>
+        </div>
+
+        <div class="metric-box border-left">
+          <span class="metric-label">AL TRACK</span>
+          <div class="metric-val-row">
+            <span id="metric-offtrack" class="metric-val val-good">0</span>
+            <span class="metric-unit">m</span>
+          </div>
+        </div>
+
+        <button id="btn-open-tools-drawer" class="btn-dock-tools" title="Obrir menú d'eines i rutes">
+          <span>⚡</span>
+          <span class="tools-label">Eines</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TOOLS ACTION SHEET MODAL -->
+    <div id="tools-modal" class="app-modal tools-sheet-modal">
+      <div class="modal-header">
+        <span class="modal-title">⚡ Eines & Opcions de Ruta</span>
+        <button class="modal-close-btn" data-close="tools-modal">✕</button>
+      </div>
+      <div class="tools-grid">
         <button id="btn-routes-lib" class="drawer-btn" title="Biblioteca de rutes GPX">
           <span class="icon">📂</span>
           <span class="label">RUTES</span>
         </button>
-
         <button id="btn-waypoints" class="drawer-btn" title="Punts d'interès">
           <span class="icon">📍</span>
           <span class="label">POIs</span>
         </button>
-
         <button id="btn-layers" class="drawer-btn" title="Estil del mapa i color de ruta">
           <span class="icon">🥞</span>
           <span class="label">CAPES</span>
         </button>
-
         <button id="btn-offline" class="drawer-btn" title="Descàrrega offline per a mode avió">
           <span class="icon">📥</span>
           <span class="label">OFFLINE</span>
         </button>
-
         <button id="btn-open-stats" class="drawer-btn" title="Telemetria completa i ciclocomputador">
           <span class="icon">📊</span>
           <span class="label">DADES</span>
         </button>
-
         <button id="btn-sim" class="drawer-btn" title="Simulació virtual de ruta">
           <span class="icon">▶️</span>
           <span class="label">SIMULAR</span>
@@ -2362,6 +2423,7 @@
 
       const points = [];
       let totalDist = 0;
+      let totalAscent = 0;
       let minEle = Infinity;
       let maxEle = -Infinity;
 
@@ -2375,6 +2437,9 @@
           if (points.length > 0) {
             const prev = points[points.length - 1];
             totalDist += getDistanceMeters(prev.lat, prev.lng, lat, lon);
+            if (ele > prev.ele) {
+              totalAscent += (ele - prev.ele);
+            }
           }
           if (ele < minEle) minEle = ele;
           if (ele > maxEle) maxEle = ele;
@@ -2396,11 +2461,12 @@
         name,
         points,
         totalDistanceKm: (totalDist / 1000).toFixed(1),
+        totalAscent: Math.round(totalAscent),
         minEle: minEle === Infinity ? 0 : Math.round(minEle),
         maxEle: maxEle === -Infinity ? 0 : Math.round(maxEle)
       };
 
-      saveRouteToHistory(name, xmlStr, track.totalDistanceKm, track.maxEle - track.minEle);
+      saveRouteToHistory(name, xmlStr, track.totalDistanceKm, track.totalAscent || (track.maxEle - track.minEle));
 
       renderTrackOnMap(autoFitTrack);
       renderElevationProfile();
@@ -2437,7 +2503,7 @@
         map.fitBounds(trackPolylineLayer.getBounds(), { padding: [50, 50] });
       }
 
-      document.getElementById('track-name').textContent = '📍 ' + track.name;
+      document.getElementById('track-name')?.textContent = '📍 ' + track.name;
     }
 
     // --- USER MARKER WITH DELTA HEADING ARROW ---
@@ -2488,15 +2554,15 @@
     function renderElevationProfile() {
       if (!track || track.points.length === 0) return;
 
-      const { points, minEle, maxEle } = track;
+      const { points, minEle, maxEle, totalDistanceKm, totalAscent } = track;
       const eleDiff = Math.max(20, maxEle - minEle);
-      const width = 400;
-      const height = 50;
+      const width = 360;
+      const height = 55;
 
       const svgPts = points.map((p, i) => {
         const x = (i / (points.length - 1)) * width;
-        const y = height - ((p.ele - minEle) / eleDiff) * (height - 14) - 4;
-        return { x, y };
+        const y = height - ((p.ele - minEle) / eleDiff) * (height - 18) - 6;
+        return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
       });
 
       let pathD = `M 0 ${height} L ${svgPts[0].x} ${svgPts[0].y}`;
@@ -2506,9 +2572,22 @@
       let lineD = `M ${svgPts[0].x} ${svgPts[0].y}`;
       for (let i = 1; i < svgPts.length; i++) lineD += ` L ${svgPts[i].x} ${svgPts[i].y}`;
 
-      document.getElementById('ele-fill-path').setAttribute('d', pathD);
-      document.getElementById('ele-line-path').setAttribute('d', lineD);
-      document.getElementById('elevation-stats').textContent = ` ${minEle}-${maxEle} m`;
+      const fillPath = document.getElementById('ele-fill-path');
+      const linePath = document.getElementById('ele-line-path');
+      if (fillPath) fillPath.setAttribute('d', pathD);
+      if (linePath) linePath.setAttribute('d', lineD);
+
+      const statsEl = document.getElementById('elevation-stats');
+      if (statsEl) {
+        statsEl.textContent = `▲ +${totalAscent || (maxEle - minEle)}m • ${minEle}→${maxEle}m`;
+      }
+
+      const axisStart = document.getElementById('ele-axis-start');
+      const axisMid = document.getElementById('ele-axis-mid');
+      const axisEnd = document.getElementById('ele-axis-end');
+      if (axisStart) axisStart.textContent = `0 km`;
+      if (axisMid) axisMid.textContent = `${(parseFloat(totalDistanceKm) / 2).toFixed(1)} km`;
+      if (axisEnd) axisEnd.textContent = `${totalDistanceKm} km`;
     }
 
     // --- TELEMETRY & OFF-TRACK CALCULATION ---
@@ -2540,27 +2619,42 @@
       document.getElementById('stat-dist-rem').textContent = remainingKm;
       
       const offtrackEl = document.getElementById('metric-offtrack');
-      offtrackEl.textContent = Math.round(minDistance);
-      offtrackEl.className = isOffTrack ? 'metric-val val-bad' : 'metric-val val-good';
+      if (offtrackEl) {
+        offtrackEl.textContent = Math.round(minDistance);
+        offtrackEl.className = isOffTrack ? 'metric-val val-bad' : 'metric-val val-good';
+      }
 
-      document.getElementById('track-progress').textContent = `${progress}% completat`;
+      const progressFill = document.getElementById('cockpit-progress-fill');
+      if (progressFill) progressFill.style.width = `${progress}%`;
 
       const slope = nearestPt.slope || 0;
       const slopeEl = document.getElementById('slope-badge');
-      slopeEl.textContent = (slope > 0 ? '+' : '') + slope + '%';
-      document.getElementById('stat-slope').textContent = (slope > 0 ? '+' : '') + slope + '%';
+      if (slopeEl) {
+        slopeEl.textContent = (slope > 0 ? '+' : '') + slope + '%';
+        if (slope > 12) slopeEl.style.background = '#EF4444';
+        else if (slope > 7) slopeEl.style.background = '#FF6600';
+        else if (slope > 3) slopeEl.style.background = '#FACC15';
+        else if (slope >= 0) slopeEl.style.background = '#10B981';
+        else slopeEl.style.background = '#0284C7';
+      }
+      const statSlope = document.getElementById('stat-slope');
+      if (statSlope) statSlope.textContent = (slope > 0 ? '+' : '') + slope + '%';
 
-      if (slope > 14) slopeEl.style.background = 'var(--accent-red)';
-      else if (slope > 8) slopeEl.style.background = 'var(--accent-orange)';
-      else if (slope > 4) slopeEl.style.background = 'var(--accent-yellow)';
-      else slopeEl.style.background = 'var(--accent-green)';
-
-      const dotX = (progress / 100) * 400;
+      const dotX = (progress / 100) * 360;
       const eleDiff = Math.max(20, track.maxEle - track.minEle);
-      const dotY = 50 - ((nearestPt.ele - track.minEle) / eleDiff) * (50 - 14) - 4;
+      const dotY = 55 - ((nearestPt.ele - track.minEle) / eleDiff) * (55 - 18) - 6;
+      
       const dotEl = document.getElementById('ele-user-dot');
-      dotEl.setAttribute('cx', dotX);
-      dotEl.setAttribute('cy', dotY);
+      if (dotEl) {
+        dotEl.setAttribute('cx', dotX);
+        dotEl.setAttribute('cy', dotY);
+      }
+
+      const guideLine = document.getElementById('ele-user-guide');
+      if (guideLine) {
+        guideLine.setAttribute('x1', dotX);
+        guideLine.setAttribute('x2', dotX);
+      }
 
       const banner = document.getElementById('off-track-banner');
       if (isOffTrack && hasRealGpsFix) {
@@ -2756,35 +2850,18 @@
       document.getElementById('btn-offline')?.classList.remove('active');
       document.getElementById('btn-waypoints')?.classList.remove('active');
       document.getElementById('btn-routes-lib')?.classList.remove('active');
-      closeDrawer();
+      document.getElementById('btn-top-drawer')?.classList.remove('active');
     }
 
-    function toggleDrawer() {
-      const drawer = document.getElementById('tools-drawer');
-      const chevron = document.getElementById('drawer-chevron');
-      const ele = document.getElementById('elevation-container');
-      const floatCtrls = document.querySelector('.map-floating-controls');
-      if (!drawer) return;
-      const isOpen = drawer.classList.contains('open');
-      if (isOpen) {
-        closeDrawer();
-      } else {
-        drawer.classList.add('open');
-        if (chevron) chevron.textContent = '▼';
-        if (ele) ele.classList.add('drawer-open');
-        if (floatCtrls) floatCtrls.classList.add('drawer-open');
+    function toggleToolsModal() {
+      const modal = document.getElementById('tools-modal');
+      const btn = document.getElementById('btn-top-drawer');
+      const isVisible = modal.style.display === 'flex';
+      closeAllModals();
+      if (!isVisible) {
+        modal.style.display = 'flex';
+        btn?.classList.add('active');
       }
-    }
-
-    function closeDrawer() {
-      const drawer = document.getElementById('tools-drawer');
-      const chevron = document.getElementById('drawer-chevron');
-      const ele = document.getElementById('elevation-container');
-      const floatCtrls = document.querySelector('.map-floating-controls');
-      if (drawer) drawer.classList.remove('open');
-      if (chevron) chevron.textContent = '▲';
-      if (ele) ele.classList.remove('drawer-open');
-      if (floatCtrls) floatCtrls.classList.remove('drawer-open');
     }
 
     // --- ATTACH EVENT LISTENERS (CROSS-PLATFORM & IOS SAFE) ---
@@ -2799,9 +2876,9 @@
         });
       }
 
-      // Drawer Toggles
-      bindAction('drawer-handle', toggleDrawer);
-      bindAction('btn-top-drawer', toggleDrawer);
+      // Tools Sheet Toggles
+      bindAction('btn-top-drawer', toggleToolsModal);
+      bindAction('btn-open-tools-drawer', toggleToolsModal);
 
       bindAction('btn-sim', toggleSimulator);
       bindAction('btn-rec', toggleRecordingModal);
@@ -2998,10 +3075,10 @@
         reader.readAsText(file);
       });
 
-      // Close modal & drawer on tap outside
+      // Close modal on tap outside
       document.addEventListener('click', (e) => {
         const openModal = document.querySelector('.app-modal[style*="display: flex"]');
-        if (openModal && !openModal.contains(e.target) && !e.target.closest('.btn-top') && !e.target.closest('.drawer-btn') && !e.target.closest('#hud-card-main')) {
+        if (openModal && !openModal.contains(e.target) && !e.target.closest('.btn-top') && !e.target.closest('.drawer-btn') && !e.target.closest('#hud-card-main') && !e.target.closest('.btn-dock-tools')) {
           closeAllModals();
         }
       });
