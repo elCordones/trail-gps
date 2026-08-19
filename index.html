@@ -1703,19 +1703,26 @@
 
     /* HUD STRIP */
     .hud-card-strip {
-      display: grid;
-      grid-template-columns: 1.25fr 1fr 1fr auto;
+      display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 6px;
+      width: 100%;
     }
 
     .metric-box {
       display: flex;
       flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .metric-box.metric-box-speed {
+      flex: 1.15;
     }
 
     .metric-box.border-left {
-      padding-left: 8px;
+      padding-left: 6px;
       border-left: 1px solid rgba(51, 65, 85, 0.5);
     }
 
@@ -1760,37 +1767,40 @@
     .val-bad { color: var(--accent-red); }
 
     .btn-dock-tools {
-      background: rgba(51, 65, 85, 0.45);
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(51, 65, 85, 0.5);
+      border: 1.5px solid rgba(148, 163, 184, 0.35);
       border-radius: 12px;
-      padding: 5px 8px;
+      padding: 6px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1px;
-      color: var(--text-main);
+      gap: 2px;
+      color: #FFFFFF;
       cursor: pointer;
+      flex-shrink: 0;
+      margin-left: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       transition: all 0.15s;
     }
 
     .btn-dock-tools:active {
       background: #0284C7;
       border-color: #38BDF8;
-      transform: scale(0.94);
+      transform: scale(0.93);
     }
 
-    .btn-dock-tools span {
-      font-size: 13px;
+    .btn-dock-tools .tools-icon {
+      font-size: 15px;
       line-height: 1;
     }
 
     .btn-dock-tools .tools-label {
-      font-size: 7px;
-      font-weight: 800;
-      color: var(--text-muted);
+      font-size: 7.5px;
+      font-weight: 900;
+      color: #CBD5E1;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
     }
 
     /* TOOLS ACTION SHEET MODAL */
@@ -2466,9 +2476,9 @@
           </div>
         </div>
 
-        <button id="btn-open-tools-drawer" class="btn-dock-tools" title="Obrir menú d'eines i rutes">
-          <span>⚡</span>
-          <span class="tools-label">Eines</span>
+        <button id="btn-open-tools-drawer" class="btn-dock-tools" title="Obrir menú d'ajustos i opcions">
+          <span class="tools-icon">⚙️</span>
+          <span class="tools-label">Ajustos</span>
         </button>
       </div>
     </div>
@@ -2477,7 +2487,7 @@
     <div id="tools-modal" class="app-modal">
       <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
       <div class="modal-header">
-        <span class="modal-title">⚡ Eines & Opcions de Ruta</span>
+        <span class="modal-title">⚙️ Ajustos & Eines de Ruta</span>
         <button class="modal-close-btn" data-close="tools-modal">✕</button>
       </div>
       <div class="tools-grid">
@@ -2520,7 +2530,7 @@
       </div>
 
       <button class="btn-dismiss-sheet" data-close="tools-modal">
-        <span>✕ Tancar Eines</span>
+        <span>✕ Tancar Ajustos</span>
       </button>
     </div>
   </div>

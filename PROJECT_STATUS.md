@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 19 d'agost de 2026 (Sensors Bluetooth BLE, Zones Cardíaques Z1-Z5, Cadència & GPX Enriquit v2.4.0)  
-> **Estat general:** Versió PWA v2.4.0 completada amb Hub Universal de Sensors Bluetooth Low Energy (Web Bluetooth API), suport per a bandes cardíaques (HRM) i sensors de cadència (CSC), càlcul dinàmic de Zones d'Esforç Z1-Z5, telemetria al Cockpit i Ciclocomputador, i exportació GPX amb extensions biomètriques estàndard (`gpxtpx:hr`, `gpxtpx:cad`).
+> **Darrera actualització:** 19 d'agost de 2026 (Sensors BLE, Zones Z1-Z5, Optimització Cockpit & Botó Ajustos ⚙️ v2.4.1)  
+> **Estat general:** Versió PWA v2.4.1 completada amb Hub Universal de Sensors Bluetooth Low Energy (Web Bluetooth API), suport per a bandes cardíaques (HRM) i sensors de cadència (CSC), càlcul de Zones d'Esforç Z1-Z5, exportació GPX amb telemetria i redisseny fluid del Cockpit inferior amb el botó d'Ajustos (**⚙️**) perfectament alineat a la dreta.
 
 ---
 
@@ -19,7 +19,7 @@
   - [LICENSE](file:///C:/Users/David/Desktop/App%20bici%20GPS/LICENSE): Llicència legal de programari lliure GNU AGPL v3 (Codi) i CC BY-SA 4.0 (Continguts) - David Cordones (2026).
   - [PROJECT_STATUS.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/PROJECT_STATUS.md): Punt de control i continuïtat entre sessions.
   - [docs/DOCUMENTACIO_PROJECTE.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/DOCUMENTACIO_PROJECTE.md): Documentació exhaustiva d'especificacions i arquitectura.
-  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, Hub de Sensors BLE (BPM i RPM), Zones Cardíaques Z1-Z5, cockpit compacte, bottom sheets, brúixola, perfil ClimbPro, gravador REC amb telemetria, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
+  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, Hub de Sensors BLE (BPM i RPM), Zones Cardíaques Z1-Z5, cockpit compacte fluid amb botó `⚙️ Ajustos`, bottom sheets, brúixola, perfil ClimbPro, gravador REC amb telemetria, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
   - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
   - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
   - [assets/brand/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/brand/): Imatges mestres d'alta resolució (`master-icon.png`, `master-icon.jfif`).
@@ -29,7 +29,7 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.4.0)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.4.1)
 
 - **Feina realitzada en aquesta sessió**:
   - [x] **Hub Universal de Sensors Bluetooth Low Energy (BLE)**:
@@ -44,12 +44,13 @@
       - 🟡 **Z3 Ritme / Tempo** (70-80% - Groc `#FACC15`)
       - 🟠 **Z4 Llindar Anaeròbic** (80-90% - Taronja `#FF6600`)
       - 🔴 **Z5 Màxim Esforç / Vo2Max** (>90% - Vermell `#EF4444`)
-  - [x] **Integració a la Interfície d'Usuari**:
+  - [x] **Integració i Optimització UI Cockpit & Botó d'Ajustos**:
+    - **Alineació perfecta del Cockpit Dock**: S'ha migrat `.hud-card-strip` a un disseny Flexbox fluid i proporcional, evitant desplaçaments estranys quan s'activa o s'amaga la pastilla de pols cardíac.
+    - **Substitució de la icona**: S'ha canviat la icona del llamp `⚡` per l'engranatge estàndard **`⚙️`** amb etiqueta **`Ajustos`**, molt més representativa de la configuració i eines de l'aplicació.
     - **Modal de Gestió de Sensors (`#sensors-modal`)**: Targetes individuals per a banda cardíaca i cadència amb estat de connexió, botons d'emparellar/desconnectar, selector de FC Màxima i llegenda de zones.
     - **Simulador Virtual de Sensors BLE**: Permet provar el funcionament sense sensors físics simulant pols i cadència sincronitzats amb el pendent del terreny i la velocitat.
-    - **Cockpit Flotant**: Caixa de telemetria dinàmica de pols amb codi de color de zona cardíaca en directe.
     - **Ciclocomputador Ampliat (`#stats-modal`)**: Targetes noves per a Pols Actual, FC Mitjana/Màxima, Cadència (RPM) i Estimació de Calories (kcal).
-    - **Calaix d'Eines (`#tools-modal`)**: Grid simètric de 3x3 amb accés directe al nou botó **`💓 SENSORS`**.
+    - **Calaix d'Eines / Ajustos (`#tools-modal`)**: Grid simètric de 3x3 amb accés directe a **`💓 SENSORS`**.
   - [x] **Exportació GPX Enriquida (Extensions Garmin / Strava / Apple Health)**:
     - El gravador REC desa les mostres de pols i cadència directament a l'arxiu `.gpx` emprant el format estàndard `<extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>...<gpxtpx:cad>...`.
 
