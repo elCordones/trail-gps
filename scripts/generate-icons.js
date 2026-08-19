@@ -2,33 +2,75 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-async function generateIcons() {
+async function generatePureDialIcons() {
   const rootDir = path.resolve(__dirname, '..');
   const webAppDir = path.join(rootDir, 'web-app');
   const trailGpsAssets = path.join(rootDir, 'trail-gps', 'assets');
   const assetsBrandDir = path.join(rootDir, 'assets', 'brand');
 
-  // Source master image
-  const rawMasterPath = path.join(assetsBrandDir, 'master-icon.jfif');
-  if (!fs.existsSync(rawMasterPath)) {
-    throw new Error(`No s'ha trobat ${rawMasterPath}`);
+  const rawMaster = path.join(assetsBrandDir, 'master-icon.jfif');
+  const masterPNG = path.join(assetsBrandDir, 'master-icon.png');
+
+  if (!fs.existsSync(rawMaster)) {
+    throw new Error(`No s'ha trobat ${rawMaster}`);
   }
 
-  console.log('✂️  Retallant i eliminant el marc exterior per ajustar el disseny a pantalla completa...');
-  
-  // The dial center is at (1020, 1020) with squircle width/height 1520px
-  // Extracting { left: 260, top: 260, width: 1520, height: 1520 } eliminates the outer canvas frame
-  const croppedMasterPath = path.join(assetsBrandDir, 'master-icon.png');
-  await sharp(rawMasterPath)
-    .extract({ left: 260, top: 260, width: 1520, height: 1520 })
-    .resize(1024, 1024, { kernel: 'lanczos3' })
-    .png({ quality: 100, compressionLevel: 9 })
-    .toFile(croppedMasterPath);
+  console.log('✨ Extraient exclusivament el dial circular i eliminant qualsevol requadre o doble marc...');
 
-  console.log(`✅ Imatge mestre netejada i desada a: ${croppedMasterPath}`);
+  const size = 1024;
+  const dialDiameter = 890; // 87% de la mida (zona segura estàndard Apple iOS)
+  const dialRadius = dialDiameter / 2;
 
-  // Create favicon.svg with embedded crisp base64
-  const icon512Base64 = (await sharp(croppedMasterPath).resize(512, 512, { kernel: 'lanczos3' }).png().toBuffer()).toString('base64');
+  // Extracció del dial circular pur de la imatge de 2048x2048
+  const rawDial = await sharp(rawMaster)
+    .extract({ left: 350, top: 350, width: 1340, height: 1340 })
+    .resize(dialDiameter, dialDiameter, { kernel: 'lanczos3' })
+    .png()
+    .toBuffer();
+
+  // Màscara circular perfecta i suau
+  const maskSvg = Buffer.from(`
+    <svg width="${dialDiameter}" height="${dialDiameter}">
+      <circle cx="${dialRadius}" cy="${dialRadius}" r="${dialRadius - 1}" fill="white" />
+    </svg>
+  `);
+
+  const maskedDial = await sharp(rawDial)
+    .composite([{ input: maskSvg, blend: 'dest-in' }])
+    .png()
+    .toBuffer();
+
+  // Fons homogeni Dark Slate / OLED
+  const bgSvg = Buffer.from(`
+    <svg width="${size}" height="${size}">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#0F172A" />
+          <stop offset="100%" stop-color="#070B14" />
+        </linearGradient>
+      </defs>
+      <rect width="${size}" height="${size}" fill="url(#bg)" />
+    </svg>
+  `);
+
+  const offset = Math.round((size - dialDiameter) / 2);
+
+  // Desar la nova imatge mestre 1024x1024 sense cap marc
+  await sharp(bgSvg)
+    .composite([
+      {
+        input: maskedDial,
+        left: offset,
+        top: offset
+      }
+    ])
+    .png({ quality: 100 })
+    .toFile(masterPNG);
+
+  console.log(`✅ Nova imatge mestre de dial pur desada a: ${masterPNG}`);
+
+  // Generar Favicon SVG
+  const icon512Base64 = (await sharp(masterPNG).resize(512, 512, { kernel: 'lanczos3' }).png().toBuffer()).toString('base64');
   const faviconSvgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <image href="data:image/png;base64,${icon512Base64}" width="512" height="512" />
 </svg>`;
@@ -39,13 +81,13 @@ async function generateIcons() {
   fs.writeFileSync(path.join(webAppDir, 'icon.svg'), faviconSvgContent, 'utf8');
   console.log('✅ favicon.svg i icon.svg desats');
 
-  // Background for Android adaptive icon
+  // Background per a Android adaptive icon
   const bgBuffer = await sharp({
     create: {
       width: 1024,
       height: 1024,
       channels: 4,
-      background: { r: 15, g: 23, b: 42, alpha: 1 } // #0F172A
+      background: { r: 15, g: 23, b: 42, alpha: 1 }
     }
   }).png().toBuffer();
 
@@ -73,7 +115,7 @@ async function generateIcons() {
   ];
 
   for (const task of iconTasks) {
-    const buffer = await sharp(croppedMasterPath)
+    const buffer = await sharp(masterPNG)
       .resize(task.size, task.size, {
         kernel: 'lanczos3',
         fit: 'cover'
@@ -92,16 +134,13 @@ async function generateIcons() {
   fs.writeFileSync(path.join(trailGpsAssets, 'android-icon-background.png'), bgBuffer);
   console.log(`  -> Generat: trail-gps/assets/android-icon-background.png (1024x1024)`);
 
-  // Clean test files
-  const test1 = path.join(assetsBrandDir, 'option1-cropped-squircle.png');
-  const test2 = path.join(assetsBrandDir, 'option2-clean-dial.png');
-  if (fs.existsSync(test1)) fs.unlinkSync(test1);
-  if (fs.existsSync(test2)) fs.unlinkSync(test2);
+  const testFile = path.join(assetsBrandDir, 'pure-dial-test.png');
+  if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
 
-  console.log('🎉 Totes les icones s\'han regenerat sense cap marc exterior i perfectament enquadrades!');
+  console.log('🎉 Totes les icones s\'han generat sobre fons homogeni pur sense cap doble requadre!');
 }
 
-generateIcons().catch(err => {
-  console.error('Error:', err);
+generatePureDialIcons().catch(err => {
+  console.error('Error generant icones:', err);
   process.exit(1);
 });
