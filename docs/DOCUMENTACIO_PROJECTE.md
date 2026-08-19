@@ -122,9 +122,13 @@ npx cloudflared tunnel --url http://127.0.0.1:3000
   - Targeta superior HUD Turn-by-Turn amb compte enrere de metres i fletxes vectorials SVG dinàmiques.
   - Llista Roadbook de girs (`#turns-modal`) i fites visuals de corba interactives al mapa Leaflet.
   - Sintetitzador d'àudio Web Audio API (avís d'aproximació a 40m, to immediat a 12m, alarma de fora de ruta i so d'alegria en retornar al traçat).
-- [ ] **Fase 9: Telemetria Avançada i Sensors Bluetooth (BLE):**
-  - Connexió de sensors BLE de freqüència cardíaca (Heart Rate `0x180D`), cadència de pedaleig (`0x1816`) i zones Z1-Z5.
-  - Inclusió de dades de freqüència cardíaca i cadència a l'arxiu `.gpx` del gravador REC.
+- [x] **Fase 9: Telemetria Avançada i Sensors Bluetooth (BLE):**
+  - Hub universal de sensors BLE per a bandes cardíaques (Heart Rate `0x180D`) i sensors de cadència (`0x1816`).
+  - Càlcul dinàmic de Zones Cardíaques Z1 a Z5 amb FC Màxima personalitzable.
+  - Simulador virtual de sensors biomètrics integrat.
+  - Inclusió de dades de freqüència cardíaca i cadència a l'arxiu `.gpx` del gravador REC (`gpxtpx:hr`, `gpxtpx:cad`).
+- [ ] **Fase 9.2: Descàrrega Directa de Rutes per URL (Wikiloc / Strava / Web):**
+  - Camp d'importació per URL amb descàrrega directa de tracks GPX a la biblioteca local.
 - [ ] **Fase 10: Integració amb l'Ecosistema Apple (HealthKit & Apple Watch):**
   - Sincronització automàtica de sortides amb **Apple Salut / Entrenaments** (freqüència cardíaca, calories, +D, velocitats, distància).
   - **Companion App per a Apple Watch (watchOS)**: Pantalla de telemetria al canell i alertes hàptiques de gir o pèrdua de camí.

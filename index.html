@@ -1278,6 +1278,236 @@
       flex-shrink: 0;
     }
 
+    /* BLE SENSORS MODAL & CARDS */
+    .sensor-card {
+      background: #1E293B;
+      border: 1.5px solid #334155;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .sensor-card.connected {
+      border-color: var(--accent-cyan);
+      background: rgba(15, 23, 42, 0.85);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.15);
+    }
+
+    .sensor-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sensor-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(51, 65, 85, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .sensor-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .sensor-title {
+      font-weight: 800;
+      font-size: 12px;
+      color: #FFFFFF;
+    }
+
+    .sensor-status {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .sensor-card.connected .sensor-status {
+      color: var(--accent-green);
+    }
+
+    .btn-sensor-action {
+      background: #334155;
+      border: 1px solid #475569;
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 7px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-sensor-action:active {
+      transform: scale(0.94);
+    }
+
+    .btn-sensor-action.connected {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #EF4444;
+      color: #EF4444;
+    }
+
+    .sensor-live-data {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(51, 65, 85, 0.6);
+      padding-top: 6px;
+      gap: 8px;
+    }
+
+    .sensor-val-box {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+    }
+
+    .sensor-big-val {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+
+    .sensor-val-unit {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .sensor-zone-badge {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #334155;
+      color: #FFFFFF;
+      text-transform: uppercase;
+    }
+
+    .sensor-battery-box {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #94A3B8;
+    }
+
+    .sensor-config-box {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 13px;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+    }
+
+    .sensor-config-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .sensor-config-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin-bottom: 8px;
+    }
+
+    .sensor-config-row input {
+      width: 60px;
+      background: #0F172A;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      color: #FFFFFF;
+      padding: 4px 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .btn-mini-save {
+      background: var(--accent-cyan);
+      border: none;
+      color: #0F172A;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .hr-zones-legend {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 3px;
+    }
+
+    .zone-pill {
+      font-size: 7.5px;
+      font-weight: 800;
+      padding: 3px 1px;
+      border-radius: 4px;
+      text-align: center;
+      color: #0F172A;
+    }
+
+    .zone-pill.z1 { background: #38BDF8; color: #0F172A; }
+    .zone-pill.z2 { background: #10B981; color: #0F172A; }
+    .zone-pill.z3 { background: #FACC15; color: #0F172A; }
+    .zone-pill.z4 { background: #FF6600; color: #FFFFFF; }
+    .zone-pill.z5 { background: #EF4444; color: #FFFFFF; }
+
+    .btn-sensor-sim {
+      width: 100%;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px dashed #475569;
+      color: #94A3B8;
+      border-radius: 11px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+    }
+
+    .btn-sensor-sim:active {
+      transform: scale(0.97);
+    }
+
+    .btn-sensor-sim.active {
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
     /* MAP TURN MARKERS */
     .turn-map-marker {
       width: 24px;
@@ -1576,7 +1806,7 @@
 
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
     }
 
@@ -1910,6 +2140,88 @@
       </button>
     </div>
 
+    <!-- BLE SENSORS MODAL -->
+    <div id="sensors-modal" class="app-modal">
+      <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
+      <div class="modal-header">
+        <span class="modal-title">💓 Sensors Bluetooth (BLE)</span>
+        <button class="modal-close-btn" data-close="sensors-modal">✕</button>
+      </div>
+
+      <!-- Heart Rate Monitor Card -->
+      <div class="sensor-card" id="sensor-card-hrm">
+        <div class="sensor-card-header">
+          <div class="sensor-icon-box">💓</div>
+          <div class="sensor-info">
+            <div class="sensor-title">Banda Cardíaca (HRM)</div>
+            <div class="sensor-status" id="hrm-status-text">Desconnectat</div>
+          </div>
+          <button id="btn-hrm-connect" class="btn-sensor-action">
+            <span>Connectar</span>
+          </button>
+        </div>
+        <div class="sensor-live-data" id="hrm-live-row" style="display: none;">
+          <div class="sensor-val-box">
+            <span class="sensor-big-val" id="hrm-live-bpm">--</span>
+            <span class="sensor-val-unit">BPM</span>
+          </div>
+          <div class="sensor-zone-badge" id="hrm-live-zone">Z1 RECUPERACIÓ</div>
+          <div class="sensor-battery-box" id="hrm-battery-box" style="display: none;">
+            <span>🔋</span><span id="hrm-battery-val">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cycling Cadence & Speed Card -->
+      <div class="sensor-card" id="sensor-card-csc">
+        <div class="sensor-card-header">
+          <div class="sensor-icon-box">🔄</div>
+          <div class="sensor-info">
+            <div class="sensor-title">Sensor de Cadència (CSC)</div>
+            <div class="sensor-status" id="csc-status-text">Desconnectat</div>
+          </div>
+          <button id="btn-csc-connect" class="btn-sensor-action">
+            <span>Connectar</span>
+          </button>
+        </div>
+        <div class="sensor-live-data" id="csc-live-row" style="display: none;">
+          <div class="sensor-val-box">
+            <span class="sensor-big-val" id="csc-live-rpm">--</span>
+            <span class="sensor-val-unit">RPM</span>
+          </div>
+          <div class="sensor-battery-box" id="csc-battery-box" style="display: none;">
+            <span>🔋</span><span id="csc-battery-val">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Max HR / User Profile Config -->
+      <div class="sensor-config-box">
+        <div class="sensor-config-title">Configuració de Zones Cardíaques</div>
+        <div class="sensor-config-row">
+          <label for="input-hr-max">FC Màxima (BPM):</label>
+          <input type="number" id="input-hr-max" min="120" max="230" value="185" />
+          <button id="btn-save-hr-max" class="btn-mini-save">Desar</button>
+        </div>
+        <div class="hr-zones-legend">
+          <span class="zone-pill z1">Z1 &lt;60%</span>
+          <span class="zone-pill z2">Z2 60-70%</span>
+          <span class="zone-pill z3">Z3 70-80%</span>
+          <span class="zone-pill z4">Z4 80-90%</span>
+          <span class="zone-pill z5">Z5 &gt;90%</span>
+        </div>
+      </div>
+
+      <!-- Virtual Sensor Simulator Toggle -->
+      <button id="btn-toggle-sensor-sim" class="btn-sensor-sim">
+        <span>🧪</span> <span id="sensor-sim-label">Activar Simulador de Sensors</span>
+      </button>
+
+      <button class="btn-dismiss-sheet" data-close="sensors-modal">
+        <span>✕ Tancar Sensors</span>
+      </button>
+    </div>
+
     <!-- ROUTES LIBRARY & RECENT GPX MODAL -->
     <div id="routes-modal" class="app-modal">
       <div class="modal-drag-handle" title="Llisca cap avall per tancar"></div>
@@ -1958,6 +2270,22 @@
         <div class="stat-card">
           <span class="stat-card-label">Altitud</span>
           <div class="stat-card-val"><span id="stat-alt">160</span><span class="stat-card-unit">m</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">💓 Pols Cardíac</span>
+          <div class="stat-card-val"><span id="stat-hr">--</span><span class="stat-card-unit" id="stat-hr-zone">BPM</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">💓 FC Mitjana / Màx</span>
+          <div class="stat-card-val"><span id="stat-avg-hr">-- / --</span><span class="stat-card-unit">bpm</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">🔄 Cadència</span>
+          <div class="stat-card-val"><span id="stat-cad">--</span><span class="stat-card-unit">rpm</span></div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">🔥 Calories</span>
+          <div class="stat-card-val"><span id="stat-calories">0</span><span class="stat-card-unit">kcal</span></div>
         </div>
         <div class="stat-card">
           <span class="stat-card-label">Temps Sortida</span>
@@ -2130,6 +2458,14 @@
           </div>
         </div>
 
+        <div class="metric-box border-left" id="cockpit-hr-box" style="display: none;">
+          <span class="metric-label" id="cockpit-hr-label">POLS</span>
+          <div class="metric-val-row">
+            <span id="metric-hr" class="metric-val" style="color: #38BDF8;">--</span>
+            <span class="metric-unit" id="metric-hr-unit">bpm</span>
+          </div>
+        </div>
+
         <button id="btn-open-tools-drawer" class="btn-dock-tools" title="Obrir menú d'eines i rutes">
           <span>⚡</span>
           <span class="tools-label">Eines</span>
@@ -2164,6 +2500,10 @@
         <button id="btn-offline" class="drawer-btn" title="Descàrrega offline per a mode avió">
           <span class="icon">📥</span>
           <span class="label">OFFLINE</span>
+        </button>
+        <button id="btn-sensors" class="drawer-btn" title="Sensors Bluetooth de pols i cadència">
+          <span class="icon" id="sensors-icon-span">💓</span>
+          <span class="label" id="sensors-label-span">SENSORS</span>
         </button>
         <button id="btn-open-stats" class="drawer-btn" title="Telemetria completa i ciclocomputador">
           <span class="icon">📊</span>
@@ -2200,6 +2540,7 @@
     const STORAGE_KEY_TURN_HUD = 'trailgps_turn_hud_enabled';
     const STORAGE_KEY_TURN_MARKERS = 'trailgps_turn_markers_enabled';
     const STORAGE_KEY_TURN_AUDIO = 'trailgps_turn_audio_enabled';
+    const STORAGE_KEY_HR_MAX = 'trailgps_user_hr_max';
 
     // --- MAP TILES CONFIGURATION ---
     const MAP_LAYERS = {
@@ -2367,6 +2708,37 @@
     let isTurnAudioEnabled = true;
     let wasOffTrack = false;
 
+    // Bluetooth Low Energy & Biometric Sensor Hub
+    let userMaxHr = 185;
+    let isSensorSimActive = false;
+    let sensorSimInterval = null;
+
+    const sensorState = {
+      hrm: {
+        device: null,
+        server: null,
+        characteristic: null,
+        connected: false,
+        name: 'Banda Cardíaca',
+        bpm: null,
+        zone: null,
+        battery: null,
+        samples: [],
+        maxBpm: 0
+      },
+      csc: {
+        device: null,
+        server: null,
+        characteristic: null,
+        connected: false,
+        name: 'Sensor Cadència',
+        rpm: null,
+        battery: null,
+        samples: []
+      },
+      caloriesTotal: 0
+    };
+
     // Camera & Simulation
     let cameraMode = 'headingUp';
     let isSimulating = false;
@@ -2416,10 +2788,15 @@
       isTurnHudEnabled = localStorage.getItem(STORAGE_KEY_TURN_HUD) !== 'false';
       isTurnMapMarkersEnabled = localStorage.getItem(STORAGE_KEY_TURN_MARKERS) !== 'false';
       isTurnAudioEnabled = localStorage.getItem(STORAGE_KEY_TURN_AUDIO) !== 'false';
+      userMaxHr = parseInt(localStorage.getItem(STORAGE_KEY_HR_MAX) || '185', 10);
+
+      const hrMaxInput = document.getElementById('input-hr-max');
+      if (hrMaxInput) hrMaxInput.value = userMaxHr;
 
       switchMapLayer(activeLayerKey);
       applyTrackStyleSettingsUI();
       updateTurnTogglesUI();
+      updateBiometricsUI();
 
       map.on('dragstart', () => {
         cameraMode = 'free';
@@ -2813,6 +3190,8 @@
         lng: pos.lng,
         ele: pos.alt || 200,
         speed: pos.speed || 0,
+        hr: sensorState.hrm.bpm || null,
+        cad: sensorState.csc.rpm || null,
         time: new Date().toISOString()
       };
 
@@ -2880,7 +3259,7 @@
       const defaultName = `Sortida BTT ${new Date().toLocaleDateString('ca-ES')}`;
       const routeName = prompt('Nom de la ruta per desar el GPX:', defaultName) || defaultName;
 
-      let gpxXml = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="TrailGPS MTB" xmlns="http://www.topografix.com/GPX/1/1">\n`;
+      let gpxXml = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="TrailGPS MTB" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1">\n`;
       gpxXml += `  <metadata>\n    <name>${escapeXml(routeName)}</name>\n    <time>${new Date().toISOString()}</time>\n  </metadata>\n`;
       
       waypoints.forEach(wp => {
@@ -2889,7 +3268,14 @@
 
       gpxXml += `  <trk>\n    <name>${escapeXml(routeName)}</name>\n    <trkseg>\n`;
       recordedPoints.forEach(p => {
-        gpxXml += `      <trkpt lat="${p.lat.toFixed(6)}" lon="${p.lng.toFixed(6)}">\n        <ele>${p.ele.toFixed(1)}</ele>\n        <time>${p.time}</time>\n      </trkpt>\n`;
+        let ext = '';
+        if (p.hr || p.cad) {
+          ext = `\n        <extensions>\n          <gpxtpx:TrackPointExtension>\n` +
+                (p.hr ? `            <gpxtpx:hr>${p.hr}</gpxtpx:hr>\n` : '') +
+                (p.cad ? `            <gpxtpx:cad>${p.cad}</gpxtpx:cad>\n` : '') +
+                `          </gpxtpx:TrackPointExtension>\n        </extensions>`;
+        }
+        gpxXml += `      <trkpt lat="${p.lat.toFixed(6)}" lon="${p.lng.toFixed(6)}">\n        <ele>${p.ele.toFixed(1)}</ele>\n        <time>${p.time}</time>${ext}\n      </trkpt>\n`;
       });
       gpxXml += `    </trkseg>\n  </trk>\n</gpx>`;
 
@@ -3678,6 +4064,450 @@
       }
     }
 
+    // --- BLUETOOTH LOW ENERGY (BLE) SENSOR HUB ---
+    async function connectHrmSensor() {
+      if (!navigator.bluetooth) {
+        showToast('⚠️ El teu navegador no suporta Web Bluetooth');
+        return;
+      }
+      try {
+        const btn = document.getElementById('btn-hrm-connect');
+        const statusEl = document.getElementById('hrm-status-text');
+        if (btn) btn.textContent = 'Cercant...';
+        if (statusEl) statusEl.textContent = 'Emparellant dispositiu...';
+
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['heart_rate'] }],
+          optionalServices: ['battery_service']
+        });
+
+        sensorState.hrm.device = device;
+        sensorState.hrm.name = device.name || 'Banda Cardíaca';
+
+        device.addEventListener('gattserverdisconnected', onHrmDisconnected);
+
+        if (statusEl) statusEl.textContent = 'Connectant GATT...';
+        const server = await device.gatt.connect();
+        sensorState.hrm.server = server;
+
+        const service = await server.getPrimaryService('heart_rate');
+        const char = await service.getCharacteristic('heart_rate_measurement');
+        sensorState.hrm.characteristic = char;
+
+        await char.startNotifications();
+        char.addEventListener('characteristicvaluechanged', handleHeartRateMeasurement);
+
+        try {
+          const battService = await server.getPrimaryService('battery_service');
+          const battChar = await battService.getCharacteristic('battery_level');
+          const battVal = await battChar.readValue();
+          sensorState.hrm.battery = battVal.getUint8(0);
+          await battChar.startNotifications();
+          battChar.addEventListener('characteristicvaluechanged', (e) => {
+            sensorState.hrm.battery = e.target.value.getUint8(0);
+            updateBiometricsUI();
+          });
+        } catch (battErr) {}
+
+        sensorState.hrm.connected = true;
+        updateHrmUIState();
+        updateBiometricsUI();
+        showToast(`💓 Connectat a ${sensorState.hrm.name}!`);
+      } catch (err) {
+        console.warn('HRM Connection error:', err);
+        updateHrmUIState();
+        if (err.name !== 'NotFoundError') {
+          showToast(`⚠️ Error connectant banda: ${err.message || err}`);
+        }
+      }
+    }
+
+    function disconnectHrmSensor() {
+      if (sensorState.hrm.device && sensorState.hrm.device.gatt.connected) {
+        sensorState.hrm.device.gatt.disconnect();
+      }
+      onHrmDisconnected();
+      showToast('Banda cardíaca desconnectada');
+    }
+
+    function onHrmDisconnected() {
+      sensorState.hrm.connected = false;
+      sensorState.hrm.bpm = null;
+      sensorState.hrm.zone = null;
+      updateHrmUIState();
+      updateBiometricsUI();
+    }
+
+    function handleHeartRateMeasurement(event) {
+      const dataView = event.target.value;
+      const flags = dataView.getUint8(0);
+      const is16Bit = (flags & 0x01) !== 0;
+      const bpm = is16Bit ? dataView.getUint16(1, true) : dataView.getUint8(1);
+
+      sensorState.hrm.bpm = bpm;
+      sensorState.hrm.samples.push(bpm);
+      if (bpm > sensorState.hrm.maxBpm) sensorState.hrm.maxBpm = bpm;
+      sensorState.hrm.zone = getHeartRateZone(bpm, userMaxHr);
+
+      updateBiometricsUI();
+    }
+
+    async function connectCscSensor() {
+      if (!navigator.bluetooth) {
+        showToast('⚠️ El teu navegador no suporta Web Bluetooth');
+        return;
+      }
+      try {
+        const btn = document.getElementById('btn-csc-connect');
+        const statusEl = document.getElementById('csc-status-text');
+        if (btn) btn.textContent = 'Cercant...';
+        if (statusEl) statusEl.textContent = 'Emparellant sensor...';
+
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['cycling_speed_and_cadence'] }],
+          optionalServices: ['battery_service']
+        });
+
+        sensorState.csc.device = device;
+        sensorState.csc.name = device.name || 'Sensor Cadència';
+
+        device.addEventListener('gattserverdisconnected', onCscDisconnected);
+
+        if (statusEl) statusEl.textContent = 'Connectant GATT...';
+        const server = await device.gatt.connect();
+        sensorState.csc.server = server;
+
+        const service = await server.getPrimaryService('cycling_speed_and_cadence');
+        const char = await service.getCharacteristic('csc_measurement');
+        sensorState.csc.characteristic = char;
+
+        await char.startNotifications();
+        char.addEventListener('characteristicvaluechanged', handleCscMeasurement);
+
+        try {
+          const battService = await server.getPrimaryService('battery_service');
+          const battChar = await battService.getCharacteristic('battery_level');
+          const battVal = await battChar.readValue();
+          sensorState.csc.battery = battVal.getUint8(0);
+          await battChar.startNotifications();
+          battChar.addEventListener('characteristicvaluechanged', (e) => {
+            sensorState.csc.battery = e.target.value.getUint8(0);
+            updateBiometricsUI();
+          });
+        } catch (battErr) {}
+
+        sensorState.csc.connected = true;
+        updateCscUIState();
+        updateBiometricsUI();
+        showToast(`🔄 Connectat a ${sensorState.csc.name}!`);
+      } catch (err) {
+        console.warn('CSC Connection error:', err);
+        updateCscUIState();
+        if (err.name !== 'NotFoundError') {
+          showToast(`⚠️ Error connectant sensor: ${err.message || err}`);
+        }
+      }
+    }
+
+    function disconnectCscSensor() {
+      if (sensorState.csc.device && sensorState.csc.device.gatt.connected) {
+        sensorState.csc.device.gatt.disconnect();
+      }
+      onCscDisconnected();
+      showToast('Sensor de cadència desconnectat');
+    }
+
+    function onCscDisconnected() {
+      sensorState.csc.connected = false;
+      sensorState.csc.rpm = null;
+      lastCrankRevs = null;
+      lastCrankTime = null;
+      updateCscUIState();
+      updateBiometricsUI();
+    }
+
+    let lastCrankRevs = null;
+    let lastCrankTime = null;
+
+    function handleCscMeasurement(event) {
+      const dataView = event.target.value;
+      const flags = dataView.getUint8(0);
+      const hasWheel = (flags & 0x01) !== 0;
+      const hasCrank = (flags & 0x02) !== 0;
+      let offset = 1;
+
+      if (hasWheel) {
+        offset += 6;
+      }
+
+      if (hasCrank && dataView.byteLength >= offset + 4) {
+        const cumulativeRevs = dataView.getUint16(offset, true);
+        const eventTime = dataView.getUint16(offset + 2, true);
+
+        if (lastCrankRevs !== null && lastCrankTime !== null) {
+          let deltaRevs = cumulativeRevs - lastCrankRevs;
+          if (deltaRevs < 0) deltaRevs += 65536;
+
+          let deltaTime = eventTime - lastCrankTime;
+          if (deltaTime < 0) deltaTime += 65536;
+
+          if (deltaTime > 0 && deltaRevs > 0) {
+            const deltaSec = deltaTime / 1024;
+            const rpm = Math.min(180, Math.round((deltaRevs / deltaSec) * 60));
+            sensorState.csc.rpm = rpm;
+            sensorState.csc.samples.push(rpm);
+            updateBiometricsUI();
+          }
+        }
+        lastCrankRevs = cumulativeRevs;
+        lastCrankTime = eventTime;
+      }
+    }
+
+    function getHeartRateZone(bpm, maxHr) {
+      if (!bpm || bpm <= 0) return { zone: 'Z0', name: 'Repòs', color: '#94A3B8', bg: '#334155' };
+      const pct = (bpm / maxHr) * 100;
+      if (pct < 60) return { zone: 'Z1', name: 'Z1 RECUPERACIÓ', color: '#38BDF8', bg: 'rgba(56, 189, 248, 0.2)' };
+      if (pct < 70) return { zone: 'Z2', name: 'Z2 AERÒBIC', color: '#10B981', bg: 'rgba(16, 185, 129, 0.2)' };
+      if (pct < 80) return { zone: 'Z3', name: 'Z3 TEMPO', color: '#FACC15', bg: 'rgba(250, 204, 21, 0.2)' };
+      if (pct < 90) return { zone: 'Z4', name: 'Z4 LLINDAR', color: '#FF6600', bg: 'rgba(255, 102, 0, 0.2)' };
+      return { zone: 'Z5', name: 'Z5 MÀXIM ESFORÇ', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.2)' };
+    }
+
+    function updateHrmUIState() {
+      const card = document.getElementById('sensor-card-hrm');
+      const statusEl = document.getElementById('hrm-status-text');
+      const btn = document.getElementById('btn-hrm-connect');
+      const liveRow = document.getElementById('hrm-live-row');
+
+      if (sensorState.hrm.connected) {
+        if (card) card.className = 'sensor-card connected';
+        if (statusEl) statusEl.textContent = `Connectat: ${sensorState.hrm.name}`;
+        if (btn) {
+          btn.className = 'btn-sensor-action connected';
+          btn.innerHTML = '<span>Desconnectar</span>';
+        }
+        if (liveRow) liveRow.style.display = 'flex';
+      } else {
+        if (card) card.className = 'sensor-card';
+        if (statusEl) statusEl.textContent = 'Desconnectat';
+        if (btn) {
+          btn.className = 'btn-sensor-action';
+          btn.innerHTML = '<span>Connectar</span>';
+        }
+        if (liveRow) liveRow.style.display = 'none';
+      }
+    }
+
+    function updateCscUIState() {
+      const card = document.getElementById('sensor-card-csc');
+      const statusEl = document.getElementById('csc-status-text');
+      const btn = document.getElementById('btn-csc-connect');
+      const liveRow = document.getElementById('csc-live-row');
+
+      if (sensorState.csc.connected) {
+        if (card) card.className = 'sensor-card connected';
+        if (statusEl) statusEl.textContent = `Connectat: ${sensorState.csc.name}`;
+        if (btn) {
+          btn.className = 'btn-sensor-action connected';
+          btn.innerHTML = '<span>Desconnectar</span>';
+        }
+        if (liveRow) liveRow.style.display = 'flex';
+      } else {
+        if (card) card.className = 'sensor-card';
+        if (statusEl) statusEl.textContent = 'Desconnectat';
+        if (btn) {
+          btn.className = 'btn-sensor-action';
+          btn.innerHTML = '<span>Connectar</span>';
+        }
+        if (liveRow) liveRow.style.display = 'none';
+      }
+    }
+
+    function updateBiometricsUI() {
+      const hasAnySensor = sensorState.hrm.connected || sensorState.csc.connected || isSensorSimActive;
+      const bpm = sensorState.hrm.bpm;
+      const rpm = sensorState.csc.rpm;
+
+      // Update Cockpit Dock
+      const cockpitHrBox = document.getElementById('cockpit-hr-box');
+      const metricHr = document.getElementById('metric-hr');
+      const cockpitHrLabel = document.getElementById('cockpit-hr-label');
+      const metricHrUnit = document.getElementById('metric-hr-unit');
+
+      if (cockpitHrBox) {
+        if (hasAnySensor) {
+          cockpitHrBox.style.display = 'flex';
+          if (bpm) {
+            const zone = getHeartRateZone(bpm, userMaxHr);
+            if (metricHr) {
+              metricHr.textContent = bpm;
+              metricHr.style.color = zone.color;
+            }
+            if (cockpitHrLabel) cockpitHrLabel.textContent = zone.zone;
+            if (metricHrUnit) metricHrUnit.textContent = 'bpm';
+          } else if (rpm) {
+            if (metricHr) {
+              metricHr.textContent = rpm;
+              metricHr.style.color = '#38BDF8';
+            }
+            if (cockpitHrLabel) cockpitHrLabel.textContent = 'CADÈNCIA';
+            if (metricHrUnit) metricHrUnit.textContent = 'rpm';
+          }
+        } else {
+          cockpitHrBox.style.display = 'none';
+        }
+      }
+
+      // Update Sensors Modal Live Row
+      if (bpm) {
+        const liveBpm = document.getElementById('hrm-live-bpm');
+        const liveZone = document.getElementById('hrm-live-zone');
+        const zone = getHeartRateZone(bpm, userMaxHr);
+        if (liveBpm) {
+          liveBpm.textContent = bpm;
+          liveBpm.style.color = zone.color;
+        }
+        if (liveZone) {
+          liveZone.textContent = zone.name;
+          liveZone.style.background = zone.bg;
+          liveZone.style.color = zone.color;
+        }
+      }
+      if (sensorState.hrm.battery !== null) {
+        const battBox = document.getElementById('hrm-battery-box');
+        const battVal = document.getElementById('hrm-battery-val');
+        if (battBox && battVal) {
+          battBox.style.display = 'flex';
+          battVal.textContent = `${sensorState.hrm.battery}%`;
+        }
+      }
+
+      if (rpm) {
+        const liveRpm = document.getElementById('csc-live-rpm');
+        if (liveRpm) liveRpm.textContent = rpm;
+      }
+      if (sensorState.csc.battery !== null) {
+        const battBox = document.getElementById('csc-battery-box');
+        const battVal = document.getElementById('csc-battery-val');
+        if (battBox && battVal) {
+          battBox.style.display = 'flex';
+          battVal.textContent = `${sensorState.csc.battery}%`;
+        }
+      }
+
+      // Update Expanded Stats Dashboard
+      const statHr = document.getElementById('stat-hr');
+      const statHrZone = document.getElementById('stat-hr-zone');
+      const statAvgHr = document.getElementById('stat-avg-hr');
+      const statCad = document.getElementById('stat-cad');
+      const statCalories = document.getElementById('stat-calories');
+
+      if (bpm) {
+        const zone = getHeartRateZone(bpm, userMaxHr);
+        if (statHr) {
+          statHr.textContent = bpm;
+          statHr.style.color = zone.color;
+        }
+        if (statHrZone) statHrZone.textContent = `BPM (${zone.zone})`;
+      } else {
+        if (statHr) {
+          statHr.textContent = '--';
+          statHr.style.color = '';
+        }
+        if (statHrZone) statHrZone.textContent = 'BPM';
+      }
+
+      if (sensorState.hrm.samples.length > 0) {
+        const sum = sensorState.hrm.samples.reduce((a, b) => a + b, 0);
+        const avg = Math.round(sum / sensorState.hrm.samples.length);
+        if (statAvgHr) statAvgHr.textContent = `${avg} / ${sensorState.hrm.maxBpm}`;
+      }
+
+      if (rpm) {
+        if (statCad) statCad.textContent = rpm;
+      } else {
+        if (statCad) statCad.textContent = '--';
+      }
+
+      // Calories calculation estimation
+      if (bpm && isRecording && !isRecPaused) {
+        const kcalPerSec = Math.max(0.05, ((0.6309 * bpm) - 40) / 250);
+        sensorState.caloriesTotal += (kcalPerSec / 1);
+        if (statCalories) statCalories.textContent = Math.round(sensorState.caloriesTotal);
+      }
+
+      // Tools button badge
+      const btnSensors = document.getElementById('btn-sensors');
+      if (btnSensors) {
+        if (hasAnySensor) {
+          btnSensors.classList.add('active');
+        } else {
+          btnSensors.classList.remove('active');
+        }
+      }
+    }
+
+    function saveUserMaxHr() {
+      const input = document.getElementById('input-hr-max');
+      if (!input) return;
+      const val = parseInt(input.value, 10);
+      if (val >= 120 && val <= 230) {
+        userMaxHr = val;
+        localStorage.setItem(STORAGE_KEY_HR_MAX, userMaxHr.toString());
+        updateBiometricsUI();
+        showToast(`FC Màxima guardada: ${userMaxHr} BPM`);
+      } else {
+        showToast('Introdueix un valor vàlid entre 120 i 230 BPM');
+      }
+    }
+
+    function toggleSensorSimulator() {
+      isSensorSimActive = !isSensorSimActive;
+      const btn = document.getElementById('btn-toggle-sensor-sim');
+      const label = document.getElementById('sensor-sim-label');
+
+      if (isSensorSimActive) {
+        if (btn) btn.className = 'btn-sensor-sim active';
+        if (label) label.textContent = 'Aturar Simulador de Sensors';
+        sensorState.hrm.connected = true;
+        sensorState.csc.connected = true;
+        sensorState.hrm.name = 'Banda Virtual Sim';
+        sensorState.csc.name = 'Cadència Virtual Sim';
+        updateHrmUIState();
+        updateCscUIState();
+
+        if (sensorSimInterval) clearInterval(sensorSimInterval);
+        sensorSimInterval = setInterval(() => {
+          if (!isSensorSimActive) return;
+          const speed = userPosition.speed || 15;
+          const slope = track && track.points ? (userPosition.slope || 0) : 2;
+
+          let targetBpm = 132 + (slope * 4.5) + (speed * 0.8) + (Math.random() * 4 - 2);
+          targetBpm = Math.max(105, Math.min(182, Math.round(targetBpm)));
+          sensorState.hrm.bpm = targetBpm;
+          sensorState.hrm.samples.push(targetBpm);
+          if (targetBpm > sensorState.hrm.maxBpm) sensorState.hrm.maxBpm = targetBpm;
+
+          let targetRpm = slope > 10 ? 68 : (speed < 5 ? 0 : 82 + Math.round(Math.random() * 6 - 3));
+          sensorState.csc.rpm = Math.max(0, Math.min(115, targetRpm));
+          sensorState.csc.samples.push(targetRpm);
+
+          updateBiometricsUI();
+        }, 1000);
+
+        showToast('🧪 Simulador de sensors BLE activat!');
+      } else {
+        if (btn) btn.className = 'btn-sensor-sim';
+        if (label) label.textContent = 'Activar Simulador de Sensors';
+        if (sensorSimInterval) clearInterval(sensorSimInterval);
+        sensorSimInterval = null;
+        onHrmDisconnected();
+        onCscDisconnected();
+        showToast('🧪 Simulador de sensors aturat');
+      }
+    }
+
     // --- GEOMETRY & MATH ---
     function getDistanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371000;
@@ -4003,6 +4833,9 @@
       document.getElementById('btn-waypoints')?.classList.remove('active');
       document.getElementById('btn-turns')?.classList.remove('active');
       document.getElementById('btn-routes-lib')?.classList.remove('active');
+      if (!sensorState.hrm.connected && !sensorState.csc.connected && !isSensorSimActive) {
+        document.getElementById('btn-sensors')?.classList.remove('active');
+      }
     }
 
     function toggleToolsModal(e) {
@@ -4254,6 +5087,41 @@
       bindAction('toggle-turn-hud-btn', () => toggleTurnHud());
       bindAction('toggle-turn-markers-btn', () => toggleTurnMapMarkers());
       bindAction('toggle-turn-audio-btn', () => toggleTurnAudioAlerts());
+
+      // BLE Sensors Modal Toggle
+      const sensorsBtn = document.getElementById('btn-sensors');
+      const sensorsModal = document.getElementById('sensors-modal');
+      bindAction('btn-sensors', () => {
+        const isVisible = sensorsModal.style.display === 'flex';
+        if (isVisible) {
+          closeAllModals();
+        } else {
+          openModal('sensors-modal');
+          updateHrmUIState();
+          updateCscUIState();
+          updateBiometricsUI();
+        }
+      });
+
+      // BLE Sensor Actions
+      bindAction('btn-hrm-connect', () => {
+        if (sensorState.hrm.connected) {
+          disconnectHrmSensor();
+        } else {
+          connectHrmSensor();
+        }
+      });
+
+      bindAction('btn-csc-connect', () => {
+        if (sensorState.csc.connected) {
+          disconnectCscSensor();
+        } else {
+          connectCscSensor();
+        }
+      });
+
+      bindAction('btn-save-hr-max', saveUserMaxHr);
+      bindAction('btn-toggle-sensor-sim', toggleSensorSimulator);
 
       // Audio Alerts Toggle (Global Master)
       bindAction('btn-audio-toggle', toggleAudioAlerts);
