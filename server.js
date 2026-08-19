@@ -33,9 +33,9 @@ const server = http.createServer((req, res) => {
   let filePath = path.join(DIR, safePath);
   let ext = path.extname(filePath).toLowerCase();
 
-  // Special fallback for iOS Apple Touch Icons if requested with other names
+  // Special fallback for iOS Apple Touch Icons if requested with root names
   if (!fs.existsSync(filePath) && safePath.toLowerCase().includes('apple-touch-icon')) {
-    filePath = path.join(DIR, 'apple-touch-icon.png');
+    filePath = path.join(DIR, 'assets', 'icons', 'apple-touch-icon.png');
     ext = '.png';
   }
 

@@ -4,9 +4,14 @@ const sharp = require('sharp');
 
 async function generatePureDialIcons() {
   const rootDir = path.resolve(__dirname, '..');
-  const webAppDir = path.join(rootDir, 'web-app');
+  const iconsDir = path.join(rootDir, 'assets', 'icons');
+  const webAppIconsDir = path.join(rootDir, 'web-app', 'assets', 'icons');
   const trailGpsAssets = path.join(rootDir, 'trail-gps', 'assets');
   const assetsBrandDir = path.join(rootDir, 'assets', 'brand');
+
+  [iconsDir, webAppIconsDir, trailGpsAssets, assetsBrandDir].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  });
 
   const rawMaster = path.join(assetsBrandDir, 'master-icon.jfif');
   const masterPNG = path.join(assetsBrandDir, 'master-icon.png');
@@ -15,7 +20,7 @@ async function generatePureDialIcons() {
     throw new Error(`No s'ha trobat ${rawMaster}`);
   }
 
-  console.log('✨ Extraient exclusivament el dial circular i eliminant qualsevol requadre o doble marc...');
+  console.log('✨ Extraient exclusivament el dial circular i generant icones a assets/icons/...');
 
   const size = 1024;
   const dialDiameter = 890; // 87% de la mida (zona segura estàndard Apple iOS)
@@ -75,11 +80,11 @@ async function generatePureDialIcons() {
   <image href="data:image/png;base64,${icon512Base64}" width="512" height="512" />
 </svg>`;
 
-  fs.writeFileSync(path.join(rootDir, 'favicon.svg'), faviconSvgContent, 'utf8');
-  fs.writeFileSync(path.join(webAppDir, 'favicon.svg'), faviconSvgContent, 'utf8');
-  fs.writeFileSync(path.join(rootDir, 'icon.svg'), faviconSvgContent, 'utf8');
-  fs.writeFileSync(path.join(webAppDir, 'icon.svg'), faviconSvgContent, 'utf8');
-  console.log('✅ favicon.svg i icon.svg desats');
+  fs.writeFileSync(path.join(iconsDir, 'favicon.svg'), faviconSvgContent, 'utf8');
+  fs.writeFileSync(path.join(webAppIconsDir, 'favicon.svg'), faviconSvgContent, 'utf8');
+  fs.writeFileSync(path.join(iconsDir, 'icon.svg'), faviconSvgContent, 'utf8');
+  fs.writeFileSync(path.join(webAppIconsDir, 'icon.svg'), faviconSvgContent, 'utf8');
+  console.log('✅ favicon.svg i icon.svg desats a assets/icons/');
 
   // Background per a Android adaptive icon
   const bgBuffer = await sharp({
@@ -92,20 +97,20 @@ async function generatePureDialIcons() {
   }).png().toBuffer();
 
   const iconTasks = [
-    // Web & PWA
-    { name: 'favicon-32.png', size: 32, targets: [rootDir, webAppDir] },
-    { name: 'favicon.ico', size: 32, targets: [rootDir, webAppDir] },
-    { name: 'favicon.png', size: 64, targets: [rootDir, webAppDir, trailGpsAssets] },
-    { name: 'apple-touch-icon.png', size: 180, targets: [rootDir, webAppDir] },
-    { name: 'apple-touch-icon-precomposed.png', size: 180, targets: [rootDir, webAppDir] },
-    { name: 'apple-touch-icon-180x180.png', size: 180, targets: [rootDir, webAppDir] },
-    { name: 'apple-touch-icon-180x180-precomposed.png', size: 180, targets: [rootDir, webAppDir] },
-    { name: 'apple-touch-icon-152x152.png', size: 152, targets: [rootDir, webAppDir] },
-    { name: 'apple-touch-icon-120x120.png', size: 120, targets: [rootDir, webAppDir] },
-    { name: 'icon-192.png', size: 192, targets: [rootDir, webAppDir] },
-    { name: 'icon-512.png', size: 512, targets: [rootDir, webAppDir] },
-    { name: 'icon-maskable-192.png', size: 192, targets: [rootDir, webAppDir] },
-    { name: 'icon-maskable-512.png', size: 512, targets: [rootDir, webAppDir] },
+    // Web & PWA (destinació assets/icons/)
+    { name: 'favicon-32.png', size: 32, targets: [iconsDir, webAppIconsDir] },
+    { name: 'favicon.ico', size: 32, targets: [iconsDir, webAppIconsDir] },
+    { name: 'favicon.png', size: 64, targets: [iconsDir, webAppIconsDir, trailGpsAssets] },
+    { name: 'apple-touch-icon.png', size: 180, targets: [iconsDir, webAppIconsDir] },
+    { name: 'apple-touch-icon-precomposed.png', size: 180, targets: [iconsDir, webAppIconsDir] },
+    { name: 'apple-touch-icon-180x180.png', size: 180, targets: [iconsDir, webAppIconsDir] },
+    { name: 'apple-touch-icon-180x180-precomposed.png', size: 180, targets: [iconsDir, webAppIconsDir] },
+    { name: 'apple-touch-icon-152x152.png', size: 152, targets: [iconsDir, webAppIconsDir] },
+    { name: 'apple-touch-icon-120x120.png', size: 120, targets: [iconsDir, webAppIconsDir] },
+    { name: 'icon-192.png', size: 192, targets: [iconsDir, webAppIconsDir] },
+    { name: 'icon-512.png', size: 512, targets: [iconsDir, webAppIconsDir] },
+    { name: 'icon-maskable-192.png', size: 192, targets: [iconsDir, webAppIconsDir] },
+    { name: 'icon-maskable-512.png', size: 512, targets: [iconsDir, webAppIconsDir] },
 
     // Expo & React Native
     { name: 'icon.png', size: 1024, targets: [trailGpsAssets] },
@@ -134,10 +139,7 @@ async function generatePureDialIcons() {
   fs.writeFileSync(path.join(trailGpsAssets, 'android-icon-background.png'), bgBuffer);
   console.log(`  -> Generat: trail-gps/assets/android-icon-background.png (1024x1024)`);
 
-  const testFile = path.join(assetsBrandDir, 'pure-dial-test.png');
-  if (fs.existsSync(testFile)) fs.unlinkSync(testFile);
-
-  console.log('🎉 Totes les icones s\'han generat sobre fons homogeni pur sense cap doble requadre!');
+  console.log('🎉 Totes les icones s\'han organitzat a assets/icons/ correctament!');
 }
 
 generatePureDialIcons().catch(err => {
