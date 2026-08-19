@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 19 d'agost de 2026 (Indicadors de Girs & Cruïlles Turn-by-Turn, Roadbook Cue Sheet & Àudio Sintetitzat v2.3.0)  
-> **Estat general:** Versió PWA v2.3.0 completada amb motor autònom de detecció de girs i cruïlles a tracks GPX, banner HUD de navegació Turn-by-Turn en temps real, full de ruta (Roadbook) complet, fites de gir sobre el mapa Leaflet i sintetitzador acústic d'alertes i retorn a traçat (Web Audio API).
+> **Darrera actualització:** 19 d'agost de 2026 (Indicadors de Girs & Cruïlles Turn-by-Turn, Roadbook Cue Sheet, Toggles de Visualització & Àudio v2.3.1)  
+> **Estat general:** Versió PWA v2.3.1 completada amb opcions independents per activar o desactivar la targeta de gir HUD, les fites de gir sobre el mapa i els avisos acústics de maniobra, amb persistència a `localStorage`.
 
 ---
 
@@ -19,7 +19,7 @@
   - [LICENSE](file:///C:/Users/David/Desktop/App%20bici%20GPS/LICENSE): Llicència legal de programari lliure GNU AGPL v3 (Codi) i CC BY-SA 4.0 (Continguts) - David Cordones (2026).
   - [PROJECT_STATUS.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/PROJECT_STATUS.md): Punt de control i continuïtat entre sessions.
   - [docs/DOCUMENTACIO_PROJECTE.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/DOCUMENTACIO_PROJECTE.md): Documentació exhaustiva d'especificacions i arquitectura.
-  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, roadbook de girs, cockpit compacte, bottom sheets, brúixola, perfil ClimbPro, gravador REC, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
+  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, panell de control de visualització de girs, roadbook de girs, cockpit compacte, bottom sheets, brúixola, perfil ClimbPro, gravador REC, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
   - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
   - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
   - [assets/brand/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/brand/): Imatges mestres d'alta resolució (`master-icon.png`, `master-icon.jfif`).
@@ -29,7 +29,7 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.3.0)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.3.1)
 
 - **Feina realitzada en aquesta sessió**:
   - [x] **Motor Autònom de Detecció de Girs i Cruïlles (Turn Detection Engine)**:
@@ -39,7 +39,12 @@
   - [x] **Banner Flotant HUD Turn-by-Turn**:
     - Targeta superior d'alt contrast amb fletxes vectorials SVG d'alta fidelitat (`#00E5FF` girs normals, `#FF6600` forquilles, `#EF4444` U-turns).
     - Compte enrere en directe: metres fins al gir, transició a badge fluorescent `ARA` (<14m) i indicació de destinació en finalitzar.
-    - Botó `📋` integrat per obrir el Roadbook complet.
+    - Botons `📋` (obrir el Roadbook) i `✕` (amagar ràpidament la targeta de gir).
+  - [x] **Panell de Configuració i Toggles de Girs a `#turns-modal`**:
+    - Botó de commutació **🧭 Targeta HUD** (ON / OFF): Permet amagar o mostrar el banner superior flotant.
+    - Botó de commutació **🗺️ Fites Mapa** (ON / OFF): Permet mostrar o amagar les fites circulars de gir sobre el mapa Leaflet.
+    - Botó de commutació **🔔 Avisos So** (ON / OFF): Permet activar o silenciar els avisos acústics específics de girs (mantenint si es vol les alertes de desviació de ruta).
+    - Persistència total de les preferències de l'usuari mitjançant `localStorage`.
   - [x] **Llista Roadbook de Girs i Cruïlles (`#turns-modal`)**:
     - Modal tàctil amb resum de girs totals, quilometratge del track i llista cronològica de girs amb cota d'elevació i angle.
     - Indicadors d'estat per a cada gir en temps real: `PASSAT`, `a 85m`, `ARA`.
