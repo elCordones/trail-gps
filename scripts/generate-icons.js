@@ -2,39 +2,33 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-async function generateIconsFromMaster() {
+async function generateIcons() {
   const rootDir = path.resolve(__dirname, '..');
   const webAppDir = path.join(rootDir, 'web-app');
   const trailGpsAssets = path.join(rootDir, 'trail-gps', 'assets');
   const assetsBrandDir = path.join(rootDir, 'assets', 'brand');
 
-  // Ensure directories exist
-  [webAppDir, trailGpsAssets, assetsBrandDir].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  });
-
-  // Source master icon
-  let masterPath = path.join(rootDir, 'nova icona.jfif');
-  if (!fs.existsSync(masterPath)) {
-    masterPath = path.join(assetsBrandDir, 'master-icon.jfif');
-  }
-  if (!fs.existsSync(masterPath)) {
-    throw new Error('No s\'ha trobat el fitxer d\'icona mestre (nova icona.jfif / master-icon.jfif)');
+  // Source master image
+  const rawMasterPath = path.join(assetsBrandDir, 'master-icon.jfif');
+  if (!fs.existsSync(rawMasterPath)) {
+    throw new Error(`No s'ha trobat ${rawMasterPath}`);
   }
 
-  console.log(`🎨 Carregant imatge mestre des de: ${masterPath}`);
-
-  // Create standard master PNG 2048x2048 in assets/brand/
-  const masterPNGPath = path.join(assetsBrandDir, 'master-icon.png');
-  await sharp(masterPath)
+  console.log('✂️  Retallant i eliminant el marc exterior per ajustar el disseny a pantalla completa...');
+  
+  // The dial center is at (1020, 1020) with squircle width/height 1520px
+  // Extracting { left: 260, top: 260, width: 1520, height: 1520 } eliminates the outer canvas frame
+  const croppedMasterPath = path.join(assetsBrandDir, 'master-icon.png');
+  await sharp(rawMasterPath)
+    .extract({ left: 260, top: 260, width: 1520, height: 1520 })
+    .resize(1024, 1024, { kernel: 'lanczos3' })
     .png({ quality: 100, compressionLevel: 9 })
-    .toFile(masterPNGPath);
-  console.log(`✅ Master PNG generat a: ${masterPNGPath}`);
+    .toFile(croppedMasterPath);
 
-  // Generate Favicon SVG embedding the crisp PNG
-  const icon512Base64 = (await sharp(masterPNGPath).resize(512, 512, { kernel: 'lanczos3' }).png().toBuffer()).toString('base64');
+  console.log(`✅ Imatge mestre netejada i desada a: ${croppedMasterPath}`);
+
+  // Create favicon.svg with embedded crisp base64
+  const icon512Base64 = (await sharp(croppedMasterPath).resize(512, 512, { kernel: 'lanczos3' }).png().toBuffer()).toString('base64');
   const faviconSvgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <image href="data:image/png;base64,${icon512Base64}" width="512" height="512" />
 </svg>`;
@@ -45,7 +39,7 @@ async function generateIconsFromMaster() {
   fs.writeFileSync(path.join(webAppDir, 'icon.svg'), faviconSvgContent, 'utf8');
   console.log('✅ favicon.svg i icon.svg desats');
 
-  // Background only for Android adaptive background
+  // Background for Android adaptive icon
   const bgBuffer = await sharp({
     create: {
       width: 1024,
@@ -71,7 +65,7 @@ async function generateIconsFromMaster() {
     { name: 'icon-maskable-192.png', size: 192, targets: [rootDir, webAppDir] },
     { name: 'icon-maskable-512.png', size: 512, targets: [rootDir, webAppDir] },
 
-    // Expo & React Native App
+    // Expo & React Native
     { name: 'icon.png', size: 1024, targets: [trailGpsAssets] },
     { name: 'splash-icon.png', size: 512, targets: [trailGpsAssets] },
     { name: 'android-icon-foreground.png', size: 1024, targets: [trailGpsAssets] },
@@ -79,11 +73,10 @@ async function generateIconsFromMaster() {
   ];
 
   for (const task of iconTasks) {
-    const buffer = await sharp(masterPNGPath)
+    const buffer = await sharp(croppedMasterPath)
       .resize(task.size, task.size, {
         kernel: 'lanczos3',
-        fit: 'contain',
-        background: { r: 15, g: 23, b: 42, alpha: 1 }
+        fit: 'cover'
       })
       .png({ quality: 95, compressionLevel: 9 })
       .toBuffer();
@@ -99,10 +92,16 @@ async function generateIconsFromMaster() {
   fs.writeFileSync(path.join(trailGpsAssets, 'android-icon-background.png'), bgBuffer);
   console.log(`  -> Generat: trail-gps/assets/android-icon-background.png (1024x1024)`);
 
-  console.log('🎉 Tots els assets de la nova icona s\'han generat correctament amb màxima nitidesa!');
+  // Clean test files
+  const test1 = path.join(assetsBrandDir, 'option1-cropped-squircle.png');
+  const test2 = path.join(assetsBrandDir, 'option2-clean-dial.png');
+  if (fs.existsSync(test1)) fs.unlinkSync(test1);
+  if (fs.existsSync(test2)) fs.unlinkSync(test2);
+
+  console.log('🎉 Totes les icones s\'han regenerat sense cap marc exterior i perfectament enquadrades!');
 }
 
-generateIconsFromMaster().catch(err => {
-  console.error('Error generant icones:', err);
+generateIcons().catch(err => {
+  console.error('Error:', err);
   process.exit(1);
 });
