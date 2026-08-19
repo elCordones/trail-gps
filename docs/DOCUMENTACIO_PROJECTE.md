@@ -117,14 +117,14 @@ npx cloudflared tunnel --url http://127.0.0.1:3000
 
 - [x] **Fases 1 a 6:** Navegació, fletxa direccional, 5 capes de mapa, perfil ClimbPro, geolocalització iOS, descàrrega offline, gravador REC, waypoints i ciclocomputador.
 - [x] **Fase 6.2 (UI & Tàctil):** Redisseny del nano-dock de 52px, pastilla de zoom dreta, perfil ClimbPro d'alta transparència, motor de gestos *Swipe-to-Dismiss*, fons backdrop i botons amples d'amagar.
-- [x] **Fase 7: Disseny d'Icona & Identitat Visual (PWA / App Store):**
-  - Creació de la icona oficial i favicon professional (fletxa delta / muntanya tech) en SVG, PNG d'alta resolució, `apple-touch-icon` per a pantalla d'inici iOS i `manifest.json`.
-  - Icona nativa per al paquet Expo / React Native (`icon.png`, `adaptive-icon.png`, `splash.png`).
-- [ ] **Fase 8: Alertes Acústiques & Hàptiques Dinàmiques:**
-  - Sons i notificacions per a desviacions de ruta (>25m / >40m), retorn a traçat i proximitat a waypoints.
+- [x] **Fase 8: Indicadors de Girs & Cruïlles Turn-by-Turn i Alertes Acústiques Intel·ligents:**
+  - Motor de detecció trigonomètrica d'angles de gir a tracks GPX (Lleuger, Normal, Forquilla, Canvi de Sentit).
+  - Targeta superior HUD Turn-by-Turn amb compte enrere de metres i fletxes vectorials SVG dinàmiques.
+  - Llista Roadbook de girs (`#turns-modal`) i fites visuals de corba interactives al mapa Leaflet.
+  - Sintetitzador d'àudio Web Audio API (avís d'aproximació a 40m, to immediat a 12m, alarma de fora de ruta i so d'alegria en retornar al traçat).
 - [ ] **Fase 9: Telemetria Avançada i Sensors Bluetooth (BLE):**
-  - Connexió de sensors BLE de freqüència cardíaca (banda de pit), cadència de pedaleig o canvi electrònic (SRAM AXS / Shimano Di2).
-  - Mode d'estalvi de bateria *Screen Wake on Turn*.
+  - Connexió de sensors BLE de freqüència cardíaca (Heart Rate `0x180D`), cadència de pedaleig (`0x1816`) i zones Z1-Z5.
+  - Inclusió de dades de freqüència cardíaca i cadència a l'arxiu `.gpx` del gravador REC.
 - [ ] **Fase 10: Integració amb l'Ecosistema Apple (HealthKit & Apple Watch):**
   - Sincronització automàtica de sortides amb **Apple Salut / Entrenaments** (freqüència cardíaca, calories, +D, velocitats, distància).
   - **Companion App per a Apple Watch (watchOS)**: Pantalla de telemetria al canell i alertes hàptiques de gir o pèrdua de camí.

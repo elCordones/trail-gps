@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 19 d'agost de 2026 (Branding Visual Definitiu, Reorganització de Carpetes & PWA v2.2.4)  
-> **Estat general:** Versió PWA v2.2.4 completada i validada a iPhone. S'ha integrat la nova identitat visual d'alt contrast (dial de ciclocomputador amb fletxa delta cian fluorescent i corriol de muntanya en taronja elèctric sobre fons pur Dark Slate / OLED) eliminant tot doble marc. S'ha reestructurat l'espai de treball organitzant la documentació a `docs/` i els fitxers mestres a `assets/brand/`.
+> **Darrera actualització:** 19 d'agost de 2026 (Indicadors de Girs & Cruïlles Turn-by-Turn, Roadbook Cue Sheet & Àudio Sintetitzat v2.3.0)  
+> **Estat general:** Versió PWA v2.3.0 completada amb motor autònom de detecció de girs i cruïlles a tracks GPX, banner HUD de navegació Turn-by-Turn en temps real, full de ruta (Roadbook) complet, fites de gir sobre el mapa Leaflet i sintetitzador acústic d'alertes i retorn a traçat (Web Audio API).
 
 ---
 
@@ -19,7 +19,7 @@
   - [LICENSE](file:///C:/Users/David/Desktop/App%20bici%20GPS/LICENSE): Llicència legal de programari lliure GNU AGPL v3 (Codi) i CC BY-SA 4.0 (Continguts) - David Cordones (2026).
   - [PROJECT_STATUS.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/PROJECT_STATUS.md): Punt de control i continuïtat entre sessions.
   - [docs/DOCUMENTACIO_PROJECTE.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/DOCUMENTACIO_PROJECTE.md): Documentació exhaustiva d'especificacions i arquitectura.
-  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, cockpit compacte, bottom sheets, brúixola, perfil ClimbPro, gravador REC, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
+  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, roadbook de girs, cockpit compacte, bottom sheets, brúixola, perfil ClimbPro, gravador REC, gestor de Waypoints, ciclocomputador complet, Wake Lock i suport tàctil iOS.
   - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
   - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
   - [assets/brand/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/brand/): Imatges mestres d'alta resolució (`master-icon.png`, `master-icon.jfif`).
@@ -29,43 +29,49 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.2.2)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 19/08/2026 - v2.3.0)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **Nova Identitat Visual de Màxima Qualitat**:
-    - Processament de la imatge mestre 2048x2048 amb disseny de dial d'alta precisió, fletxa delta fluorescent `#00E5FF` i corriol taronja `#FF6600` sobre fons Dark Slate / OLED.
-    - Extracció i retall matemàtic per eliminar el doble marc exterior i alinear el bisell de ciclocomputador directament al 100% de la icona nativa d'iOS.
-    - Conversió i renderització amb algoritme de reescalat d'alta fidelitat `Lanczos3` mitjançant la llibreria nativa `sharp`.
-  - [x] **Generació de tot el paquet d'Assets**:
-    - Paquet complet iOS Safari: `apple-touch-icon.png` (180x180), `apple-touch-icon-180x180.png`, `apple-touch-icon-precomposed.png`, `apple-touch-icon-152x152.png`, `apple-touch-icon-120x120.png`.
-    - Paquet PWA Web: `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `favicon.svg`, `favicon-32.png`, `favicon.png`, `favicon.ico`.
-    - Paquet Expo Nativa: `trail-gps/assets/icon.png` (1024x1024), `splash-icon.png`, `android-icon-foreground.png`, `android-icon-background.png`, `android-icon-monochrome.png`.
-  - [x] **Neteja i Reorganització d'Arxius de l'Espai de Treball**:
-    - Creada la carpeta `docs/` i moguts els documents d'especificacions (`docs/DOCUMENTACIO_PROJECTE.md` i `docs/ESPECIFICACIO_ORIGINAL_GPX.md`).
-    - Creada la carpeta `assets/brand/` per emmagatzemar els fitxers mestres d'identitat corporativa (`master-icon.jfif` i `master-icon.png`).
-    - Eliminades les captures de pantalla temporals obsoletes (`Captures/`).
-    - Mantinguda l'estructura neta i directa a l'arrel per a un servei fluid a GitHub Pages i servidors locals.
-  - [x] **Integració a la UI i Modal d'Informació**:
-    - El modal `#info-modal` utilitza ara la nova icona nítida de 48px amb halo cian i badge `v2.2`.
+  - [x] **Motor Autònom de Detecció de Girs i Cruïlles (Turn Detection Engine)**:
+    - Algorisme trigonomètric de rumb dinàmic amb finestra adaptativa per filtrar el soroll GPS en camins i corriols estrets.
+    - Classificació matemàtica dels girs: Lleuger (26°-52°), Gir estàndard (52°-100°), Forquilla / Tancat (100°-145°) i Canvi de sentit / U-Turn (>145°).
+    - Agrupació matemàtica per identificar el vèrtex exacte de la corba (àpex) i associació contextual de Waypoints propers (ex: *"Lleuger a la dreta (Cim del Mirador BTT)"*).
+  - [x] **Banner Flotant HUD Turn-by-Turn**:
+    - Targeta superior d'alt contrast amb fletxes vectorials SVG d'alta fidelitat (`#00E5FF` girs normals, `#FF6600` forquilles, `#EF4444` U-turns).
+    - Compte enrere en directe: metres fins al gir, transició a badge fluorescent `ARA` (<14m) i indicació de destinació en finalitzar.
+    - Botó `📋` integrat per obrir el Roadbook complet.
+  - [x] **Llista Roadbook de Girs i Cruïlles (`#turns-modal`)**:
+    - Modal tàctil amb resum de girs totals, quilometratge del track i llista cronològica de girs amb cota d'elevació i angle.
+    - Indicadors d'estat per a cada gir en temps real: `PASSAT`, `a 85m`, `ARA`.
+    - En tocar qualsevol gir de la llista, el mapa es desplaça automàticament per visualitzar-ne el punt exacte.
+  - [x] **Fites Visuals de Gir al Mapa Leaflet (`turnMarkersLayer`)**:
+    - Capa de xapes circulars d'alt contrast situades sobre cada corba destacada amb la icona de direcció.
+    - Tooltip emergent amb informació del punt en clicar sobre el mapa.
+  - [x] **Sintetitzador Acústic i Hàptic Intel·ligent (Web Audio API)**:
+    - **Avís d'aproximació** (~40m abans del gir): Melodia cristal·lina de dos tons ascendents (G5 -> C6).
+    - **Avís immediat** (<14m): To sòlid de confirmació (A5).
+    - **Alerta de fora de ruta** (>40m): Alerta acústica descendent d'avís (A5 -> A4).
+    - **Ruta recuperada**: Tríada harmònica ascendent alegre (C5 -> E5 -> G5) en tornar al camí.
+    - Botó de control d'àudio (🔊 ON / 🔇 SILENCI) afegit al menú d'eines.
+  - [x] **Sincronització amb el Simulador GPS**:
+    - El simulador virtual recorre el track executant en temps real el compte enrere de metres, l'actualització de fletxes i els avisos acústics de gir.
 
 - **Punt exacte on ens hem quedat**:
-  - Tota l'estructura neta i organitzada en carpetes.
-  - Icona definitiva generada en totes les resolucions i aplicada.
-  - Pendent de pujar canvis a GitHub i continuar amb el bloc funcional (Alertes sonores / Sensors Bluetooth).
+  - Motor de Turn-by-Turn i roadbook completament integrat i validat sintàcticament a `index.html` i `web-app/index.html`.
+  - Pendent d'iniciar el següent bloc funcional: Sensors Bluetooth BLE (Banda Cardíaca HRM & Cadència).
 
 ---
 
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **🔊 Alertes Sonores i Vibració en Girs / Desviacions de Track**:
-    - Notificacions acústiques clares (Web Audio API) en separar-se més de 25m del traçat i en recuperar la ruta.
-    - So distintiu en aproximació a Waypoints clau (fonts, cims, alertes de perill).
   - [ ] **💓 Telemetria Avançada i Sensors Bluetooth BLE**:
-    - Connexió amb sensors de banda cardíaca (HRM) i cadència via Web Bluetooth API.
+    - Connexió amb sensors de banda cardíaca (Heart Rate Service `0x180D`) i sensors de cadència (`0x1816`) via Web Bluetooth API.
+    - Visualització de BPM i zones cardíaques (Z1-Z5 amb codi de colors) al cockpit i ciclocomputador ampliat.
+    - Exportació de pulsacions i cadència al fitxer GPX del gravador REC (`gpxtpx:hr`, `gpxtpx:cad`).
   - [ ] **🍏 Sincronització amb Apple Salut & Entrenaments (Apple HealthKit)**:
-    - Integració a la versió nativa per desar automàticament les sessions de ciclisme a Apple Health / Fitness (freqüència cardíaca, desnivell +D, velocitats, calories actives i distància).
-  - [ ] **⌚ Interacció i Pantalla Remota amb Apple Watch (watchOS)**:
-    - Companion app / HUD al canell per visualitzar telemetria clau en directe i rebre vibracions hàptiques en desviacions de track o girs imminents.
-  - [ ] **Validació de la navegació en ruta real amb track GPX**.
-  - [ ] **Portabilitat a l'App Nativa (`trail-gps` - Expo / React Native)**.
+    - Integració a la versió nativa per desar automàticament les sessions de ciclisme a Apple Health / Fitness.
+  - [ ] **⌚ Companion App per a Apple Watch (watchOS)**:
+    - HUD al canell per visualitzar telemetria clau en directe i rebre vibracions hàptiques de gir o desviació.
+  - [ ] **Validació de la navegació en ruta real de camp**.
+  - [ ] **Portabilitat dels indicadors de gir a React Native / Expo (`trail-gps`)**.
