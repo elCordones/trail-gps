@@ -63,6 +63,10 @@
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
+  - [ ] **🔇 Àudio OFF per defecte i Persistència d'Estat Acústic**:
+    - Configurar l'estat inicial de les alertes sonores a apagat/silenci per defecte (`isAudioEnabled = false`), activable voluntàriament des del panell d'ajustos.
+  - [ ] **🗑️ Gestió Avançada de Rutes Desades (`#routes-modal`)**:
+    - Afegir acció per eliminar/esborrar rutes individuals de la biblioteca local (`localStorage`) amb botó `🗑️`, modal de confirmació i refresc dinàmic de la llista.
   - [ ] **🔗 Descàrrega Directa de Rutes per URL (Wikiloc, Strava, Enllaç directe GPX)**:
     - Camp d'importació per enllaç web al modal de rutes amb descàrrega automàtica i emmagatzematge local.
   - [ ] **🍏 Sincronització amb Apple Salut & Entrenaments (Apple HealthKit)**:

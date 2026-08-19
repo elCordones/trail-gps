@@ -127,6 +127,9 @@ npx cloudflared tunnel --url http://127.0.0.1:3000
   - Càlcul dinàmic de Zones Cardíaques Z1 a Z5 amb FC Màxima personalitzable.
   - Simulador virtual de sensors biomètrics integrat.
   - Inclusió de dades de freqüència cardíaca i cadència a l'arxiu `.gpx` del gravador REC (`gpxtpx:hr`, `gpxtpx:cad`).
+- [ ] **Fase 9.1: Ajustos de Preferències & Gestió de Rutes:**
+  - **Àudio OFF per defecte**: Inicialització silenciosa de l'app amb activació manual desitjada.
+  - **Eliminació de Rutes Desades**: Botó `🗑️` per esborrar tracks individuals emmagatzemats a `localStorage`.
 - [ ] **Fase 9.2: Descàrrega Directa de Rutes per URL (Wikiloc / Strava / Web):**
   - Camp d'importació per URL amb descàrrega directa de tracks GPX a la biblioteca local.
 - [ ] **Fase 10: Integració amb l'Ecosistema Apple (HealthKit & Apple Watch):**
