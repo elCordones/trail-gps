@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 19 d'agost de 2026 (Branding Visual Definitiu, Reorganització de Carpetes & PWA v2.2.2)  
-> **Estat general:** Versió PWA v2.2.2 completada. S'ha integrat la nova identitat visual d'alt contrast (bisell de ciclocomputador fosc amb fletxa delta cian fluorescent i corriol de muntanya en taronja elèctric) processada a partir de la imatge mestre 2048x2048 amb interpolació d'alta fidelitat `sharp` (Lanczos3). S'ha reestructurat i netejat l'espai de treball organitzant la documentació a `docs/`, la identitat visual a `assets/brand/` i eliminant recursos obsolets.
+> **Darrera actualització:** 19 d'agost de 2026 (Branding Visual Definitiu, Reorganització de Carpetes & PWA v2.2.4)  
+> **Estat general:** Versió PWA v2.2.4 completada i validada a iPhone. S'ha integrat la nova identitat visual d'alt contrast (dial de ciclocomputador amb fletxa delta cian fluorescent i corriol de muntanya en taronja elèctric sobre fons pur Dark Slate / OLED) eliminant tot doble marc. S'ha reestructurat l'espai de treball organitzant la documentació a `docs/` i els fitxers mestres a `assets/brand/`.
 
 ---
 
