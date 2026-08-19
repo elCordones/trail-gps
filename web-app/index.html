@@ -7,9 +7,27 @@
   
   <!-- PWA & iOS Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="TrailGPS" />
+  <meta name="application-name" content="TrailGPS" />
   <meta name="theme-color" content="#0F172A" />
+  <meta name="msapplication-TileColor" content="#0F172A" />
+
+  <!-- Apple iOS Safari Touch Icons -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="180x180" href="apple-touch-icon-180x180-precomposed.png" />
+
+  <!-- Favicon & PWA Manifest -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -1512,9 +1530,12 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #CBD5E1; line-height: 1.5;">
-        <div style="background: #1E293B; padding: 10px 12px; border-radius: 12px; border: 1px solid #334155;">
-          <div style="font-weight: 900; color: #FFFFFF; font-size: 13px;">🚵 TrailGPS MTB v2.0</div>
-          <div style="color: var(--accent-cyan); font-weight: 700; font-size: 11px; margin-top: 2px;">Ciclocomputador & Navegació GPX</div>
+        <div style="background: #1E293B; padding: 12px; border-radius: 14px; border: 1px solid #334155; display: flex; align-items: center; gap: 12px;">
+          <img src="favicon.svg" alt="TrailGPS Logo" style="width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(0, 229, 255, 0.4); box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);" />
+          <div>
+            <div style="font-weight: 900; color: #FFFFFF; font-size: 13px; letter-spacing: -0.2px;">🚵 TrailGPS MTB <span style="font-size: 10px; background: rgba(0,229,255,0.15); color: var(--accent-cyan); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(0,229,255,0.3); margin-left: 4px;">v2.2</span></div>
+            <div style="color: var(--accent-cyan); font-weight: 700; font-size: 11px; margin-top: 2px;">Ciclocomputador & Navegació GPX</div>
+          </div>
         </div>
 
         <div style="background: #1E293B; padding: 10px 12px; border-radius: 12px; border: 1px solid #334155;">

@@ -1,0 +1,22 @@
+{
+  "name": "trail-gps-pwa",
+  "version": "2.2.0",
+  "description": "TrailGPS MTB - Web PWA & GPS Bike Computer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "generate-icons": "node scripts/generate-icons.js"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  },
+  "keywords": [
+    "gps",
+    "mtb",
+    "cycling",
+    "pwa",
+    "gpx"
+  ],
+  "author": "David Cordones",
+  "license": "AGPL-3.0"
+}

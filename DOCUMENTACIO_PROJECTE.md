@@ -117,7 +117,7 @@ npx cloudflared tunnel --url http://127.0.0.1:3000
 
 - [x] **Fases 1 a 6:** Navegació, fletxa direccional, 5 capes de mapa, perfil ClimbPro, geolocalització iOS, descàrrega offline, gravador REC, waypoints i ciclocomputador.
 - [x] **Fase 6.2 (UI & Tàctil):** Redisseny del nano-dock de 52px, pastilla de zoom dreta, perfil ClimbPro d'alta transparència, motor de gestos *Swipe-to-Dismiss*, fons backdrop i botons amples d'amagar.
-- [ ] **Fase 7: Disseny d'Icona & Identitat Visual (PWA / App Store):**
+- [x] **Fase 7: Disseny d'Icona & Identitat Visual (PWA / App Store):**
   - Creació de la icona oficial i favicon professional (fletxa delta / muntanya tech) en SVG, PNG d'alta resolució, `apple-touch-icon` per a pantalla d'inici iOS i `manifest.json`.
   - Icona nativa per al paquet Expo / React Native (`icon.png`, `adaptive-icon.png`, `splash.png`).
 - [ ] **Fase 8: Alertes Acústiques & Hàptiques Dinàmiques:**

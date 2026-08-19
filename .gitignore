@@ -15,6 +15,7 @@ web-build/
 .DS_Store
 Thumbs.db
 *.tmp
+Captures/
 
 # IDEs & Editor
 .vscode/
