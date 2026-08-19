@@ -8,7 +8,8 @@
     "generate-icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
-    "@resvg/resvg-js": "^2.6.2"
+    "@resvg/resvg-js": "^2.6.2",
+    "sharp": "^0.35.3"
   },
   "keywords": [
     "gps",

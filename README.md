@@ -42,12 +42,20 @@
 - **Frontend**: HTML5, Vanilla CSS3 (paleta Slate fosca OLED, neons cian/taronja d'alt contrast), JavaScript modern (ES6+).
 - **Cartografia**: Leaflet 1.9.4 amb 5 capes (Topogràfic OpenTopoMap, CyclOSM MTB, Satèl·lit Ortofoto Esri, Dark Mode CARTO i Estàndard OSM).
 - **APIs del Navegador**:
-  - 
-avigator.geolocation.watchPosition (GPS continu d'alta precisió).
-  - 
-avigator.wakeLock.request (Screen Wake Lock per a pantalla sempre activa).
-  - window.caches (Cache Storage API per a mapes offline).
-  - Web Audio API (Alertes sonores de desviació de ruta).
+  - `navigator.geolocation.watchPosition` (GPS continu d'alta precisió).
+  - `navigator.wakeLock.request` (Screen Wake Lock per a pantalla sempre activa).
+  - `window.caches` (Cache Storage API per a mapes offline).
+  - `Web Audio API` (Alertes sonores de desviació de ruta).
+
+---
+
+## 📁 Estructura del Projecte
+
+- `index.html` / `web-app/`: Nucli de la PWA i servidors web de prova.
+- `assets/brand/`: Fitxers mestres d'identitat visual i logotip d'alta resolució.
+- `docs/`: Bitàcola d'especificacions completes ([`docs/DOCUMENTACIO_PROJECTE.md`](docs/DOCUMENTACIO_PROJECTE.md)).
+- `trail-gps/`: Projecte mòbil natiu en React Native / Expo per a iOS.
+- `scripts/`: Eines d'automatització i generador d'assets.
 
 ---
 
