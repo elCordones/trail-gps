@@ -33,6 +33,7 @@
 - **Feina realitzada en aquesta sessió**:
   - [x] **Nova Identitat Visual de Màxima Qualitat**:
     - Processament de la imatge mestre 2048x2048 amb disseny de dial d'alta precisió, fletxa delta fluorescent `#00E5FF` i corriol taronja `#FF6600` sobre fons Dark Slate / OLED.
+    - Extracció i retall matemàtic per eliminar el doble marc exterior i alinear el bisell de ciclocomputador directament al 100% de la icona nativa d'iOS.
     - Conversió i renderització amb algoritme de reescalat d'alta fidelitat `Lanczos3` mitjançant la llibreria nativa `sharp`.
   - [x] **Generació de tot el paquet d'Assets**:
     - Paquet complet iOS Safari: `apple-touch-icon.png` (180x180), `apple-touch-icon-180x180.png`, `apple-touch-icon-precomposed.png`, `apple-touch-icon-152x152.png`, `apple-touch-icon-120x120.png`.
