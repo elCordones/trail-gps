@@ -2551,6 +2551,12 @@
     const STORAGE_KEY_TURN_MARKERS = 'trailgps_turn_markers_enabled';
     const STORAGE_KEY_TURN_AUDIO = 'trailgps_turn_audio_enabled';
     const STORAGE_KEY_HR_MAX = 'trailgps_user_hr_max';
+    const GPS_MAX_ACCEPTABLE_ACCURACY_METERS = 50;
+    const MAX_GPX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+    const MAX_GPX_TRACK_POINTS = 25000;
+    const OFF_TRACK_ENTER_DISTANCE_METERS = 40;
+    const OFF_TRACK_EXIT_DISTANCE_METERS = 25;
+    const OFF_TRACK_CONFIRMATION_FIXES = 2;
 
     // --- MAP TILES CONFIGURATION ---
     const MAP_LAYERS = {
@@ -2717,6 +2723,9 @@
     let isTurnMapMarkersEnabled = true;
     let isTurnAudioEnabled = true;
     let wasOffTrack = false;
+    let offTrackConsecutiveFixes = 0;
+    let onTrackConsecutiveFixes = 0;
+    let isFreshPositionUpdate = false;
 
     // Bluetooth Low Energy & Biometric Sensor Hub
     let userMaxHr = 185;
@@ -2755,6 +2764,9 @@
     let simInterval = null;
     let lastAudioAlert = 0;
     let isDownloadingOffline = false;
+    let gpsWatchId = null;
+    let isUsingGpsFallback = false;
+    let isOrientationListenerActive = false;
 
     // Cycling Stats Tracker
     const rideStats = {
@@ -3014,16 +3026,18 @@
 
       statusText.textContent = 'GPS...';
 
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      if (!isOrientationListenerActive && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
           .then(permissionState => {
             if (permissionState === 'granted') {
               window.addEventListener('deviceorientation', handleOrientation, true);
+              isOrientationListenerActive = true;
             }
           })
           .catch(console.error);
-      } else if (window.DeviceOrientationEvent) {
+      } else if (!isOrientationListenerActive && window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', handleOrientation, true);
+        isOrientationListenerActive = true;
       }
 
       if (!('geolocation' in navigator)) {
@@ -3035,28 +3049,36 @@
       // Fast GPS tier
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          handleGpsUpdate(pos);
-          statusBadge.className = 'gps-status active';
-          if (map) map.setView([pos.coords.latitude, pos.coords.longitude], 16, { animate: true });
+          if (handleGpsUpdate(pos)) {
+            statusBadge.className = 'gps-status active';
+            if (map) map.setView([pos.coords.latitude, pos.coords.longitude], 16, { animate: true });
+          }
         },
         (err) => handleGpsError(err),
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
       );
 
-      // High accuracy watch tier
-      navigator.geolocation.watchPosition(
+      startGpsWatch({ enableHighAccuracy: true, timeout: 12000, maximumAge: 2000 });
+    }
+
+    function startGpsWatch(options) {
+      if (gpsWatchId !== null) navigator.geolocation.clearWatch(gpsWatchId);
+
+      gpsWatchId = navigator.geolocation.watchPosition(
         (pos) => {
-          handleGpsUpdate(pos);
-          statusBadge.className = 'gps-status active';
+          if (handleGpsUpdate(pos)) {
+            document.getElementById('gps-status-badge').className = 'gps-status active';
+          }
         },
         (err) => {
-          navigator.geolocation.watchPosition(
-            (pos) => handleGpsUpdate(pos),
-            (e) => handleGpsError(e),
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 }
-          );
+          if (!isUsingGpsFallback && err.code !== 1) {
+            isUsingGpsFallback = true;
+            startGpsWatch({ enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 });
+            return;
+          }
+          handleGpsError(err);
         },
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 2000 }
+        options
       );
     }
 
@@ -3077,11 +3099,19 @@
       if (isSimulating) return;
 
       const coords = pos.coords;
+      const accuracy = Math.round(coords.accuracy || 999);
+      const statusText = document.getElementById('gps-status-text');
+      if (accuracy > GPS_MAX_ACCEPTABLE_ACCURACY_METERS) {
+        statusText.textContent = `±${accuracy}m · PRECISIÓ BAIXA`;
+        document.getElementById('gps-status-badge').className = 'gps-status error';
+        return false;
+      }
+
       hasRealGpsFix = true;
       userPosition.lat = coords.latitude;
       userPosition.lng = coords.longitude;
       userPosition.speed = coords.speed ? Math.max(0, coords.speed * 3.6) : 0;
-      userPosition.accuracy = Math.round(coords.accuracy || 5);
+      userPosition.accuracy = accuracy;
 
       if (coords.heading !== null && !isNaN(coords.heading) && coords.heading >= 0) {
         userPosition.heading = Math.round(coords.heading);
@@ -3095,7 +3125,9 @@
         recordBreadcrumbPoint(userPosition);
       }
 
+      isFreshPositionUpdate = true;
       updateUserMarker();
+      return true;
     }
 
     function handleOrientation(e) {
@@ -3423,10 +3455,24 @@
 
     // --- GPX PARSER ---
     function parseAndDisplayGpx(xmlStr, autoFitTrack = true, routeTitle = '') {
+      if (typeof xmlStr !== 'string' || xmlStr.trim().length === 0) {
+        showToast('⚠️ El fitxer GPX és buit o no es pot llegir');
+        return false;
+      }
+
       const parser = new DOMParser();
       const doc = parser.parseFromString(xmlStr, 'text/xml');
+      if (doc.querySelector('parsererror')) {
+        showToast('⚠️ El fitxer GPX conté XML invàlid');
+        return false;
+      }
+
       const trkpts = doc.querySelectorAll('trkpt, rtept');
       const wpts = doc.querySelectorAll('wpt');
+      if (trkpts.length > MAX_GPX_TRACK_POINTS) {
+        showToast(`⚠️ Ruta massa gran (${trkpts.length.toLocaleString('ca-ES')} punts). Límit: ${MAX_GPX_TRACK_POINTS.toLocaleString('ca-ES')}`);
+        return false;
+      }
 
       waypoints = [];
       wpts.forEach(w => {
@@ -3444,7 +3490,7 @@
         if (waypoints.length > 0 && autoFitTrack) {
           map.setView([waypoints[0].lat, waypoints[0].lng], 15);
         }
-        return;
+        return true;
       }
 
       const points = [];
@@ -3503,6 +3549,7 @@
       renderElevationProfile();
       updateTelemetry();
       updateOfflineEstimates();
+      return true;
     }
 
     // --- RENDER TRACK ---
@@ -3644,7 +3691,34 @@
       const nearestPt = track.points[nearestIdx];
       const progress = Math.min(100, Math.round((nearestIdx / (track.points.length - 1)) * 100));
       const remainingKm = Math.max(0, (track.totalDistanceKm - (nearestPt.distFromStartM / 1000))).toFixed(1);
-      const isOffTrack = minDistance > 40;
+      const rawOffTrack = minDistance > OFF_TRACK_ENTER_DISTANCE_METERS;
+      const clearlyOnTrack = minDistance < OFF_TRACK_EXIT_DISTANCE_METERS;
+      let becameOffTrack = false;
+      let recoveredTrack = false;
+
+      if (isFreshPositionUpdate) {
+        if (rawOffTrack) {
+          offTrackConsecutiveFixes++;
+          onTrackConsecutiveFixes = 0;
+          if (!wasOffTrack && offTrackConsecutiveFixes >= OFF_TRACK_CONFIRMATION_FIXES) {
+            wasOffTrack = true;
+            becameOffTrack = true;
+          }
+        } else if (clearlyOnTrack) {
+          onTrackConsecutiveFixes++;
+          offTrackConsecutiveFixes = 0;
+          if (wasOffTrack && onTrackConsecutiveFixes >= OFF_TRACK_CONFIRMATION_FIXES) {
+            wasOffTrack = false;
+            recoveredTrack = true;
+          }
+        } else {
+          offTrackConsecutiveFixes = 0;
+          onTrackConsecutiveFixes = 0;
+        }
+        isFreshPositionUpdate = false;
+      }
+
+      const isOffTrack = wasOffTrack;
 
       document.getElementById('metric-speed').textContent = userPosition.speed.toFixed(1);
       document.getElementById('metric-dist').textContent = remainingKm;
@@ -3691,15 +3765,11 @@
       // Off-Track vs On-Track transitions and alert handling
       const banner = document.getElementById('off-track-banner');
       if (isOffTrack && (hasRealGpsFix || isSimulating)) {
-        if (!wasOffTrack) {
-          wasOffTrack = true;
-        }
         banner.style.display = 'flex';
         document.getElementById('off-track-msg').textContent = `A ${Math.round(minDistance)}m del traçat GPX`;
-        playOffTrackAlert();
+        if (becameOffTrack) playOffTrackAlert();
       } else {
-        if (wasOffTrack) {
-          wasOffTrack = false;
+        if (recoveredTrack) {
           playTrackRecoveredAlert();
           showToast('✅ De nou al traçat GPX!');
         }
@@ -4730,6 +4800,7 @@
         processTelemetryMetrics(userPosition);
         if (isRecording && !isRecPaused) recordBreadcrumbPoint(userPosition);
 
+        isFreshPositionUpdate = true;
         updateUserMarker();
         step++;
       }, 1000);
@@ -4785,13 +4856,18 @@
         if (r.name === 'Corriols del Bosc Fosc - BTT') return;
         const item = document.createElement('div');
         item.className = `route-item ${track?.name === r.name ? 'active' : ''}`;
-        item.innerHTML = `
-          <div>
-            <div class="route-item-title">📍 ${r.name}</div>
-            <div class="route-item-sub">${r.date} • ${r.distKm} km • +${r.elevM}m</div>
-          </div>
-          <span style="font-size: 16px;">▶️</span>
-        `;
+        const details = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'route-item-title';
+        title.textContent = `📍 ${r.name || 'Ruta sense nom'}`;
+        const subtitle = document.createElement('div');
+        subtitle.className = 'route-item-sub';
+        subtitle.textContent = `${r.date || ''} • ${r.distKm || '0'} km • +${r.elevM || '0'}m`;
+        const playIcon = document.createElement('span');
+        playIcon.style.fontSize = '16px';
+        playIcon.textContent = '▶️';
+        details.append(title, subtitle);
+        item.append(details, playIcon);
         item.addEventListener('click', () => {
           parseAndDisplayGpx(r.xml, true, r.name);
           closeAllModals();
@@ -5257,11 +5333,24 @@
         const file = e.target.files[0];
         if (!file) return;
 
+        if (file.size > MAX_GPX_FILE_SIZE_BYTES) {
+          showToast(`⚠️ Fitxer massa gran. Límit: ${MAX_GPX_FILE_SIZE_BYTES / 1024 / 1024} MB`);
+          e.target.value = '';
+          return;
+        }
+
         const reader = new FileReader();
         reader.onload = (evt) => {
-          parseAndDisplayGpx(evt.target.result, true, file.name.replace(/\.[^/.]+$/, ''));
-          closeAllModals();
-          showToast(`Ruta "${file.name}" carregada!`);
+          const wasLoaded = parseAndDisplayGpx(evt.target.result, true, file.name.replace(/\.[^/.]+$/, ''));
+          if (wasLoaded) {
+            closeAllModals();
+            showToast(`Ruta "${file.name}" carregada!`);
+          }
+          e.target.value = '';
+        };
+        reader.onerror = () => {
+          showToast('⚠️ No s’ha pogut llegir el fitxer GPX');
+          e.target.value = '';
         };
         reader.readAsText(file);
       });

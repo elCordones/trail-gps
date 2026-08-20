@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
 import * as Location from 'expo-location';
+import MapView from 'react-native-maps';
 
 import { CameraMode, GpxTrack, NavigationTelemetry, UserPosition } from './src/types';
 import { parseGpxString } from './src/utils/gpxParser';
