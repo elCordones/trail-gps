@@ -56,6 +56,7 @@
 - **Punt exacte on ens hem quedat**:
   - Fase 0 completada al 100%.
   - Fase 1 (Qualitat, proves i modularització) iniciada amb èxit.
+  - **Últim commit publicat:** `de1fc04` — `feat(pwa): v2.4.2 silenci per defecte, gestio de rutes, sanejament GPX i proves unitaries`.
   - Preparat per a la validació de camp amb GPS real i la integració dels mòduls compartits a la branca nativa Expo (`trail-gps`).
 
 ---
