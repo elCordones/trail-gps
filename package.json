@@ -1,10 +1,11 @@
 {
   "name": "trail-gps-pwa",
-  "version": "2.2.0",
+  "version": "2.4.2",
   "description": "TrailGPS MTB - Web PWA & GPS Bike Computer",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "test": "node --test tests/*.test.mjs",
     "generate-icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {

@@ -831,6 +831,12 @@
       padding: 10px 12px;
       border-radius: 12px;
       transition: all 0.15s;
+      cursor: pointer;
+      gap: 8px;
+    }
+
+    .route-item:hover {
+      background: #253349;
     }
 
     .route-item.active {
@@ -845,13 +851,51 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 180px;
+      max-width: 190px;
     }
 
     .route-item-sub {
       font-size: 10px;
       color: var(--text-muted);
       margin-top: 2px;
+    }
+
+    .route-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-delete-route {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 5px 7px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .btn-delete-route:hover, .btn-delete-route:active {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: #EF4444;
+      transform: scale(1.05);
+    }
+
+    .route-sample-badge {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      padding: 2px 6px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
     }
 
     /* GPS PROMPT BANNER */
@@ -2519,9 +2563,9 @@
           <span class="icon">📊</span>
           <span class="label">DADES</span>
         </button>
-        <button id="btn-audio-toggle" class="drawer-btn active" title="Alertes sonores de gir i desviació">
-          <span class="icon" id="audio-icon-span">🔊</span>
-          <span class="label" id="audio-label-span">ÀUDIO ON</span>
+        <button id="btn-audio-toggle" class="drawer-btn" title="Alertes sonores de gir i desviació">
+          <span class="icon" id="audio-icon-span">🔇</span>
+          <span class="label" id="audio-label-span">SILENCI</span>
         </button>
         <button id="btn-sim" class="drawer-btn" title="Simulació virtual de ruta">
           <span class="icon">▶️</span>
@@ -2547,6 +2591,7 @@
     const STORAGE_KEY_LAYER = 'trailgps_map_layer';
     const STORAGE_KEY_COLOR = 'trailgps_track_color';
     const STORAGE_KEY_WEIGHT = 'trailgps_track_weight';
+    const STORAGE_KEY_AUDIO = 'trailgps_audio_enabled';
     const STORAGE_KEY_TURN_HUD = 'trailgps_turn_hud_enabled';
     const STORAGE_KEY_TURN_MARKERS = 'trailgps_turn_markers_enabled';
     const STORAGE_KEY_TURN_AUDIO = 'trailgps_turn_audio_enabled';
@@ -2554,9 +2599,22 @@
     const GPS_MAX_ACCEPTABLE_ACCURACY_METERS = 50;
     const MAX_GPX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
     const MAX_GPX_TRACK_POINTS = 25000;
+    const MAX_GPX_NAME_LENGTH = 100;
+    const MAX_GPX_DESC_LENGTH = 300;
     const OFF_TRACK_ENTER_DISTANCE_METERS = 40;
     const OFF_TRACK_EXIT_DISTANCE_METERS = 25;
     const OFF_TRACK_CONFIRMATION_FIXES = 2;
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[m]);
+    }
 
     // --- MAP TILES CONFIGURATION ---
     const MAP_LAYERS = {
@@ -2718,7 +2776,7 @@
     // Turn-by-Turn, Roadbook & Audio Guidance
     let trackTurns = [];
     let turnMarkersLayer = null;
-    let isAudioEnabled = true;
+    let isAudioEnabled = false;
     let isTurnHudEnabled = true;
     let isTurnMapMarkersEnabled = true;
     let isTurnAudioEnabled = true;
@@ -2807,6 +2865,7 @@
       activeLayerKey = localStorage.getItem(STORAGE_KEY_LAYER) || 'osm';
       trackColor = localStorage.getItem(STORAGE_KEY_COLOR) || '#00E5FF';
       trackWeight = parseInt(localStorage.getItem(STORAGE_KEY_WEIGHT) || '5', 10);
+      isAudioEnabled = localStorage.getItem(STORAGE_KEY_AUDIO) === 'true';
       isTurnHudEnabled = localStorage.getItem(STORAGE_KEY_TURN_HUD) !== 'false';
       isTurnMapMarkersEnabled = localStorage.getItem(STORAGE_KEY_TURN_MARKERS) !== 'false';
       isTurnAudioEnabled = localStorage.getItem(STORAGE_KEY_TURN_AUDIO) !== 'false';
@@ -2818,6 +2877,7 @@
       switchMapLayer(activeLayerKey);
       applyTrackStyleSettingsUI();
       updateTurnTogglesUI();
+      updateAudioToggleUI();
       updateBiometricsUI();
 
       map.on('dragstart', () => {
@@ -3396,7 +3456,9 @@
         });
 
         const marker = L.marker([wp.lat, wp.lng], { icon }).addTo(map);
-        marker.bindPopup(`<strong>${wp.icon} ${wp.name}</strong><br><span style="font-size:11px;color:#64748B;">${wp.desc || ''}</span>`);
+        const safeName = escapeHtml(wp.name);
+        const safeDesc = escapeHtml(wp.desc || '');
+        marker.bindPopup(`<strong>${wp.icon} ${safeName}</strong>${safeDesc ? `<br><span style="font-size:11px;color:#64748B;">${safeDesc}</span>` : ''}`);
         waypointMarkers.push(marker);
       });
 
@@ -3417,16 +3479,32 @@
 
         const row = document.createElement('div');
         row.className = 'waypoint-item';
-        row.innerHTML = `
-          <div class="waypoint-left">
-            <span class="waypoint-icon">${wp.icon}</span>
-            <div>
-              <div class="waypoint-name">${wp.name}</div>
-              <div style="font-size: 9px; color: var(--text-muted);">${wp.desc || ''}</div>
-            </div>
-          </div>
-          <span class="waypoint-dist">${distStr}</span>
-        `;
+
+        const left = document.createElement('div');
+        left.className = 'waypoint-left';
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'waypoint-icon';
+        iconSpan.textContent = wp.icon;
+
+        const info = document.createElement('div');
+        const nameEl = document.createElement('div');
+        nameEl.className = 'waypoint-name';
+        nameEl.textContent = wp.name;
+
+        const descEl = document.createElement('div');
+        descEl.style.fontSize = '9px';
+        descEl.style.color = 'var(--text-muted)';
+        descEl.textContent = wp.desc || '';
+
+        info.append(nameEl, descEl);
+        left.append(iconSpan, info);
+
+        const distSpan = document.createElement('span');
+        distSpan.className = 'waypoint-dist';
+        distSpan.textContent = distStr;
+
+        row.append(left, distSpan);
         row.addEventListener('click', () => {
           map.setView([wp.lat, wp.lng], 17, { animate: true });
           closeAllModals();
@@ -3437,7 +3515,9 @@
 
     function addQuickWaypoint() {
       if (!userPosition) return;
-      const name = prompt('Nom del Punt d\'Interès (ex: Font, Cim, Cruïlla):', 'Punt d\'Interès');
+      const rawName = prompt('Nom del Punt d\'Interès (ex: Font, Cim, Cruïlla):', 'Punt d\'Interès');
+      if (!rawName) return;
+      const name = rawName.slice(0, MAX_GPX_NAME_LENGTH).trim();
       if (!name) return;
 
       const icon = getPoiIcon(name);
@@ -3478,8 +3558,10 @@
       wpts.forEach(w => {
         const lat = parseFloat(w.getAttribute('lat'));
         const lon = parseFloat(w.getAttribute('lon'));
-        const name = w.querySelector('name') ? w.querySelector('name').textContent : 'Punt d\'Interès';
-        const desc = w.querySelector('desc') ? w.querySelector('desc').textContent : '';
+        const rawName = w.querySelector('name') ? w.querySelector('name').textContent : 'Punt d\'Interès';
+        const rawDesc = w.querySelector('desc') ? w.querySelector('desc').textContent : '';
+        const name = (rawName || 'Punt d\'Interès').slice(0, MAX_GPX_NAME_LENGTH).trim();
+        const desc = (rawDesc || '').slice(0, MAX_GPX_DESC_LENGTH).trim();
         if (!isNaN(lat) && !isNaN(lon)) {
           waypoints.push({ lat, lng: lon, name, desc, icon: getPoiIcon(name, desc) });
         }
@@ -3527,7 +3609,8 @@
       });
 
       const trackNameEl = doc.querySelector('trk > name, rte > name, metadata > name');
-      const name = routeTitle || (trackNameEl ? trackNameEl.textContent : 'Ruta GPX Carregada');
+      const rawTrackName = routeTitle || (trackNameEl ? trackNameEl.textContent : 'Ruta GPX Carregada');
+      const name = (rawTrackName || 'Ruta GPX Carregada').slice(0, MAX_GPX_NAME_LENGTH).trim();
 
       track = {
         name,
@@ -4124,8 +4207,7 @@
       if (navigator.vibrate) navigator.vibrate([100]);
     }
 
-    function toggleAudioAlerts() {
-      isAudioEnabled = !isAudioEnabled;
+    function updateAudioToggleUI() {
       const btn = document.getElementById('btn-audio-toggle');
       const iconSpan = document.getElementById('audio-icon-span');
       const labelSpan = document.getElementById('audio-label-span');
@@ -4134,12 +4216,22 @@
         if (btn) btn.classList.add('active');
         if (iconSpan) iconSpan.textContent = '🔊';
         if (labelSpan) labelSpan.textContent = 'ÀUDIO ON';
-        playTone(659, 'sine', 0.1, 0, 0.25);
-        showToast('🔊 Alertes sonores activades');
       } else {
         if (btn) btn.classList.remove('active');
         if (iconSpan) iconSpan.textContent = '🔇';
         if (labelSpan) labelSpan.textContent = 'SILENCI';
+      }
+    }
+
+    function toggleAudioAlerts() {
+      isAudioEnabled = !isAudioEnabled;
+      localStorage.setItem(STORAGE_KEY_AUDIO, isAudioEnabled ? 'true' : 'false');
+      updateAudioToggleUI();
+
+      if (isAudioEnabled) {
+        playTone(659, 'sine', 0.1, 0, 0.25);
+        showToast('🔊 Alertes sonores activades');
+      } else {
         showToast('🔇 Alertes sonores silenciades');
       }
     }
@@ -4831,6 +4923,20 @@
       } catch (e) {}
     }
 
+    function deleteRouteFromHistory(name) {
+      if (!name) return;
+      if (!confirm(`Vols eliminar la ruta "${name}" de la memòria local?`)) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUTES) || '[]');
+        const updated = saved.filter(r => r.name !== name);
+        localStorage.setItem(STORAGE_KEY_ROUTES, JSON.stringify(updated));
+        renderRoutesHistoryList();
+        showToast(`🗑️ Ruta "${name}" eliminada`);
+      } catch (e) {
+        showToast('⚠️ No s’ha pogut eliminar la ruta');
+      }
+    }
+
     function renderRoutesHistoryList() {
       const container = document.getElementById('routes-history-list');
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUTES) || '[]');
@@ -4839,13 +4945,35 @@
 
       const defaultItem = document.createElement('div');
       defaultItem.className = `route-item ${track?.name === 'Corriols del Bosc Fosc - BTT' ? 'active' : ''}`;
-      defaultItem.innerHTML = `
-        <div>
-          <div class="route-item-title">🚵 Corriols del Bosc Fosc - BTT</div>
-          <div class="route-item-sub">Ruta de mostra • 6.2 km • +435m</div>
-        </div>
-        <span style="font-size: 16px;">▶️</span>
-      `;
+
+      const defaultDetails = document.createElement('div');
+      defaultDetails.style.flex = '1';
+      defaultDetails.style.minWidth = '0';
+
+      const defaultTitle = document.createElement('div');
+      defaultTitle.className = 'route-item-title';
+      defaultTitle.textContent = '🚵 Corriols del Bosc Fosc - BTT';
+
+      const defaultSub = document.createElement('div');
+      defaultSub.className = 'route-item-sub';
+      defaultSub.textContent = 'Ruta de mostra • 6.2 km • +435m';
+
+      defaultDetails.append(defaultTitle, defaultSub);
+
+      const defaultActions = document.createElement('div');
+      defaultActions.className = 'route-item-actions';
+
+      const defaultBadge = document.createElement('span');
+      defaultBadge.className = 'route-sample-badge';
+      defaultBadge.textContent = 'MOSTRA';
+
+      const defaultPlay = document.createElement('span');
+      defaultPlay.style.fontSize = '16px';
+      defaultPlay.textContent = '▶️';
+
+      defaultActions.append(defaultBadge, defaultPlay);
+      defaultItem.append(defaultDetails, defaultActions);
+
       defaultItem.addEventListener('click', () => {
         parseAndDisplayGpx(SAMPLE_GPX, true, 'Corriols del Bosc Fosc - BTT');
         closeAllModals();
@@ -4856,18 +4984,41 @@
         if (r.name === 'Corriols del Bosc Fosc - BTT') return;
         const item = document.createElement('div');
         item.className = `route-item ${track?.name === r.name ? 'active' : ''}`;
+
         const details = document.createElement('div');
+        details.style.flex = '1';
+        details.style.minWidth = '0';
+
         const title = document.createElement('div');
         title.className = 'route-item-title';
         title.textContent = `📍 ${r.name || 'Ruta sense nom'}`;
+
         const subtitle = document.createElement('div');
         subtitle.className = 'route-item-sub';
         subtitle.textContent = `${r.date || ''} • ${r.distKm || '0'} km • +${r.elevM || '0'}m`;
+
+        details.append(title, subtitle);
+
+        const actions = document.createElement('div');
+        actions.className = 'route-item-actions';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-delete-route';
+        deleteBtn.title = 'Eliminar ruta de la memòria local';
+        deleteBtn.setAttribute('aria-label', `Eliminar ruta ${r.name}`);
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteRouteFromHistory(r.name);
+        });
+
         const playIcon = document.createElement('span');
         playIcon.style.fontSize = '16px';
         playIcon.textContent = '▶️';
-        details.append(title, subtitle);
-        item.append(details, playIcon);
+
+        actions.append(deleteBtn, playIcon);
+        item.append(details, actions);
+
         item.addEventListener('click', () => {
           parseAndDisplayGpx(r.xml, true, r.name);
           closeAllModals();

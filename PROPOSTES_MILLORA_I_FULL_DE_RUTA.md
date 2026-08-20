@@ -5,27 +5,30 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 20 d’agost de 2026 — Fase 0 en curs.
+> **Darrera actualització:** 20 d’agost de 2026 — Fase 0 completada i Fase 1 iniciada.
 >
-> **Punt actual:** s’han aplicat les validacions d’entrada GPX i la histèresi d’alertes. Falta executar les proves manuals en dispositiu i començar les proves automatitzades abans de modularitzar el motor compartit.
+> **Punt actual:** s’han implementat les proves automatitzades de geometria i parser GPX (`npm test`), la persistència d'àudio desactivat per defecte, l'esborrat de rutes de la biblioteca local i el sanejament de textos GPX. Resta la prova de camp en dispositiu i la integració del motor compartit.
 
 ### Fites completades en aquesta sessió
 
 - [x] Corregida la compilació TypeScript de la branca Expo: importació de `MapView` a `trail-gps/App.tsx`.
-- [x] Eliminada la interpolació amb `innerHTML` de les dades de rutes desades: la biblioteca de rutes crea ara els textos amb `textContent`.
+- [x] Sanejament de dades GPX i de la biblioteca de rutes (`textContent`, escapat HTML i límits de 100/300 caràcters).
 - [x] Refactoritzada la subscripció GPS de la PWA: una única subscripció activa, neteja abans del reintent i degradació única a baixa precisió.
-- [x] Afegit filtre inicial de qualitat GPS: fixes amb una precisió superior a 50 m no actualitzen telemetria ni gravació i es comuniquen com a “precisió baixa”.
+- [x] Afegit filtre inicial de qualitat GPS: fixes amb precisió > 50 m es marquen com a baixa precisió.
 - [x] Evitada la duplicació del listener de brúixola quan es torna a demanar el GPS.
-- [x] Afegida validació d’entrada GPX: XML invàlid, fitxer buit, mida màxima de 10 MB i màxim de 25.000 punts de track.
-- [x] Afegida histèresi de fora de ruta: entrada a 40 m, recuperació a 25 m i confirmació de dos fixes consecutius.
-- [x] Validacions locals superades: sintaxi de les dues PWA, hash idèntic entre còpies i `tsc --noEmit` d’Expo.
+- [x] Validació d’entrada GPX: XML invàlid, fitxer buit, mida màxima de 10 MB i màxim de 25.000 punts.
+- [x] Histèresi de fora de ruta: entrada a 40 m, recuperació a 25 m i confirmació de dos fixes consecutius.
+- [x] Àudio desactivat per defecte (`isAudioEnabled = false`) amb persistència a `localStorage`.
+- [x] Gestió de biblioteca de rutes: esborrat individual amb botó `🗑️`, modal de confirmació i refresc dinàmic.
+- [x] Creada suite de proves automatitzades amb el test runner natiu de Node.js (`npm test`, 12 tests unitaris).
+- [x] Mòduls d'enginyeria purs creats a `src/core/geoEngine.mjs` i `src/core/gpxParser.mjs`.
 
 ### Pendent immediat
 
-- [x] Validar XML GPX (`parsererror`) i establir límits de mida i punts; resta limitar texts de waypoints/metadades.
-- [x] Afegir histèresi a l’alerta de fora de ruta; l’alerta només sona en entrar a l’estat de desviació.
-- [ ] Definir i començar les proves automatitzades de geometria i parser GPX.
-- [ ] Prova manual en dispositiu real del nou comportament GPS; encara no s’ha realitzat.
+- [ ] Prova manual en dispositiu real del nou comportament GPS i de la histèresi d'alertes.
+- [ ] Filtrar salts GPS anòmals i freqüència de mostres del gravador.
+- [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
+- [ ] Integració dels mòduls compartits a `trail-gps/` (Expo).
 
 ## Resum executiu
 
@@ -129,22 +132,22 @@ La lògica pura hauria de viure en mòduls TypeScript compartits entre PWA i Exp
 ## Full de ruta actualitzat
 
 ### Fase 0 — Estabilització i seguretat
-
-- [ ] Sanejament de totes les dades del GPX a la UI.
+ 
+- [x] Sanejament de totes les dades del GPX a la UI.
 - [x] Sanejament de la biblioteca de rutes desades a la UI.
-- [~] Validació XML, límits de mida i missatges d’error útils: feta per XML, fitxer i punts; resten límits de textos.
+- [x] Validació XML, límits de mida i missatges d’error útils (feta per XML, fitxer, punts i textos).
 - [x] Un sol gestor de subscripció GPS amb neteja garantida.
 - [~] Filtre de precisió, salts i mostres per al gravador: filtre de precisió inicial aplicat; resten filtres de salts i freqüència.
 - [x] Histèresi i limitació temporal d’alertes fora de ruta.
-- [ ] Àudio silenciat per defecte i preferència persistent.
+- [x] Àudio silenciat per defecte i preferència persistent.
 - [x] Corregida la compilació TypeScript de la branca Expo.
-
+ 
 **Criteri de sortida:** cap error de compilació; importació maliciosa o invàlida no trenca la UI; el GPS no crea subscripcions duplicades.
-
+ 
 ### Fase 1 — Qualitat, proves i modularització
-
-- [ ] Extreure geometria, GPX, gravació i turn-by-turn de l’HTML monolític.
-- [ ] Crear proves unitàries per Haversine, segment més proper, desviació, girs i parser GPX.
+ 
+- [x] Extreure geometria, GPX i turn-by-turn a mòduls purs (`src/core/geoEngine.mjs` i `src/core/gpxParser.mjs`).
+- [x] Crear proves unitàries per Haversine, rumb, desviació, girs i parser GPX (`tests/*.test.mjs`, `npm test`).
 - [ ] Preparar una col·lecció de GPX reals: curts, molt llargs, circulars, autocreuats, múltiples segments i elevació absent.
 - [ ] Afegir ESLint/formatador i pipeline de validació.
 - [ ] Establir una única font de codi per a la PWA; evitar mantenir dues còpies manuals.

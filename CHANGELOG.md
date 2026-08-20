@@ -1,5 +1,15 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-20 — v2.4.2: Silenci per defecte, Gestió de Rutes, Sanejament GPX i Proves Automatitzades
+
+### Canvis implementats
+
+- **🔇 Àudio OFF per defecte**: L’estat inicial de les alertes sonores passa a silenci (`isAudioEnabled = false`) i persisteix a `localStorage` (`trailgps_audio_enabled`).
+- **🗑️ Gestió de rutes desades**: Afegida l'acció per eliminar rutes de la memòria local amb confirmació (`deleteRouteFromHistory`), botó individual `🗑️` i distintiu `MOSTRA` a la ruta demo.
+- **🛡️ Sanejament complet de dades GPX**: Límit de 100 caràcters per a títols/noms i 300 per a descripcions; ús de `textContent` i funció d'escapat HTML (`escapeHtml`) a finestres emergents i marcadors.
+- **🧪 Suite de proves automatitzades**: Creats els mòduls purs `src/core/geoEngine.mjs` i `src/core/gpxParser.mjs` amb 12 proves unitàries executables amb `npm test` (Node.js test runner natiu).
+- **📱 Sincronització PWA i Expo**: Còpies web sincronitzades i comprovada la compilació TypeScript a `trail-gps/`.
+
 ## 2026-08-20 — Fase 0.1: estabilització inicial
 
 Commit publicat: `d5a53fe` — `fix: estabilitzar GPS i importació GPX`
