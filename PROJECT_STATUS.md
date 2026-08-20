@@ -1,7 +1,9 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 19 d'agost de 2026 (Sensors BLE, Zones Z1-Z5, Optimització Cockpit & Botó Ajustos ⚙️ v2.4.1)  
-> **Estat general:** Versió PWA v2.4.1 completada amb Hub Universal de Sensors Bluetooth Low Energy (Web Bluetooth API), suport per a bandes cardíaques (HRM) i sensors de cadència (CSC), càlcul de Zones d'Esforç Z1-Z5, exportació GPX amb telemetria i redisseny fluid del Cockpit inferior amb el botó d'Ajustos (**⚙️**) perfectament alineat a la dreta.
+> **Darrera actualització:** 20 d'agost de 2026 (Fase 0 de robustesa: GPS, GPX, alertes i compilació Expo)
+> **Estat general:** PWA v2.4.1 amb el primer bloc de Fase 0 aplicat i validat localment. La branca Expo torna a compilar; resten proves de dispositiu, proves automatitzades i la posterior modularització del motor compartit.
+
+> **Font de continuïtat:** [full de ruta i seguiment](PROPOSTES_MILLORA_I_FULL_DE_RUTA.md) · [registre de canvis](CHANGELOG.md)
 
 ---
 
@@ -55,6 +57,9 @@
     - El gravador REC desa les mostres de pols i cadència directament a l'arxiu `.gpx` emprant el format estàndard `<extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>...<gpxtpx:cad>...`.
 
 - **Punt exacte on ens hem quedat**:
+  - [x] Fase 0.1: correcció de compilació Expo, sanejament de la biblioteca de rutes, gestor únic de GPS, filtre de precisió, validació bàsica GPX i histèresi de fora de ruta.
+  - [ ] Fase 0.2: limitar textos GPX, crear proves automatitzades i fer proves manuals amb GPS real.
+  - **Últim commit publicat:** `d5a53fe` — `fix: estabilitzar GPS i importació GPX`.
   - Fase A (Sensors Bluetooth BLE & Zones Cardíaques) completada, validada i sincronitzada a `index.html` i `web-app/index.html`.
   - Preparat per a les següents etapes: Descàrrega directa de rutes per URL/Wikiloc o inici de la branca nativa Expo (Apple Watch Companion & HealthKit).
 
