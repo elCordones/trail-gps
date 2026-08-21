@@ -73,9 +73,10 @@
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **🚴 Validació de navegació en sortida real de camp**:
-    - Execució del protocol `docs/PLA_VALIDACIO_CAMP.md` en sortida real de ciclisme.
-  - [ ] **📦 Generació i signatura del paquet natiu iOS (`.ipa`)**:
-    - Configuració EAS Build / Xcode per a distribució a iPhone via TestFlight o instal·lació directa Ad-Hoc.
+  - [ ] **🚴 Validació de navegació en sortida real de camp (PWA)**:
+    - Execució del protocol `docs/PLA_VALIDACIO_CAMP.md` amb la PWA instal·lada a la pantalla d'inici de l'iPhone.
+    - Prova en moviment de la histèresi de fora de ruta (40 m / 25 m), consum de bateria en Mode Eco i alertes sonores de gir.
   - [ ] **🗺️ Ampliar col·lecció de GPX de prova reals**:
     - Proves amb tracks de més de 50 km, múltiples segments i descensos tècnics.
+  - [ ] **🍏 Fase futura: Portar la UI completa a React Native (`trail-gps/`)**:
+    - Replicar els modals d'Ajustos, Biblioteca de rutes i Editor de Waypoints a components JSX natius per equiparar l'app nativa al 100% amb la PWA.

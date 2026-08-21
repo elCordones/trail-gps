@@ -16,7 +16,7 @@ export async function pickAndParseGpxFile(): Promise<GpxTrack | null> {
 
     const fileUri = result.assets[0].uri;
     const fileContent = await FileSystem.readAsStringAsync(fileUri, {
-      encoding: FileSystem.EncodingType.UTF8,
+      encoding: 'utf8',
     });
 
     return parseGpxString(fileContent);

@@ -35,9 +35,9 @@
 
 ### Pendent immediat
 
-- [ ] Execució de la prova de camp seguint el protocol `docs/PLA_VALIDACIO_CAMP.md`.
-- [ ] Empaquetament i signatura de l'aplicació nativa iOS (`.ipa`).
-- [ ] Ampliació de la col·lecció de GPX de prova amb més senders tècnics.
+- [ ] Execució de la prova de camp de la PWA seguint el protocol `docs/PLA_VALIDACIO_CAMP.md`.
+- [ ] Ampliació de la col·lecció de GPX de prova amb més senders tècnics (`samples/`).
+- [ ] Fase futura: Portar la interfície d'Ajustos, Rutes i Waypoints a React Native / Expo (`trail-gps/`).
 
 ## Resum executiu
 
