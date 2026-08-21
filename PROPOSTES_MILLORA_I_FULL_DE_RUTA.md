@@ -11,6 +11,7 @@
 
 ### Fites completades en aquesta sessió
 
+- [x] Redactat i estructurat el Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`) amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
 - [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i manual amb reducció de càrrega de GPU (`backdrop-filter: none`).
 - [x] Renderitzat cartogràfic intel·ligent (`BatteryRenderPolicy`) amb throttling de refresc de mapa en aturada ($< 2.5\text{ km/h}$) i supressió de jitter de compàs ($< 4^\circ$).
 - [x] Editor complet de Waypoints / POIs amb formulari desplegable, selector de xips d'icones (💧 Font, ⛰️ Cim, ⚠️ Perill, 🛑 Cruïlla, 📸 Foto, 🔧 Taller, 🥪 Menjar, 📍 General) i botons d'edició/eliminació (`✏️` / `🗑️`).
@@ -32,7 +33,7 @@
 ### Pendent immediat
 
 - [ ] Integració dels mòduls compartits a React Native / Expo (`trail-gps`).
-- [ ] Prova manual en dispositiu real del comportament GPS i de la histèresi d'alertes en ruta.
+- [ ] Execució de la prova de camp seguint el protocol `docs/PLA_VALIDACIO_CAMP.md`.
 - [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
 
 ## Resum executiu
