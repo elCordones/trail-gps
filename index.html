@@ -1697,6 +1697,14 @@
       height: 52px;
       overflow: visible;
       display: block;
+      touch-action: none;
+      user-select: none;
+      cursor: crosshair;
+    }
+
+    @keyframes pulseInspect {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
     }
 
     .elevation-axis-row {
@@ -2284,11 +2292,44 @@
         <button class="modal-close-btn" data-close="routes-modal">✕</button>
       </div>
 
-      <button id="btn-open-gpx-file" class="btn-add-wp-now">
-        <span>📂</span> Importar fitxer GPX...
-      </button>
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <button id="btn-open-gpx-file" class="btn-add-wp-now" style="flex: 1; margin: 0; padding: 12px 8px; font-size: 13px;">
+          <span>📂</span> Fitxer GPX
+        </button>
+        <button id="btn-toggle-url-import" class="btn-add-wp-now" style="flex: 1; margin: 0; padding: 12px 8px; font-size: 13px; background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(0, 229, 255, 0.4); color: #00E5FF;">
+          <span>🔗</span> Descarregar URL
+        </button>
+      </div>
+
+      <!-- URL Input Box (Collapsible) -->
+      <div id="url-import-box" style="display: none; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+        <span style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.5px;">Enllaç directe GPX o track web</span>
+        <div style="display: flex; gap: 6px;">
+          <input type="url" id="input-gpx-url" placeholder="https://.../ruta.gpx" style="flex: 1; background: #0B132B; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: #F8FAFC; padding: 8px 10px; font-size: 13px; outline: none;" />
+          <button id="btn-fetch-gpx-url" style="background: #00E5FF; color: #051923; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+            <span>⬇️</span> Baixar
+          </button>
+        </div>
+        <span id="url-import-status" style="font-size: 11px; color: #64748B;">Accepta enllaços directes GPX/XML, servidors oberts i Wikiloc.</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Rutes Desades (IndexedDB)</span>
+        <span id="routes-count-badge" style="font-size: 11px; color: #00E5FF; font-weight: 700;">1 ruta</span>
+      </div>
 
       <div id="routes-history-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto;">
+      </div>
+
+      <!-- BACKUP & RESTORE CONTROLS -->
+      <div style="display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+        <button id="btn-export-backup" style="flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #F8FAFC; padding: 9px 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s ease;">
+          <span>💾</span> Exportar Còpia (.json)
+        </button>
+        <button id="btn-import-backup" style="flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #F8FAFC; padding: 9px 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s ease;">
+          <span>📥</span> Restaurar Còpia
+        </button>
+        <input type="file" id="input-backup-file" accept=".json,application/json" style="display: none;" />
       </div>
     </div>
 
@@ -2472,6 +2513,10 @@
           <!-- User Marker Line & Dot -->
           <line id="ele-user-guide" x1="0" y1="6" x2="0" y2="54" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="2,2" opacity="0.8"/>
           <circle id="ele-user-dot" cx="0" cy="25" r="5" fill="#00E5FF" stroke="#FFFFFF" stroke-width="2"/>
+
+          <!-- Interactive Inspection Guide & Dot -->
+          <line id="ele-inspect-guide" x1="0" y1="4" x2="0" y2="54" stroke="#FF9100" stroke-width="2" stroke-dasharray="1,2" style="display: none;"/>
+          <circle id="ele-inspect-dot" cx="0" cy="25" r="6" fill="#FF9100" stroke="#FFFFFF" stroke-width="2.5" style="display: none; filter: drop-shadow(0 0 4px #FF9100);"/>
         </svg>
         <div class="elevation-axis-row">
           <span id="ele-axis-start">0 km</span>
@@ -2605,6 +2650,18 @@
     const OFF_TRACK_EXIT_DISTANCE_METERS = 25;
     const OFF_TRACK_CONFIRMATION_FIXES = 2;
 
+    // GPS Quality & Sampling Thresholds
+    const MAX_VALID_CYCLING_SPEED_KMH = 100;
+    const MAX_VALID_CYCLING_SPEED_MPS = MAX_VALID_CYCLING_SPEED_KMH / 3.6;
+    const MIN_MOVING_SPEED_KMH = 1.8;
+    const GPS_ANOMALOUS_JUMP_METERS = 150;
+    const ELEVATION_EMA_ALPHA = 0.25;
+    const ELEVATION_ASCENT_DEADBAND_METERS = 2.0;
+    const MAX_VERTICAL_SPEED_MPS = 1.5;
+    const MIN_RECORD_DISTANCE_METERS = 3.5;
+    const MAX_RECORD_INTERVAL_SECONDS = 6;
+    const MIN_RECORD_TURN_DEGREES = 18;
+
     function escapeHtml(str) {
       if (typeof str !== 'string') return '';
       return str.replace(/[&<>"']/g, m => ({
@@ -2614,6 +2671,556 @@
         '"': '&quot;',
         "'": '&#39;'
       })[m]);
+    }
+
+    class ElevationFilter {
+      constructor(options = {}) {
+        this.alpha = options.alpha !== undefined ? options.alpha : ELEVATION_EMA_ALPHA;
+        this.deadband = options.deadband !== undefined ? options.deadband : ELEVATION_ASCENT_DEADBAND_METERS;
+        this.maxVerticalSpeedMps = options.maxVerticalSpeedMps !== undefined ? options.maxVerticalSpeedMps : MAX_VERTICAL_SPEED_MPS;
+
+        this.smoothedEle = null;
+        this.eleBaseline = null;
+        this.totalAscentM = 0;
+        this.lastTimestamp = null;
+      }
+
+      reset(initialEle = null) {
+        this.smoothedEle = initialEle !== null && !isNaN(initialEle) ? Number(initialEle) : null;
+        this.eleBaseline = this.smoothedEle;
+        this.totalAscentM = 0;
+        this.lastTimestamp = null;
+      }
+
+      update(rawEle, timestamp = Date.now()) {
+        const ele = Number(rawEle);
+        if (isNaN(ele)) {
+          return {
+            smoothedEle: this.smoothedEle !== null ? this.smoothedEle : 0,
+            eleGain: 0,
+            totalAscentM: this.totalAscentM
+          };
+        }
+
+        if (this.smoothedEle === null) {
+          this.smoothedEle = ele;
+          this.eleBaseline = ele;
+          this.lastTimestamp = timestamp;
+          return {
+            smoothedEle: ele,
+            eleGain: 0,
+            totalAscentM: 0
+          };
+        }
+
+        let dtSec = 1;
+        if (this.lastTimestamp !== null && timestamp > this.lastTimestamp) {
+          dtSec = (timestamp - this.lastTimestamp) / 1000;
+        }
+        this.lastTimestamp = timestamp;
+
+        // Clamp impossible vertical spikes
+        let targetEle = ele;
+        const maxDelta = this.maxVerticalSpeedMps * Math.max(1, dtSec);
+        if (Math.abs(targetEle - this.smoothedEle) > maxDelta) {
+          targetEle = this.smoothedEle + Math.sign(targetEle - this.smoothedEle) * maxDelta;
+        }
+
+        // Exponential Moving Average smoothing
+        this.smoothedEle = (1 - this.alpha) * this.smoothedEle + this.alpha * targetEle;
+
+        // Deadband ascent accumulation (hysteresis)
+        let eleGain = 0;
+        if (this.smoothedEle > this.eleBaseline) {
+          const delta = this.smoothedEle - this.eleBaseline;
+          if (delta >= this.deadband) {
+            eleGain = delta;
+            this.totalAscentM += eleGain;
+            this.eleBaseline = this.smoothedEle;
+          }
+        } else if (this.smoothedEle < this.eleBaseline) {
+          this.eleBaseline = this.smoothedEle;
+        }
+
+        return {
+          smoothedEle: Math.round(this.smoothedEle * 10) / 10,
+          eleGain: Math.round(eleGain * 10) / 10,
+          totalAscentM: Math.round(this.totalAscentM * 10) / 10
+        };
+      }
+    }
+
+    class GpsQualityFilter {
+      constructor(options = {}) {
+        this.maxAccuracy = options.maxAccuracy || GPS_MAX_ACCEPTABLE_ACCURACY_METERS;
+        this.maxSpeedKmh = options.maxSpeedKmh || MAX_VALID_CYCLING_SPEED_KMH;
+        this.maxSpeedMps = this.maxSpeedKmh / 3.6;
+        this.anomalousJumpMeters = options.anomalousJumpMeters || GPS_ANOMALOUS_JUMP_METERS;
+      }
+
+      filterFix(newFix, prevFix) {
+        if (!newFix || typeof newFix.lat !== 'number' || typeof newFix.lng !== 'number') {
+          return { valid: false, reason: 'invalid_coordinates', isOutlier: true };
+        }
+
+        const accuracy = typeof newFix.accuracy === 'number' ? newFix.accuracy : 10;
+        if (accuracy > this.maxAccuracy) {
+          return {
+            valid: false,
+            reason: 'low_accuracy',
+            accuracy,
+            isOutlier: true
+          };
+        }
+
+        if (!prevFix || typeof prevFix.lat !== 'number' || typeof prevFix.lng !== 'number') {
+          const reportedSpeed = typeof newFix.speed === 'number' ? newFix.speed : 0;
+          return {
+            valid: true,
+            isOutlier: false,
+            isStationary: false,
+            distanceMeters: 0,
+            calculatedSpeedKmh: reportedSpeed,
+            filteredSpeedKmh: Math.min(reportedSpeed, this.maxSpeedKmh),
+            reason: 'initial_fix'
+          };
+        }
+
+        const dist = getDistanceMeters(prevFix.lat, prevFix.lng, newFix.lat, newFix.lng);
+        const newTime = newFix.timestamp || Date.now();
+        const prevTime = prevFix.timestamp || (newTime - 1000);
+        const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+
+        if (dtSec > 60) {
+          return {
+            valid: true,
+            isOutlier: false,
+            isStationary: false,
+            distanceMeters: dist,
+            calculatedSpeedKmh: 0,
+            filteredSpeedKmh: Math.min(newFix.speed || 0, this.maxSpeedKmh),
+            reason: 'resume_after_gap'
+          };
+        }
+
+        const calculatedSpeedMps = dist / dtSec;
+        const calculatedSpeedKmh = calculatedSpeedMps * 3.6;
+
+        if (calculatedSpeedMps > this.maxSpeedMps && dist > this.anomalousJumpMeters) {
+          return {
+            valid: false,
+            isOutlier: true,
+            isStationary: false,
+            distanceMeters: dist,
+            calculatedSpeedKmh,
+            reason: 'anomalous_speed_jump'
+          };
+        }
+
+        const reportedSpeed = typeof newFix.speed === 'number' ? newFix.speed : calculatedSpeedKmh;
+        const isStationary = reportedSpeed < MIN_MOVING_SPEED_KMH && dist < 2.5;
+
+        const filteredSpeedKmh = Math.min(
+          Math.max(0, reportedSpeed > 0 ? reportedSpeed : calculatedSpeedKmh),
+          this.maxSpeedKmh
+        );
+
+        return {
+          valid: true,
+          isOutlier: false,
+          isStationary,
+          distanceMeters: dist,
+          calculatedSpeedKmh,
+          filteredSpeedKmh,
+          reason: isStationary ? 'stationary' : 'valid_moving'
+        };
+      }
+    }
+
+    class BreadcrumbSampler {
+      constructor(options = {}) {
+        this.minDist = options.minDistanceMeters || MIN_RECORD_DISTANCE_METERS;
+        this.maxIntervalSec = options.maxIntervalSeconds || MAX_RECORD_INTERVAL_SECONDS;
+        this.turnAngleDeg = options.minTurnDegrees || MIN_RECORD_TURN_DEGREES;
+        this.lastRecordedHeading = null;
+      }
+
+      shouldSample(newPoint, lastPoint) {
+        if (!lastPoint) {
+          this.lastRecordedHeading = newPoint.heading !== undefined ? newPoint.heading : null;
+          return { sample: true, reason: 'first_point' };
+        }
+
+        const dist = getDistanceMeters(lastPoint.lat, lastPoint.lng, newPoint.lat, newPoint.lng);
+        const newTime = newPoint.timestamp ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
+        const prevTime = lastPoint.timestamp ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
+        const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+
+        const speed = newPoint.speed || 0;
+
+        if (speed < MIN_MOVING_SPEED_KMH && dist < this.minDist) {
+          return { sample: false, reason: 'stationary_idle' };
+        }
+
+        if (this.lastRecordedHeading !== null && newPoint.heading !== undefined && newPoint.heading !== null && dist >= 2.0) {
+          const headingDiff = Math.abs(angleDiff(this.lastRecordedHeading, newPoint.heading));
+          if (headingDiff >= this.turnAngleDeg) {
+            this.lastRecordedHeading = newPoint.heading;
+            return { sample: true, reason: 'turn_corner' };
+          }
+        }
+
+        if (dist >= this.minDist) {
+          if (newPoint.heading !== undefined && newPoint.heading !== null) {
+            this.lastRecordedHeading = newPoint.heading;
+          }
+          return { sample: true, reason: 'distance_threshold' };
+        }
+
+        if (dtSec >= this.maxIntervalSec && dist >= 1.5) {
+          if (newPoint.heading !== undefined && newPoint.heading !== null) {
+            this.lastRecordedHeading = newPoint.heading;
+          }
+          return { sample: true, reason: 'time_interval' };
+        }
+
+        return { sample: false, reason: 'sub_threshold' };
+      }
+    }
+
+    class RouteStorage {
+      constructor(options = {}) {
+        this.dbName = options.dbName || 'trailgps_db_v1';
+        this.dbVersion = options.dbVersion || 1;
+        this.storeName = options.storeName || 'routes';
+        this.indexedDB = options.indexedDB || (typeof indexedDB !== 'undefined' ? indexedDB : null);
+        this.localStorage = options.localStorage || (typeof localStorage !== 'undefined' ? localStorage : null);
+
+        this.db = null;
+        this.inMemoryStore = new Map();
+        this.isInitialized = false;
+        this.useFallback = !this.indexedDB;
+      }
+
+      async init() {
+        if (this.isInitialized) return this;
+
+        if (!this.indexedDB) {
+          this.useFallback = true;
+          this._migrateFromLocalStorageInMemory();
+          this.isInitialized = true;
+          return this;
+        }
+
+        try {
+          this.db = await new Promise((resolve, reject) => {
+            const req = this.indexedDB.open(this.dbName, this.dbVersion);
+
+            req.onupgradeneeded = (event) => {
+              const db = event.target.result;
+              if (!db.objectStoreNames.contains(this.storeName)) {
+                const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+                store.createIndex('name', 'name', { unique: false });
+                store.createIndex('updatedAt', 'updatedAt', { unique: false });
+                store.createIndex('createdAt', 'createdAt', { unique: false });
+              }
+            };
+
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+
+          this.isInitialized = true;
+          await this.migrateFromLocalStorage();
+        } catch (e) {
+          console.warn('IndexedDB init failed, fallback to memory store:', e);
+          this.useFallback = true;
+          this._migrateFromLocalStorageInMemory();
+          this.isInitialized = true;
+        }
+
+        return this;
+      }
+
+      async migrateFromLocalStorage() {
+        if (!this.localStorage) return;
+        try {
+          const raw = this.localStorage.getItem(STORAGE_KEY_ROUTES);
+          if (!raw) return;
+
+          const legacyRoutes = JSON.parse(raw);
+          if (Array.isArray(legacyRoutes) && legacyRoutes.length > 0) {
+            for (const route of legacyRoutes) {
+              if (route && route.name && route.xml) {
+                await this.saveRoute({
+                  name: route.name,
+                  xml: route.xml,
+                  distKm: route.distKm || '0',
+                  elevM: route.elevM || 0,
+                  date: route.date || new Date().toLocaleDateString('ca-ES')
+                });
+              }
+            }
+            this.localStorage.removeItem(STORAGE_KEY_ROUTES);
+          }
+        } catch (e) {
+          console.warn('Migration from localStorage encountered an issue:', e);
+        }
+      }
+
+      _migrateFromLocalStorageInMemory() {
+        if (!this.localStorage) return;
+        try {
+          const raw = this.localStorage.getItem(STORAGE_KEY_ROUTES);
+          if (!raw) return;
+          const legacyRoutes = JSON.parse(raw);
+          if (Array.isArray(legacyRoutes)) {
+            for (const route of legacyRoutes) {
+              if (route && route.name) {
+                const id = 'route_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                this.inMemoryStore.set(id, {
+                  id,
+                  name: route.name,
+                  xml: route.xml,
+                  distKm: route.distKm || '0',
+                  elevM: route.elevM || 0,
+                  date: route.date || new Date().toLocaleDateString('ca-ES'),
+                  createdAt: Date.now(),
+                  updatedAt: Date.now()
+                });
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      async saveRoute(routeData) {
+        if (!this.isInitialized) await this.init();
+        if (!routeData || !routeData.name || typeof routeData.xml !== 'string') {
+          throw new Error('Dades de ruta invàlides');
+        }
+
+        const now = Date.now();
+        const existing = await this.getRouteByName(routeData.name);
+
+        const record = {
+          id: routeData.id || (existing ? existing.id : `route_${now}_${Math.random().toString(36).slice(2, 7)}`),
+          name: String(routeData.name).trim().slice(0, 100),
+          xml: routeData.xml,
+          distKm: String(routeData.distKm || '0'),
+          elevM: Number(routeData.elevM) || 0,
+          date: routeData.date || new Date(now).toLocaleDateString('ca-ES'),
+          createdAt: existing ? existing.createdAt : (routeData.createdAt || now),
+          updatedAt: now
+        };
+
+        if (this.useFallback || !this.db) {
+          this.inMemoryStore.set(record.id, record);
+          return record;
+        }
+
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction(this.storeName, 'readwrite');
+          const store = tx.objectStore(this.storeName);
+          const req = store.put(record);
+
+          req.onsuccess = () => resolve(record);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async getAllRoutes() {
+        if (!this.isInitialized) await this.init();
+
+        if (this.useFallback || !this.db) {
+          const routes = Array.from(this.inMemoryStore.values());
+          return routes.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        }
+
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction(this.storeName, 'readonly');
+          const store = tx.objectStore(this.storeName);
+          const req = store.getAll();
+
+          req.onsuccess = () => {
+            const routes = req.result || [];
+            routes.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            resolve(routes);
+          };
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async getRouteById(id) {
+        if (!this.isInitialized) await this.init();
+        if (!id) return null;
+
+        if (this.useFallback || !this.db) {
+          return this.inMemoryStore.get(id) || null;
+        }
+
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction(this.storeName, 'readonly');
+          const store = tx.objectStore(this.storeName);
+          const req = store.get(id);
+
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async getRouteByName(name) {
+        if (!this.isInitialized) await this.init();
+        if (!name) return null;
+
+        const trimmed = String(name).trim();
+
+        if (this.useFallback || !this.db) {
+          for (const r of this.inMemoryStore.values()) {
+            if (r.name === trimmed) return r;
+          }
+          return null;
+        }
+
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction(this.storeName, 'readonly');
+          const store = tx.objectStore(this.storeName);
+          const index = store.index('name');
+          const req = index.get(trimmed);
+
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async deleteRoute(idOrName) {
+        if (!this.isInitialized) await this.init();
+        if (!idOrName) return false;
+
+        let targetId = idOrName;
+        if (this.useFallback || !this.db) {
+          if (this.inMemoryStore.has(idOrName)) {
+            this.inMemoryStore.delete(idOrName);
+            return true;
+          }
+          for (const [id, r] of this.inMemoryStore.entries()) {
+            if (r.name === idOrName) {
+              this.inMemoryStore.delete(id);
+              return true;
+            }
+          }
+          return false;
+        }
+
+        const existing = (await this.getRouteById(idOrName)) || (await this.getRouteByName(idOrName));
+        if (!existing) return false;
+        targetId = existing.id;
+
+        return new Promise((resolve, reject) => {
+          const tx = this.db.transaction(this.storeName, 'readwrite');
+          const store = tx.objectStore(this.storeName);
+          const req = store.delete(targetId);
+
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error);
+        });
+      }
+    }
+
+    // --- GPX URL FETCHER & PROXY UTILS ---
+    const MAX_GPX_URL_SIZE_BYTES = 10 * 1024 * 1024;
+    const FETCH_TIMEOUT_MS = 12000;
+
+    function isValidGpxUrl(urlStr) {
+      if (typeof urlStr !== 'string') return false;
+      const trimmed = urlStr.trim();
+      if (trimmed.length === 0) return false;
+      try {
+        const parsed = new URL(trimmed);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function extractRouteNameFromUrl(urlStr) {
+      if (!isValidGpxUrl(urlStr)) return 'Ruta GPX Descarregada';
+      try {
+        const parsed = new URL(urlStr.trim());
+        const pathSegs = parsed.pathname.split('/').filter(p => p.trim().length > 0);
+        if (pathSegs.length === 0) return 'Ruta GPX Descarregada';
+
+        let lastSeg = pathSegs[pathSegs.length - 1];
+        lastSeg = decodeURIComponent(lastSeg.replace(/^["']|["']$/g, ''));
+        lastSeg = lastSeg.replace(/\.(gpx|xml)$/i, '').replace(/[_-]+/g, ' ').trim();
+        return lastSeg.length > 0 ? lastSeg.slice(0, 100) : 'Ruta GPX Descarregada';
+      } catch (err) {
+        return 'Ruta GPX Descarregada';
+      }
+    }
+
+    function isGpxContent(str) {
+      if (typeof str !== 'string') return false;
+      const t = str.slice(0, 1024).toLowerCase();
+      return t.includes('<gpx') || t.includes('<trk') || t.includes('<rte');
+    }
+
+    async function fetchGpxFromUrl(urlStr, options = {}) {
+      if (!isValidGpxUrl(urlStr)) {
+        throw new Error('L\'enllaç proporcionat no és una URL vàlida (HTTP/HTTPS)');
+      }
+
+      const url = urlStr.trim();
+      const timeoutMs = options.timeoutMs || FETCH_TIMEOUT_MS;
+      const allowProxy = options.allowProxy !== false;
+      let xml = '';
+      let fromProxy = false;
+      const defaultName = extractRouteNameFromUrl(url);
+
+      // 1. Attempt Direct Fetch
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+        const res = await fetch(url, {
+          signal: ctrl.signal,
+          headers: { 'Accept': 'application/gpx+xml, application/xml, text/xml, */*' }
+        });
+        clearTimeout(timer);
+        if (res.ok) {
+          const text = await res.text();
+          if (isGpxContent(text)) {
+            xml = text;
+          }
+        }
+      } catch (e) {}
+
+      // 2. CORS Proxy Fallback
+      if (!xml && allowProxy) {
+        try {
+          const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+          const proxyRes = await fetch(proxyUrl, { signal: ctrl.signal });
+          clearTimeout(timer);
+          if (proxyRes.ok) {
+            const text = await proxyRes.text();
+            if (isGpxContent(text)) {
+              xml = text;
+              fromProxy = true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!xml) {
+        throw new Error('No s\'ha pogut descarregar el fitxer GPX. Comprova l\'enllaç o descarrega\'l manualment.');
+      }
+
+      if (xml.length > MAX_GPX_URL_SIZE_BYTES) {
+        throw new Error('El fitxer GPX és massa gran (> 10 MB)');
+      }
+
+      return { xml, name: defaultName, fromProxy };
     }
 
     // --- MAP TILES CONFIGURATION ---
@@ -2826,6 +3433,16 @@
     let isUsingGpsFallback = false;
     let isOrientationListenerActive = false;
 
+    // GPS & Elevation Filters & Route Storage
+    const gpsQualityFilter = new GpsQualityFilter();
+    const telemetryElevationFilter = new ElevationFilter({ alpha: 0.35, deadband: 2.0 });
+    let recorderElevationFilter = new ElevationFilter({ alpha: 0.35, deadband: 2.0 });
+    let breadcrumbSampler = new BreadcrumbSampler();
+    const routeStorage = new RouteStorage();
+    let prevGpsFix = null;
+    let elevationInspectMarker = null;
+    let inspectHideTimeout = null;
+
     // Cycling Stats Tracker
     const rideStats = {
       startTime: Date.now(),
@@ -2896,7 +3513,8 @@
       requestGpsPermission();
       requestWakeLock();
       initRideStatsTimer();
-      renderRoutesHistoryList();
+      initElevationScrubbing();
+      routeStorage.init().then(() => renderRoutesHistoryList());
 
       setTimeout(() => {
         if (map) map.invalidateSize();
@@ -3161,22 +3779,41 @@
       const coords = pos.coords;
       const accuracy = Math.round(coords.accuracy || 999);
       const statusText = document.getElementById('gps-status-text');
-      if (accuracy > GPS_MAX_ACCEPTABLE_ACCURACY_METERS) {
-        statusText.textContent = `±${accuracy}m · PRECISIÓ BAIXA`;
-        document.getElementById('gps-status-badge').className = 'gps-status error';
+
+      const rawFix = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        alt: coords.altitude !== null && !isNaN(coords.altitude) ? Math.round(coords.altitude) : (userPosition.alt || 200),
+        speed: coords.speed !== null && !isNaN(coords.speed) ? Math.max(0, coords.speed * 3.6) : 0,
+        accuracy: accuracy,
+        heading: coords.heading !== null && !isNaN(coords.heading) && coords.heading >= 0 ? Math.round(coords.heading) : null,
+        timestamp: pos.timestamp || Date.now()
+      };
+
+      const filterResult = gpsQualityFilter.filterFix(rawFix, prevGpsFix);
+
+      if (!filterResult.valid) {
+        if (filterResult.reason === 'low_accuracy') {
+          statusText.textContent = `±${accuracy}m · PRECISIÓ BAIXA`;
+          document.getElementById('gps-status-badge').className = 'gps-status error';
+        }
         return false;
       }
 
       hasRealGpsFix = true;
-      userPosition.lat = coords.latitude;
-      userPosition.lng = coords.longitude;
-      userPosition.speed = coords.speed ? Math.max(0, coords.speed * 3.6) : 0;
+      prevGpsFix = rawFix;
+
+      userPosition.lat = rawFix.lat;
+      userPosition.lng = rawFix.lng;
+      userPosition.speed = filterResult.filteredSpeedKmh;
       userPosition.accuracy = accuracy;
 
-      if (coords.heading !== null && !isNaN(coords.heading) && coords.heading >= 0) {
-        userPosition.heading = Math.round(coords.heading);
+      if (rawFix.heading !== null) {
+        userPosition.heading = rawFix.heading;
       }
-      if (coords.altitude) userPosition.alt = Math.round(coords.altitude);
+      if (rawFix.alt !== null) {
+        userPosition.alt = rawFix.alt;
+      }
 
       document.getElementById('gps-status-text').textContent = `±${userPosition.accuracy}m`;
 
@@ -3203,24 +3840,22 @@
 
     // --- CYCLING TELEMETRY & STATS ---
     function processTelemetryMetrics(pos) {
-      if (pos.speed > rideStats.maxSpeed) {
+      if (pos.speed > rideStats.maxSpeed && pos.speed <= MAX_VALID_CYCLING_SPEED_KMH) {
         rideStats.maxSpeed = pos.speed;
       }
 
-      if (pos.speed > 1.8) {
+      if (pos.speed >= MIN_MOVING_SPEED_KMH) {
         rideStats.speedSamples.push(pos.speed);
       }
 
-      if (rideStats.lastAlt !== null && pos.alt > rideStats.lastAlt) {
-        const diff = pos.alt - rideStats.lastAlt;
-        if (diff > 1 && diff < 50) rideStats.totalAscentM += diff;
-      }
-      rideStats.lastAlt = pos.alt;
+      const eleRes = telemetryElevationFilter.update(pos.alt);
+      rideStats.totalAscentM = eleRes.totalAscentM;
+      rideStats.lastAlt = eleRes.smoothedEle;
       rideStats.lastPosition = pos;
 
       document.getElementById('stat-speed').textContent = pos.speed.toFixed(1);
       document.getElementById('stat-max-speed').textContent = rideStats.maxSpeed.toFixed(1);
-      document.getElementById('stat-alt').textContent = pos.alt;
+      document.getElementById('stat-alt').textContent = Math.round(eleRes.smoothedEle);
       document.getElementById('stat-ascent').textContent = '+' + Math.round(rideStats.totalAscentM);
 
       if (rideStats.speedSamples.length > 0) {
@@ -3258,6 +3893,8 @@
       recordedPoints = [];
       recTotalDistM = 0;
       recTotalAscentM = 0;
+      recorderElevationFilter.reset(userPosition ? userPosition.alt : null);
+      breadcrumbSampler = new BreadcrumbSampler();
 
       const btn = document.getElementById('btn-rec');
       btn.className = 'btn-top btn-rec recording';
@@ -3287,29 +3924,32 @@
     }
 
     function recordBreadcrumbPoint(pos) {
-      const pt = {
+      const lastPt = recordedPoints.length > 0 ? recordedPoints[recordedPoints.length - 1] : null;
+
+      const ptCandidate = {
         lat: pos.lat,
         lng: pos.lng,
         ele: pos.alt || 200,
         speed: pos.speed || 0,
+        heading: pos.heading !== undefined ? pos.heading : null,
         hr: sensorState.hrm.bpm || null,
         cad: sensorState.csc.rpm || null,
         time: new Date().toISOString()
       };
 
-      if (recordedPoints.length > 0) {
-        const prev = recordedPoints[recordedPoints.length - 1];
-        const dist = getDistanceMeters(prev.lat, prev.lng, pt.lat, pt.lng);
-        if (dist < 2) return;
+      const sampleDecision = breadcrumbSampler.shouldSample(ptCandidate, lastPt);
+      if (!sampleDecision.sample) return;
 
+      if (lastPt) {
+        const dist = getDistanceMeters(lastPt.lat, lastPt.lng, ptCandidate.lat, ptCandidate.lng);
         recTotalDistM += dist;
-        if (pt.ele > prev.ele) {
-          const eleGain = pt.ele - prev.ele;
-          if (eleGain > 0.5 && eleGain < 30) recTotalAscentM += eleGain;
-        }
       }
 
-      recordedPoints.push(pt);
+      const eleRes = recorderElevationFilter.update(ptCandidate.ele);
+      ptCandidate.ele = eleRes.smoothedEle;
+      recTotalAscentM = eleRes.totalAscentM;
+
+      recordedPoints.push(ptCandidate);
 
       document.getElementById('rec-dist-val').textContent = `${(recTotalDistM / 1000).toFixed(2)} km`;
       document.getElementById('rec-ascent-val').textContent = `+${Math.round(recTotalAscentM)} m`;
@@ -3578,6 +4218,7 @@
       const points = [];
       let totalDist = 0;
       let totalAscent = 0;
+      let eleBaseline = null;
       let minEle = Infinity;
       let maxEle = -Infinity;
 
@@ -3591,9 +4232,18 @@
           if (points.length > 0) {
             const prev = points[points.length - 1];
             totalDist += getDistanceMeters(prev.lat, prev.lng, lat, lon);
-            if (ele > prev.ele) {
-              totalAscent += (ele - prev.ele);
+            if (eleBaseline === null) eleBaseline = ele;
+            if (ele > eleBaseline) {
+              const delta = ele - eleBaseline;
+              if (delta >= ELEVATION_ASCENT_DEADBAND_METERS) {
+                totalAscent += delta;
+                eleBaseline = ele;
+              }
+            } else if (ele < eleBaseline) {
+              eleBaseline = ele;
             }
+          } else {
+            eleBaseline = ele;
           }
           if (ele < minEle) minEle = ele;
           if (ele > maxEle) maxEle = ele;
@@ -3750,6 +4400,166 @@
       if (axisStart) axisStart.textContent = `0 km`;
       if (axisMid) axisMid.textContent = `${(parseFloat(totalDistanceKm) / 2).toFixed(1)} km`;
       if (axisEnd) axisEnd.textContent = `${totalDistanceKm} km`;
+
+      // Reset any active inspection indicator
+      const inspectGuide = document.getElementById('ele-inspect-guide');
+      const inspectDot = document.getElementById('ele-inspect-dot');
+      if (inspectGuide) inspectGuide.style.display = 'none';
+      if (inspectDot) inspectDot.style.display = 'none';
+      if (elevationInspectMarker && map) {
+        map.removeLayer(elevationInspectMarker);
+        elevationInspectMarker = null;
+      }
+    }
+
+    // --- ELEVATION SCRUBBING & INTERACTIVE INSPECTION ---
+    function getPointAtElevationProgress(points, ratio) {
+      if (!Array.isArray(points) || points.length === 0) return null;
+      const clampedRatio = Math.max(0, Math.min(1, Number(ratio) || 0));
+      const idx = Math.min(points.length - 1, Math.round(clampedRatio * (points.length - 1)));
+      const pt = points[idx];
+      return {
+        point: pt,
+        index: idx,
+        progressPercent: Math.round(clampedRatio * 100),
+        distKm: pt.distFromStartM !== undefined ? (pt.distFromStartM / 1000).toFixed(1) : '0.0',
+        eleM: Math.round(pt.ele || 0),
+        slope: pt.slope || 0
+      };
+    }
+
+    function initElevationScrubbing() {
+      const svg = document.getElementById('elevation-svg');
+      const inspectGuide = document.getElementById('ele-inspect-guide');
+      const inspectDot = document.getElementById('ele-inspect-dot');
+      const statsEl = document.getElementById('elevation-stats');
+      const slopeBadge = document.getElementById('slope-badge');
+      if (!svg) return;
+
+      let isScrubbing = false;
+
+      function handleScrub(e) {
+        if (!track || !track.points || track.points.length === 0) return;
+        const rect = svg.getBoundingClientRect();
+        if (rect.width <= 0) return;
+
+        let clientX = e.clientX;
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+        }
+
+        const relativeX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        const ratio = relativeX / rect.width;
+        const info = getPointAtElevationProgress(track.points, ratio);
+        if (!info || !info.point) return;
+
+        const pt = info.point;
+        const svgX = Math.round(ratio * 360 * 10) / 10;
+        const eleDiff = Math.max(20, track.maxEle - track.minEle);
+        const svgY = Math.round((55 - ((pt.ele - track.minEle) / eleDiff) * (55 - 18) - 6) * 10) / 10;
+
+        if (inspectGuide) {
+          inspectGuide.setAttribute('x1', svgX);
+          inspectGuide.setAttribute('x2', svgX);
+          inspectGuide.style.display = 'block';
+        }
+        if (inspectDot) {
+          inspectDot.setAttribute('cx', svgX);
+          inspectDot.setAttribute('cy', svgY);
+          inspectDot.style.display = 'block';
+        }
+
+        if (statsEl) {
+          statsEl.innerHTML = `<span style="color:#FF9100; font-weight:900;">📍 ${info.distKm} km</span> • ${info.eleM}m • ${info.slope > 0 ? '+' : ''}${info.slope}%`;
+        }
+        if (slopeBadge) {
+          slopeBadge.textContent = (info.slope > 0 ? '+' : '') + info.slope + '%';
+          if (info.slope > 12) slopeBadge.style.background = '#EF4444';
+          else if (info.slope > 7) slopeBadge.style.background = '#FF6600';
+          else if (info.slope > 3) slopeBadge.style.background = '#FACC15';
+          else if (info.slope >= 0) slopeBadge.style.background = '#10B981';
+          else slopeBadge.style.background = '#0284C7';
+        }
+
+        if (map) {
+          if (!elevationInspectMarker) {
+            const inspectIcon = L.divIcon({
+              className: 'elevation-inspect-pin',
+              html: `
+                <div style="position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                  <div style="position: absolute; width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 145, 0, 0.4); animation: pulseInspect 1.2s infinite ease-out;"></div>
+                  <div style="width: 14px; height: 14px; border-radius: 50%; background: #FF9100; border: 2.5px solid #FFFFFF; box-shadow: 0 0 10px #FF9100;"></div>
+                </div>
+              `,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16]
+            });
+            elevationInspectMarker = L.marker([pt.lat, pt.lng], { icon: inspectIcon, zIndexOffset: 1200 }).addTo(map);
+          } else {
+            elevationInspectMarker.setLatLng([pt.lat, pt.lng]);
+          }
+        }
+
+        if (inspectHideTimeout) {
+          clearTimeout(inspectHideTimeout);
+          inspectHideTimeout = null;
+        }
+      }
+
+      function endScrub() {
+        if (inspectHideTimeout) clearTimeout(inspectHideTimeout);
+        inspectHideTimeout = setTimeout(() => {
+          if (inspectGuide) inspectGuide.style.display = 'none';
+          if (inspectDot) inspectDot.style.display = 'none';
+          if (elevationInspectMarker && map) {
+            map.removeLayer(elevationInspectMarker);
+            elevationInspectMarker = null;
+          }
+          if (track && statsEl) {
+            statsEl.textContent = `▲ +${track.totalAscent || (track.maxEle - track.minEle)}m • ${track.minEle}→${track.maxEle}m`;
+          }
+        }, 2800);
+      }
+
+      svg.addEventListener('pointerdown', (e) => {
+        isScrubbing = true;
+        handleScrub(e);
+      });
+      window.addEventListener('pointermove', (e) => {
+        if (isScrubbing) handleScrub(e);
+      });
+      window.addEventListener('pointerup', () => {
+        if (isScrubbing) {
+          isScrubbing = false;
+          endScrub();
+        }
+      });
+      window.addEventListener('pointercancel', () => {
+        if (isScrubbing) {
+          isScrubbing = false;
+          endScrub();
+        }
+      });
+
+      svg.addEventListener('touchstart', (e) => {
+        isScrubbing = true;
+        handleScrub(e);
+      }, { passive: true });
+      svg.addEventListener('touchmove', (e) => {
+        if (isScrubbing) handleScrub(e);
+      }, { passive: true });
+      svg.addEventListener('touchend', () => {
+        if (isScrubbing) {
+          isScrubbing = false;
+          endScrub();
+        }
+      });
+      svg.addEventListener('touchcancel', () => {
+        if (isScrubbing) {
+          isScrubbing = false;
+          endScrub();
+        }
+      });
     }
 
     // --- TELEMETRY & TURN-BY-TURN GUIDANCE ---
@@ -4898,49 +5708,39 @@
       }, 1000);
     }
 
-    // --- LOCAL ROUTE LIBRARY & STORAGE ---
-    function saveRouteToHistory(name, xmlStr, distKm, elevM) {
+    // --- LOCAL ROUTE LIBRARY & STORAGE (INDEXEDDB) ---
+    async function saveRouteToHistory(name, xmlStr, distKm, elevM) {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUTES) || '[]');
-        const existingIdx = saved.findIndex(r => r.name === name);
-        const routeData = {
+        await routeStorage.saveRoute({
           name,
           xml: xmlStr,
           distKm: distKm || '0',
-          elevM: elevM || '0',
+          elevM: elevM || 0,
           date: new Date().toLocaleDateString('ca-ES')
-        };
-
-        if (existingIdx >= 0) {
-          saved[existingIdx] = routeData;
-        } else {
-          saved.unshift(routeData);
-          if (saved.length > 8) saved.pop();
-        }
-
-        localStorage.setItem(STORAGE_KEY_ROUTES, JSON.stringify(saved));
-        renderRoutesHistoryList();
-      } catch (e) {}
+        });
+        await renderRoutesHistoryList();
+      } catch (e) {
+        console.warn('Error guardant ruta a IndexedDB:', e);
+      }
     }
 
-    function deleteRouteFromHistory(name) {
-      if (!name) return;
+    async function deleteRouteFromHistory(idOrName, displayName = '') {
+      const name = displayName || idOrName;
       if (!confirm(`Vols eliminar la ruta "${name}" de la memòria local?`)) return;
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUTES) || '[]');
-        const updated = saved.filter(r => r.name !== name);
-        localStorage.setItem(STORAGE_KEY_ROUTES, JSON.stringify(updated));
-        renderRoutesHistoryList();
+        await routeStorage.deleteRoute(idOrName);
+        await renderRoutesHistoryList();
         showToast(`🗑️ Ruta "${name}" eliminada`);
       } catch (e) {
         showToast('⚠️ No s’ha pogut eliminar la ruta');
       }
     }
 
-    function renderRoutesHistoryList() {
+    async function renderRoutesHistoryList() {
       const container = document.getElementById('routes-history-list');
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_ROUTES) || '[]');
+      if (!container) return;
 
+      const saved = await routeStorage.getAllRoutes();
       container.innerHTML = '';
 
       const defaultItem = document.createElement('div');
@@ -5009,7 +5809,7 @@
         deleteBtn.textContent = '🗑️';
         deleteBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          deleteRouteFromHistory(r.name);
+          deleteRouteFromHistory(r.id || r.name, r.name);
         });
 
         const playIcon = document.createElement('span');
@@ -5025,6 +5825,140 @@
         });
         container.appendChild(item);
       });
+
+      const badge = document.getElementById('routes-count-badge');
+      if (badge) {
+        const total = (saved ? saved.length : 0) + 1;
+        badge.textContent = total === 1 ? '1 ruta' : `${total} rutes`;
+      }
+    }
+
+    // --- GPX URL DOWNLOAD CONTROLLER ---
+    function toggleUrlImportBox() {
+      const box = document.getElementById('url-import-box');
+      const input = document.getElementById('input-gpx-url');
+      if (!box) return;
+      const isHidden = box.style.display === 'none' || !box.style.display;
+      box.style.display = isHidden ? 'flex' : 'none';
+      if (isHidden && input) {
+        setTimeout(() => input.focus(), 100);
+      }
+    }
+
+    async function downloadGpxFromUrlAction() {
+      const input = document.getElementById('input-gpx-url');
+      const statusEl = document.getElementById('url-import-status');
+      const btn = document.getElementById('btn-fetch-gpx-url');
+      if (!input) return;
+
+      const url = input.value.trim();
+      if (!url) {
+        showToast('⚠️ Introdueix un enllaç GPX');
+        input.focus();
+        return;
+      }
+
+      if (!isValidGpxUrl(url)) {
+        showToast('⚠️ L\'enllaç ha de començar per http:// o https://');
+        if (statusEl) {
+          statusEl.textContent = '⚠️ URL invàlida. Assegura\'t que comença per http:// o https://';
+          statusEl.style.color = '#EF4444';
+        }
+        return;
+      }
+
+      const prevBtnContent = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Baixant...';
+      }
+      if (statusEl) {
+        statusEl.textContent = '⏳ Descarregant fitxer GPX de la xarxa...';
+        statusEl.style.color = '#00E5FF';
+      }
+
+      try {
+        const result = await fetchGpxFromUrl(url);
+        parseAndDisplayGpx(result.xml, true, result.name);
+        showToast(result.fromProxy ? '🌐 Ruta descarregada via proxy' : '✅ Ruta GPX descarregada amb èxit');
+        input.value = '';
+        if (statusEl) {
+          statusEl.textContent = '✅ Ruta descarregada i desada a la memòria.';
+          statusEl.style.color = '#10B981';
+        }
+        closeAllModals();
+      } catch (err) {
+        showToast('⚠️ ' + (err.message || 'Error en descarregar'));
+        if (statusEl) {
+          statusEl.textContent = '❌ ' + (err.message || 'Error de descàrrega');
+          statusEl.style.color = '#EF4444';
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = prevBtnContent || '<span>⬇️</span> Baixar';
+        }
+      }
+    }
+
+    // --- BACKUP & RESTORE CONTROLLER ---
+    async function exportBackupJsonAction() {
+      try {
+        const jsonStr = await routeStorage.exportBackupJson();
+        const data = JSON.parse(jsonStr);
+        const count = Array.isArray(data) ? data.length : (data.routes ? data.routes.length : 0);
+        if (count === 0) {
+          showToast('ℹ️ No hi ha rutes desades per exportar');
+          return;
+        }
+
+        const dateStr = new Date().toISOString().split('T')[0];
+        const filename = `trailgps_backup_rutes_${dateStr}.json`;
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`💾 Còpia descarregada (${count} ${count === 1 ? 'ruta' : 'rutes'})`);
+      } catch (err) {
+        console.error('Error exportant còpia de seguretat:', err);
+        showToast('⚠️ Error en exportar la còpia');
+      }
+    }
+
+    function importBackupJsonAction() {
+      const fileInput = document.getElementById('input-backup-file');
+      if (fileInput) {
+        fileInput.value = '';
+        fileInput.click();
+      }
+    }
+
+    async function handleBackupFileSelected(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const content = event.target.result;
+          const importedCount = await routeStorage.importBackupJson(content);
+          await renderRoutesHistoryList();
+          showToast(`✅ S'han restaurat ${importedCount} ${importedCount === 1 ? 'ruta' : 'rutes'}`);
+        } catch (err) {
+          console.error('Error restaurant còpia de seguretat:', err);
+          showToast('⚠️ El fitxer no conté una còpia vàlida');
+        }
+      };
+      reader.onerror = () => {
+        showToast('⚠️ Error llegint el fitxer');
+      };
+      reader.readAsText(file);
     }
 
     // --- TOAST HELPER ---
@@ -5365,7 +6299,7 @@
 
       bindAction('btn-add-quick-wp', addQuickWaypoint);
 
-      // Routes Modal Toggle
+      // Routes Modal Toggle & URL Downloader
       const routesBtn = document.getElementById('btn-routes-lib');
       const routesModal = document.getElementById('routes-modal');
       bindAction('btn-routes-lib', () => {
@@ -5378,6 +6312,26 @@
           renderRoutesHistoryList();
         }
       });
+
+      bindAction('btn-toggle-url-import', toggleUrlImportBox);
+      bindAction('btn-fetch-gpx-url', downloadGpxFromUrlAction);
+      const gpxUrlInput = document.getElementById('input-gpx-url');
+      if (gpxUrlInput) {
+        gpxUrlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            downloadGpxFromUrlAction();
+          }
+        });
+      }
+
+      // Backup & Restore bindings
+      bindAction('btn-export-backup', exportBackupJsonAction);
+      bindAction('btn-import-backup', importBackupJsonAction);
+      const backupFileInput = document.getElementById('input-backup-file');
+      if (backupFileInput) {
+        backupFileInput.addEventListener('change', handleBackupFileSelected);
+      }
 
       // Full Stats Dashboard Modal Toggle
       bindAction('btn-open-stats', toggleStatsModal);

@@ -5,30 +5,35 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 20 d’agost de 2026 — Fase 0 completada i Fase 1 iniciada.
+> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.7).
 >
-> **Punt actual:** s’han implementat les proves automatitzades de geometria i parser GPX (`npm test`), la persistència d'àudio desactivat per defecte, l'esborrat de rutes de la biblioteca local i el sanejament de textos GPX. Resta la prova de camp en dispositiu i la integració del motor compartit.
+> **Punt actual:** s’han implementat els botons de còpia de seguretat i restauració JSON a la UI (`#routes-modal`), el perfil d'altimetria interactiu amb sincronització al mapa (`getPointAtElevationProgress`), la descàrrega directa de rutes per URL (`gpxFetcher`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 34 proves automatitzades (`npm test` 100% OK).
 
 ### Fites completades en aquesta sessió
 
-- [x] Corregida la compilació TypeScript de la branca Expo: importació de `MapView` a `trail-gps/App.tsx`.
-- [x] Sanejament de dades GPX i de la biblioteca de rutes (`textContent`, escapat HTML i límits de 100/300 caràcters).
-- [x] Refactoritzada la subscripció GPS de la PWA: una única subscripció activa, neteja abans del reintent i degradació única a baixa precisió.
-- [x] Afegit filtre inicial de qualitat GPS: fixes amb precisió > 50 m es marquen com a baixa precisió.
-- [x] Evitada la duplicació del listener de brúixola quan es torna a demanar el GPS.
-- [x] Validació d’entrada GPX: XML invàlid, fitxer buit, mida màxima de 10 MB i màxim de 25.000 punts.
-- [x] Histèresi de fora de ruta: entrada a 40 m, recuperació a 25 m i confirmació de dos fixes consecutius.
-- [x] Àudio desactivat per defecte (`isAudioEnabled = false`) amb persistència a `localStorage`.
-- [x] Gestió de biblioteca de rutes: esborrat individual amb botó `🗑️`, modal de confirmació i refresc dinàmic.
-- [x] Creada suite de proves automatitzades amb el test runner natiu de Node.js (`npm test`, 12 tests unitaris).
-- [x] Mòduls d'enginyeria purs creats a `src/core/geoEngine.mjs` i `src/core/gpxParser.mjs`.
+- [x] Botons de còpia de seguretat JSON (`trailgps_backup_rutes_YYYY-MM-DD.json`) i restauració directa a la interfície de la biblioteca de rutes (`#routes-modal`).
+- [x] Perfil d'altimetria interactiu (Scrubbing / Tap al gràfic SVG `#elevation-svg`) amb marcador sincronitzat en temps real al mapa Leaflet (`getPointAtElevationProgress`).
+- [x] Descàrrega directa de rutes per URL web (`gpxFetcher.mjs`) amb suport de proxy CORS per a servidors oberts i Wikiloc.
+- [x] Formulari d'importació per URL integrable al modal de la biblioteca de rutes (`#routes-modal`).
+- [x] Migració de la biblioteca de rutes a IndexedDB (`trailgps_db_v1`) amb migració automàtica de dades de `localStorage` i fallback en memòria.
+- [x] Suport per a còpies de seguretat de rutes en format JSON (`exportBackupJson` / `importBackupJson`).
+- [x] Implementat filtre d'altimetria EMA i càlcul de desnivell acumulat (+D) per deadband de 2.0 m (`ElevationFilter`), evitant l'ascens fictici en repòs o terreny pla.
+- [x] Limitador de velocitat vertical màxima ($1.5\text{ m/s}$) per descartar pics anòmals de sensor d'elevació.
+- [x] Filtre de qualitat GPS (`GpsQualityFilter`) per detectar i descartar salts/teletransportacions impossibles ($> 100\text{ km/h}$ i $> 150\text{ m}$) i detectar aturades/deriva estàtica.
+- [x] Mostreig intel·ligent del gravador de rutes (`BreadcrumbSampler`) basat en distància ($\ge 3.5\text{ m}$), temps ($6\text{ s}$) i canvi d'angle en corbes ($\ge 18^\circ$).
+- [x] Sanejament del càlcul de desnivell a `trail-gps/src/utils/gpxParser.ts` (Expo).
+- [x] Ampliada la suite de proves a 34 tests unitaris (Node.js test runner, `npm test` 100% OK).
+- [x] Còpies PWA `index.html` i `web-app/index.html` sincronitzades (SHA256 idèntic).
 
 ### Pendent immediat
 
-- [ ] Prova manual en dispositiu real del nou comportament GPS i de la histèresi d'alertes.
-- [ ] Filtrar salts GPS anòmals i freqüència de mostres del gravador.
+- [ ] Mode d'estalvi de bateria i refresc intel·ligent en repòs.
+- [ ] Edició i personalització de Waypoints / POIs creats en ruta.
+- [ ] Prova manual en dispositiu real del comportament GPS i de la histèresi d'alertes en ruta.
 - [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
-- [ ] Integració dels mòduls compartits a `trail-gps/` (Expo).
+- [ ] Edició i personalització de Waypoints / POIs creats en ruta.
+- [ ] Prova manual en dispositiu real del comportament GPS i de la histèresi d'alertes en ruta.
+- [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
 
 ## Resum executiu
 
@@ -137,7 +142,7 @@ La lògica pura hauria de viure en mòduls TypeScript compartits entre PWA i Exp
 - [x] Sanejament de la biblioteca de rutes desades a la UI.
 - [x] Validació XML, límits de mida i missatges d’error útils (feta per XML, fitxer, punts i textos).
 - [x] Un sol gestor de subscripció GPS amb neteja garantida.
-- [~] Filtre de precisió, salts i mostres per al gravador: filtre de precisió inicial aplicat; resten filtres de salts i freqüència.
+- [x] Filtre de precisió, salts anòmals i mostres intel·ligents per al gravador.
 - [x] Histèresi i limitació temporal d’alertes fora de ruta.
 - [x] Àudio silenciat per defecte i preferència persistent.
 - [x] Corregida la compilació TypeScript de la branca Expo.
@@ -158,8 +163,8 @@ La lògica pura hauria de viure en mòduls TypeScript compartits entre PWA i Exp
 
 - [ ] Escollir proveïdor/format de mapa que autoritzi explícitament offline.
 - [ ] Dissenyar àrees offline amb control de mida, cobertura i expiració.
-- [ ] Migrar biblioteca de rutes a IndexedDB o emmagatzematge natiu.
-- [ ] Afegir esborrat individual amb confirmació, còpia de seguretat i restauració.
+- [x] Migrar biblioteca de rutes a IndexedDB (`RouteStorage` / `trailgps_db_v1`) amb migració de `localStorage`.
+- [x] Afegir esborrat individual amb confirmació, còpia de seguretat JSON (`exportBackupJson`) i restauració (`importBackupJson`).
 
 **Criteri de sortida:** ús offline verificat en mode avió sense infringir les condicions del proveïdor cartogràfic.
 

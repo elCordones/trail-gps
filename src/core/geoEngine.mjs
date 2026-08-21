@@ -12,6 +12,19 @@ export const OFF_TRACK_ENTER_DISTANCE_METERS = 40;
 export const OFF_TRACK_EXIT_DISTANCE_METERS = 25;
 export const OFF_TRACK_CONFIRMATION_FIXES = 2;
 
+// GPS Quality & Sampling Thresholds
+export const MAX_VALID_CYCLING_SPEED_KMH = 100;
+export const MAX_VALID_CYCLING_SPEED_MPS = MAX_VALID_CYCLING_SPEED_KMH / 3.6; // ~27.78 m/s
+export const MIN_MOVING_SPEED_KMH = 1.8;
+export const GPS_MAX_ACCEPTABLE_ACCURACY_METERS = 50;
+export const GPS_ANOMALOUS_JUMP_METERS = 150;
+export const ELEVATION_EMA_ALPHA = 0.25;
+export const ELEVATION_ASCENT_DEADBAND_METERS = 2.0;
+export const MAX_VERTICAL_SPEED_MPS = 1.5;
+export const MIN_RECORD_DISTANCE_METERS = 3.5;
+export const MAX_RECORD_INTERVAL_SECONDS = 6;
+export const MIN_RECORD_TURN_DEGREES = 18;
+
 /**
  * Calculates Haversine distance in meters between two lat/lng coordinates
  */
@@ -222,3 +235,304 @@ export function escapeHtml(str) {
     "'": '&#39;'
   })[m]);
 }
+
+/**
+ * Elevation Filter: EMA smoothing + deadband ascent hysteresis accumulator
+ */
+export class ElevationFilter {
+  constructor(options = {}) {
+    this.alpha = options.alpha !== undefined ? options.alpha : ELEVATION_EMA_ALPHA;
+    this.deadband = options.deadband !== undefined ? options.deadband : ELEVATION_ASCENT_DEADBAND_METERS;
+    this.maxVerticalSpeedMps = options.maxVerticalSpeedMps !== undefined ? options.maxVerticalSpeedMps : MAX_VERTICAL_SPEED_MPS;
+
+    this.smoothedEle = null;
+    this.eleBaseline = null;
+    this.totalAscentM = 0;
+    this.lastTimestamp = null;
+  }
+
+  reset(initialEle = null) {
+    this.smoothedEle = initialEle !== null && !isNaN(initialEle) ? Number(initialEle) : null;
+    this.eleBaseline = this.smoothedEle;
+    this.totalAscentM = 0;
+    this.lastTimestamp = null;
+  }
+
+  update(rawEle, timestamp = Date.now()) {
+    const ele = Number(rawEle);
+    if (isNaN(ele)) {
+      return {
+        smoothedEle: this.smoothedEle !== null ? this.smoothedEle : 0,
+        eleGain: 0,
+        totalAscentM: this.totalAscentM
+      };
+    }
+
+    if (this.smoothedEle === null) {
+      this.smoothedEle = ele;
+      this.eleBaseline = ele;
+      this.lastTimestamp = timestamp;
+      return {
+        smoothedEle: ele,
+        eleGain: 0,
+        totalAscentM: 0
+      };
+    }
+
+    let dtSec = 1;
+    if (this.lastTimestamp !== null && timestamp > this.lastTimestamp) {
+      dtSec = (timestamp - this.lastTimestamp) / 1000;
+    }
+    this.lastTimestamp = timestamp;
+
+    // 1. Clamp impossible vertical spikes (e.g. sensor glitch)
+    let targetEle = ele;
+    const maxDelta = this.maxVerticalSpeedMps * Math.max(1, dtSec);
+    if (Math.abs(targetEle - this.smoothedEle) > maxDelta) {
+      targetEle = this.smoothedEle + Math.sign(targetEle - this.smoothedEle) * maxDelta;
+    }
+
+    // 2. Exponential Moving Average smoothing
+    this.smoothedEle = (1 - this.alpha) * this.smoothedEle + this.alpha * targetEle;
+
+    // 3. Deadband ascent accumulation (hysteresis)
+    let eleGain = 0;
+    if (this.smoothedEle > this.eleBaseline) {
+      const delta = this.smoothedEle - this.eleBaseline;
+      if (delta >= this.deadband) {
+        eleGain = delta;
+        this.totalAscentM += eleGain;
+        this.eleBaseline = this.smoothedEle;
+      }
+    } else if (this.smoothedEle < this.eleBaseline) {
+      // Lower baseline if descending
+      this.eleBaseline = this.smoothedEle;
+    }
+
+    return {
+      smoothedEle: Math.round(this.smoothedEle * 10) / 10,
+      eleGain: Math.round(eleGain * 10) / 10,
+      totalAscentM: Math.round(this.totalAscentM * 10) / 10
+    };
+  }
+}
+
+/**
+ * GPS Quality Filter: Outlier rejection, speed checks, and stationary drift detection
+ */
+export class GpsQualityFilter {
+  constructor(options = {}) {
+    this.maxAccuracy = options.maxAccuracy || GPS_MAX_ACCEPTABLE_ACCURACY_METERS;
+    this.maxSpeedKmh = options.maxSpeedKmh || MAX_VALID_CYCLING_SPEED_KMH;
+    this.maxSpeedMps = this.maxSpeedKmh / 3.6;
+    this.anomalousJumpMeters = options.anomalousJumpMeters || GPS_ANOMALOUS_JUMP_METERS;
+  }
+
+  filterFix(newFix, prevFix) {
+    if (!newFix || typeof newFix.lat !== 'number' || typeof newFix.lng !== 'number') {
+      return { valid: false, reason: 'invalid_coordinates', isOutlier: true };
+    }
+
+    // 1. Accuracy threshold check
+    const accuracy = typeof newFix.accuracy === 'number' ? newFix.accuracy : 10;
+    if (accuracy > this.maxAccuracy) {
+      return {
+        valid: false,
+        reason: 'low_accuracy',
+        accuracy,
+        isOutlier: true
+      };
+    }
+
+    // Baseline for initial fix
+    if (!prevFix || typeof prevFix.lat !== 'number' || typeof prevFix.lng !== 'number') {
+      const reportedSpeed = typeof newFix.speed === 'number' ? newFix.speed : 0;
+      return {
+        valid: true,
+        isOutlier: false,
+        isStationary: false,
+        distanceMeters: 0,
+        calculatedSpeedKmh: reportedSpeed,
+        filteredSpeedKmh: Math.min(reportedSpeed, this.maxSpeedKmh),
+        reason: 'initial_fix'
+      };
+    }
+
+    const dist = getDistanceMeters(prevFix.lat, prevFix.lng, newFix.lat, newFix.lng);
+    const newTime = newFix.timestamp || Date.now();
+    const prevTime = prevFix.timestamp || (newTime - 1000);
+    const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+
+    // Large time gap: resume tracking without rejecting
+    if (dtSec > 60) {
+      return {
+        valid: true,
+        isOutlier: false,
+        isStationary: false,
+        distanceMeters: dist,
+        calculatedSpeedKmh: 0,
+        filteredSpeedKmh: Math.min(newFix.speed || 0, this.maxSpeedKmh),
+        reason: 'resume_after_gap'
+      };
+    }
+
+    const calculatedSpeedMps = dist / dtSec;
+    const calculatedSpeedKmh = calculatedSpeedMps * 3.6;
+
+    // 2. Anomalous teleportation / GPS jump check
+    if (calculatedSpeedMps > this.maxSpeedMps && dist > this.anomalousJumpMeters) {
+      return {
+        valid: false,
+        isOutlier: true,
+        isStationary: false,
+        distanceMeters: dist,
+        calculatedSpeedKmh,
+        reason: 'anomalous_speed_jump'
+      };
+    }
+
+    // 3. Stationary jitter check
+    const reportedSpeed = typeof newFix.speed === 'number' ? newFix.speed : calculatedSpeedKmh;
+    const isStationary = reportedSpeed < MIN_MOVING_SPEED_KMH && dist < 2.5;
+
+    // 4. Filtered speed calculation (capped at max realistic speed)
+    const filteredSpeedKmh = Math.min(
+      Math.max(0, reportedSpeed > 0 ? reportedSpeed : calculatedSpeedKmh),
+      this.maxSpeedKmh
+    );
+
+    return {
+      valid: true,
+      isOutlier: false,
+      isStationary,
+      distanceMeters: dist,
+      calculatedSpeedKmh,
+      filteredSpeedKmh,
+      reason: isStationary ? 'stationary' : 'valid_moving'
+    };
+  }
+}
+
+/**
+ * Breadcrumb Sampler: Smart sampling for recorded GPX tracks
+ */
+export class BreadcrumbSampler {
+  constructor(options = {}) {
+    this.minDist = options.minDistanceMeters || MIN_RECORD_DISTANCE_METERS;
+    this.maxIntervalSec = options.maxIntervalSeconds || MAX_RECORD_INTERVAL_SECONDS;
+    this.turnAngleDeg = options.minTurnDegrees || MIN_RECORD_TURN_DEGREES;
+    this.lastRecordedHeading = null;
+  }
+
+  shouldSample(newPoint, lastPoint) {
+    if (!lastPoint) {
+      this.lastRecordedHeading = newPoint.heading !== undefined ? newPoint.heading : null;
+      return { sample: true, reason: 'first_point' };
+    }
+
+    const dist = getDistanceMeters(lastPoint.lat, lastPoint.lng, newPoint.lat, newPoint.lng);
+    const newTime = newPoint.timestamp ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
+    const prevTime = lastPoint.timestamp ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
+    const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+
+    const speed = newPoint.speed || 0;
+
+    // 1. Stationary filter: don't record jitter if standing still
+    if (speed < MIN_MOVING_SPEED_KMH && dist < this.minDist) {
+      return { sample: false, reason: 'stationary_idle' };
+    }
+
+    // 2. Cornering / turn detection (preserve switchbacks)
+    if (this.lastRecordedHeading !== null && newPoint.heading !== undefined && newPoint.heading !== null && dist >= 2.0) {
+      const headingDiff = Math.abs(angleDiff(this.lastRecordedHeading, newPoint.heading));
+      if (headingDiff >= this.turnAngleDeg) {
+        this.lastRecordedHeading = newPoint.heading;
+        return { sample: true, reason: 'turn_corner' };
+      }
+    }
+
+    // 3. Distance threshold
+    if (dist >= this.minDist) {
+      if (newPoint.heading !== undefined && newPoint.heading !== null) {
+        this.lastRecordedHeading = newPoint.heading;
+      }
+      return { sample: true, reason: 'distance_threshold' };
+    }
+
+    // 4. Time interval fallback (if moving)
+    if (dtSec >= this.maxIntervalSec && dist >= 1.5) {
+      if (newPoint.heading !== undefined && newPoint.heading !== null) {
+        this.lastRecordedHeading = newPoint.heading;
+      }
+      return { sample: true, reason: 'time_interval' };
+    }
+
+    return { sample: false, reason: 'sub_threshold' };
+  }
+}
+
+/**
+ * Filters an entire series of elevation points (e.g. from an imported GPX track)
+ */
+export function filterElevationSeries(points, options = {}) {
+  if (!Array.isArray(points) || points.length === 0) return { points: [], totalAscent: 0 };
+  const deadband = options.deadband !== undefined ? options.deadband : ELEVATION_ASCENT_DEADBAND_METERS;
+
+  // Step 1: Weighted moving average window smoothing (1:2:1)
+  const smoothedArr = [];
+  for (let i = 0; i < points.length; i++) {
+    const prev = points[Math.max(0, i - 1)].ele || 200;
+    const cur = points[i].ele || 200;
+    const next = points[Math.min(points.length - 1, i + 1)].ele || 200;
+    const smoothed = (prev + 2 * cur + next) / 4;
+    smoothedArr.push(smoothed);
+  }
+
+  // Step 2: Deadband ascent accumulation
+  const resultPoints = [];
+  let eleBaseline = smoothedArr[0];
+  let totalAscent = 0;
+
+  for (let i = 0; i < points.length; i++) {
+    const sEle = smoothedArr[i];
+    if (sEle > eleBaseline) {
+      const diff = sEle - eleBaseline;
+      if (diff >= deadband) {
+        totalAscent += diff;
+        eleBaseline = sEle;
+      }
+    } else if (sEle < eleBaseline) {
+      eleBaseline = sEle;
+    }
+
+    resultPoints.push({
+      ...points[i],
+      ele: Math.round(sEle * 10) / 10,
+      rawEle: points[i].ele
+    });
+  }
+
+  return {
+    points: resultPoints,
+    totalAscent: Math.round(totalAscent)
+  };
+}
+
+/**
+ * Resolves the exact track point and stats at a given progress ratio (0 to 1)
+ */
+export function getPointAtElevationProgress(points, ratio) {
+  if (!Array.isArray(points) || points.length === 0) return null;
+  const clampedRatio = Math.max(0, Math.min(1, Number(ratio) || 0));
+  const idx = Math.min(points.length - 1, Math.round(clampedRatio * (points.length - 1)));
+  const pt = points[idx];
+  return {
+    point: pt,
+    index: idx,
+    progressPercent: Math.round(clampedRatio * 100),
+    distKm: pt.distFromStartM !== undefined ? (pt.distFromStartM / 1000).toFixed(1) : '0.0',
+    eleM: Math.round(pt.ele || 0),
+    slope: pt.slope || 0
+  };
+}
+

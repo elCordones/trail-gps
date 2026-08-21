@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 20 d'agost de 2026 (v2.4.2 — Silenci per defecte, Gestió de Rutes, Sanejament GPX i Proves Automatitzades)
-> **Estat general:** PWA v2.4.2 amb Fase 0 completada i Fase 1 iniciada. S'han integrat proves automatitzades (`npm test`), persistència de silenci per defecte, eliminació de rutes desades i sanejament complet d'entrades GPX.
+> **Darrera actualització:** 21 d'agost de 2026 (v2.4.7 — Còpies de Seguretat i Restauració JSON a la UI, Perfil Interactiu, IndexedDB i 34 Tests Unitaris)
+> **Estat general:** PWA v2.4.7 amb Fase 0 i Fase 2 molt consolidades. Exportació i importació de còpies de seguretat JSON directament des de la UI (`#routes-modal`), perfil d'elevació interactiu amb sincronització de marcador al mapa en temps real (`getPointAtElevationProgress`), descàrrega de GPX per URL (`gpxFetcher`), persistència a IndexedDB (`RouteStorage`) i 34 proves automatitzades (`npm test` al 100%).
 
 > **Font de continuïtat:** [full de ruta i seguiment](PROPOSTES_MILLORA_I_FULL_DE_RUTA.md) · [registre de canvis](CHANGELOG.md)
 
@@ -12,20 +12,22 @@
 - **Objectiu principal**: Aplicació de navegació GPS per a ciclisme/MTB i ciclocomputador d'alt contrast, 100% autònoma, privada (sense comptes, núvol ni telemetria) i optimitzada per a manillar de bicicleta amb guants i sota llum solar directa.
 - **Públic destinatari**: Ciclistes de muntanya (MTB / Gravel / Carretera) que necessiten seguir tracks GPX amb precisió (sense snapping a asfalt) i consultar dades clau d'altimetria i telemetria sense dependre de cobertura mòbil.
 - **Stack tecnològic**:
-  - **PWA Web App**: HTML5, Vanilla CSS3 (disseny fluid d'alt contrast, paleta fosca Slate/OLED i neons cian/taronja), JavaScript modern, Leaflet 1.9.4, Web Bluetooth API (GATT Standard), Web Audio API, Screen Wake Lock API, Cache Storage API.
+  - **PWA Web App**: HTML5, Vanilla CSS3 (disseny fluid d'alt contrast, paleta fosca Slate/OLED i neons cian/taronja), JavaScript modern, Leaflet 1.9.4, IndexedDB API (`trailgps_db_v1`), Web Bluetooth API (GATT Standard), Web Audio API, Screen Wake Lock API, Cache Storage API.
   - **Servidor local**: Node.js HTTP server autònom (`server.js`) per a proves en xarxa local (Port 3000).
   - **Base Nativa iOS**: React Native (Expo) amb MapKit, Expo Location, SVG delta arrow i TypeScript (`trail-gps/`).
-  - **Motor de Geometria i GPX Compartit**: Mòduls purs `src/core/geoEngine.mjs` i `src/core/gpxParser.mjs` validats amb el test runner natiu de Node.js (`npm test`).
+  - **Motor de Geometria, Altimetria, GPX, Descàrregues i Persistència**: Mòduls purs `src/core/geoEngine.mjs`, `src/core/gpxParser.mjs`, `src/core/routeStorage.mjs` i `src/core/gpxFetcher.mjs` validats amb 34 tests unitaris (`npm test`).
 
 - **Estructura i Fitxers Clau del Projecte**:
   - [README.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/README.md): Guia ràpida de desplegament, característiques i instal·lació PWA.
   - [LICENSE](file:///C:/Users/David/Desktop/App%20bici%20GPS/LICENSE): Llicència legal de programari lliure GNU AGPL v3 (Codi) i CC BY-SA 4.0 (Continguts) - David Cordones (2026).
   - [PROJECT_STATUS.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/PROJECT_STATUS.md): Punt de control i continuïtat entre sessions.
   - [docs/DOCUMENTACIO_PROJECTE.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/DOCUMENTACIO_PROJECTE.md): Documentació exhaustiva d'especificacions i arquitectura.
-  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, Hub de Sensors BLE, Zones Cardíaques Z1-Z5, gestió de rutes desades amb esborrat, àudio silenciable persistent i suport tàctil.
-  - [src/core/geoEngine.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/geoEngine.mjs): Motor matemàtic pur per a Haversine, azimuth/rumb, desviació angular, distància perpendicular a segment i detecció de girs.
+  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, ClimbPro interactiu amb scrubbing, Hub de Sensors BLE, persistència IndexedDB, descàrrega GPX per URL, còpies de seguretat JSON, filtres GPS/altimetria i gravador GPX.
+  - [src/core/geoEngine.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/geoEngine.mjs): Motor matemàtic pur: Haversine, azimuth, distància perpendicular, girs, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`, `filterElevationSeries` i `getPointAtElevationProgress`.
   - [src/core/gpxParser.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxParser.mjs): Parser GPX pur i sanejat per a Node.js i navegadors.
-  - [tests/](file:///C:/Users/David/Desktop/App%20bici%20GPS/tests/): Suite de proves automatitzades (`geo-engine.test.mjs`, `gpx-parser.test.mjs`).
+  - [src/core/gpxFetcher.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxFetcher.mjs): Validador d'enllaços, extractor de títols i descàrrega de fitxers GPX per xarxa/proxy.
+  - [src/core/routeStorage.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/routeStorage.mjs): Gestor asíncron d'IndexedDB amb migració de `localStorage`, fallback en memòria i còpies de seguretat JSON.
+  - [tests/](file:///C:/Users/David/Desktop/App%20bici%20GPS/tests/): Suite de 34 proves automatitzades (`geo-engine.test.mjs`, `gpx-parser.test.mjs`, `route-storage.test.mjs`, `gpx-fetcher.test.mjs`).
   - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
   - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
   - [scripts/generate-icons.js](file:///C:/Users/David/Desktop/App%20bici%20GPS/scripts/generate-icons.js): Generador automàtic de tot el paquet d'icones iOS / PWA / Expo amb `sharp`.
@@ -34,43 +36,45 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 20/08/2026 - v2.4.2)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 21/08/2026 - v2.4.7)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **🔇 Àudio OFF per defecte i Persistència d'Estat Acústic**:
-    - Inicialització en silenci (`isAudioEnabled = false`) per evitar alertes inesperades.
-    - Preferència de l'usuari desada a `localStorage` (`trailgps_audio_enabled`) i sincronitzada amb la UI del calaix d'ajustos (`#btn-audio-toggle`).
-  - [x] **🗑️ Gestió Avançada de Rutes Desades (`#routes-modal`)**:
-    - Implementada l'acció per eliminar rutes individuals de la memòria local amb botó `🗑️` i finestra de confirmació (`deleteRouteFromHistory`).
-    - Disseny actualitzat amb accions independents (Eliminar `🗑️` / Carregar `▶️`) i etiqueta `MOSTRA` per a la ruta demo.
-  - [x] **🛡️ Sanejament i Límits de Textos GPX & Waypoints**:
-    - Truncament a 100 caràcters per a títols/noms i 300 caràcters per a descripcions.
-    - Construcció segura de nodes DOM mitjançant `textContent` i escapat HTML (`escapeHtml`) a marcadors Leaflet per prevenir injeccions.
-  - [x] **🧪 Suite de Proves Automatitzades (Node.js Test Runner)**:
-    - Mòduls d'enginyeria purs `src/core/geoEngine.mjs` i `src/core/gpxParser.mjs`.
-    - 12 proves unitàries executables mitjançant `npm test` (`node --test tests/*.test.mjs`) que validen Haversine, rumb, girs, forquilles, U-turns, distància perpendicular i parsing GPX.
+  - [x] **💾 Botons de Còpia de Seguretat i Restauració a la UI (`#routes-modal`)**:
+    - Exportació d'arxiu `trailgps_backup_rutes_YYYY-MM-DD.json` amb un sol clic.
+    - Restauració de rutes des de fitxer JSON amb refresc immediat de la biblioteca.
+  - [x] **📈 Perfil d'Altimetria Interactiu & Scrubbing (`getPointAtElevationProgress`)**:
+    - Inspecció tàctil i de ratolí sobre el perfil SVG ClimbPro amb marcador sincronitzat en temps real sobre el mapa Leaflet.
+  - [x] **🌐 Descàrrega Directa de Rutes per URL (`gpxFetcher.mjs`)**:
+    - Formulari d'importació per URL web al modal de biblioteca de rutes (`#routes-modal`) amb suport de proxy CORS i límit de 10 MB.
+  - [x] **💾 Migració Completa a IndexedDB (`RouteStorage`)**:
+    - ObjectStore `routes` (`trailgps_db_v1`), eliminant el límit de 5-10 MB de `localStorage`.
+  - [x] **📈 Suavitzat d'Altimetria i Acumulació de Desnivell (+D) (`ElevationFilter`)**:
+    - Suavitzat EMA de l'altitud i acumulació per deadband ($2.0\text{ m}$) eliminant al 100% l'ascens fictici en repòs.
+  - [x] **🛰️ Rebuig de Salts GPS i Filtre de Qualitat (`GpsQualityFilter`)**:
+    - Rebuig de teletransportacions irreals ($> 100\text{ km/h}$ i $> 150\text{ m}$) i detecció de deriva estàtica.
+  - [x] **📍 Mostreig Intel·ligent del Gravador GPX (`BreadcrumbSampler`)**:
+    - Mostreig per distància ($\ge 3.5\text{ m}$), temps ($6\text{ s}$) i canvis de rumb ($\ge 18^\circ$).
+  - [x] **🧪 Suite Ampliada a 34 Proves Unitàries Automatitzades (`npm test`)**:
+    - 34 tests passant al 100% verificant geometria, altimetria, GPX, persistència IndexedDB, descàrrega per URL, scrubbing i validació de backups.
   - [x] **Sincronització de Codi i Compilació**:
-    - Còpies PWA `index.html` i `web-app/index.html` verificades amb hash SHA256 idèntic.
-    - Compilació TypeScript Expo comprovada sense errors (`npx tsc --noEmit` a `trail-gps/`).
+    - Còpies PWA `index.html` i `web-app/index.html` amb hash SHA256 idèntic (`97347c24...`).
+    - Compilació TypeScript Expo (`npx tsc --noEmit`) 100% neta.
 
 - **Punt exacte on ens hem quedat**:
   - Fase 0 completada al 100%.
-  - Fase 1 (Qualitat, proves i modularització) iniciada amb èxit.
-  - **Últim commit publicat:** `de1fc04` — `feat(pwa): v2.4.2 silenci per defecte, gestio de rutes, sanejament GPX i proves unitaries`.
-  - Preparat per a la validació de camp amb GPS real i la integració dels mòduls compartits a la branca nativa Expo (`trail-gps`).
+  - Fase 1 i Fase 2 consolidades amb biblioteca IndexedDB, backups JSON a la UI, descàrrega per URL, perfil interactiu ClimbPro i 34 tests unitaris.
+  - Preparat per continuar polint la PWA (mode d'estalvi de bateria, edició de waypoints) o abordar la integració d'Expo.
 
 ---
 
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
+  - [ ] **🔋 Mode d'Estalvi de Bateria & Renderitzat Intel·ligent**:
+    - Reducció del refresc cartogràfic en aturada per a sessions llargues de 4-6 hores.
+  - [ ] **📍 Edició i Personalització de Waypoints / POIs**:
+    - Selector d'icones i etiquetes ràpides per a punts afegits en ruta.
+  - [ ] **🍏 Integració dels mòduls compartits a React Native / Expo (`trail-gps`)**:
+    - Connectar `geoEngine`, `gpxParser`, `routeStorage` i `gpxFetcher` a l'aplicació nativa Expo.
   - [ ] **🚴 Validació de navegació en sortida real de camp**:
     - Prova en moviment de la histèresi de fora de ruta (40 m / 25 m), filtratge de precisió GPS (< 50 m) i alertes sonores/hàptiques.
-  - [ ] **🔗 Descàrrega Directa de Rutes per URL (Wikiloc, Strava, Enllaç directe GPX)**:
-    - Camp d'importació per enllaç web al modal de rutes amb descàrrega automàtica i emmagatzematge local.
-  - [ ] **🍏 Integració dels mòduls compartits a React Native / Expo (`trail-gps`)**:
-    - Connectar `geoEngine` i `gpxParser` amb l'aplicació nativa Expo per a unificar la lògica de navegació.
-  - [ ] **🍏 Sincronització amb Apple Salut & Entrenaments (Apple HealthKit)**:
-    - Integració a la versió nativa per desar automàticament les sessions de ciclisme a Apple Health / Fitness.
-  - [ ] **⌚ Companion App per a Apple Watch (watchOS)**:
-    - HUD al canell per visualitzar telemetria clau (BPM, fletxes de gir, desnivell) i rebre vibracions hàptiques de gir o desviació.

@@ -45,6 +45,8 @@ export function parseGpxString(xmlContent: string): GpxTrack {
   let totalDistMeters = 0;
   let eleGain = 0;
   let eleLoss = 0;
+  let eleGainBaseline: number | undefined;
+  let eleLossBaseline: number | undefined;
   let minEle = Infinity;
   let maxEle = -Infinity;
 
@@ -75,12 +77,34 @@ export function parseGpxString(xmlContent: string): GpxTrack {
       const dist = haversineDistanceMeters(prev.latitude, prev.longitude, lat, lng);
       totalDistMeters += dist;
 
-      // Desnivell
+      // Desnivell acumulat amb llindar de deadband per filtrar soroll GPS
       if (ele !== undefined && prev.altitude !== undefined) {
-        const diff = ele - prev.altitude;
-        if (diff > 0.5) eleGain += diff;
-        else if (diff < -0.5) eleLoss += Math.abs(diff);
+        if (eleGainBaseline === undefined) eleGainBaseline = prev.altitude;
+        if (eleLossBaseline === undefined) eleLossBaseline = prev.altitude;
+
+        if (ele > eleGainBaseline) {
+          const delta = ele - eleGainBaseline;
+          if (delta >= 1.5) {
+            eleGain += delta;
+            eleGainBaseline = ele;
+          }
+        } else if (ele < eleGainBaseline) {
+          eleGainBaseline = ele;
+        }
+
+        if (ele < eleLossBaseline) {
+          const delta = eleLossBaseline - ele;
+          if (delta >= 1.5) {
+            eleLoss += delta;
+            eleLossBaseline = ele;
+          }
+        } else if (ele > eleLossBaseline) {
+          eleLossBaseline = ele;
+        }
       }
+    } else if (ele !== undefined) {
+      eleGainBaseline = ele;
+      eleLossBaseline = ele;
     }
 
     if (ele !== undefined) {
