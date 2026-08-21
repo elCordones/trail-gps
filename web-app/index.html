@@ -779,6 +779,47 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      cursor: pointer;
+    }
+
+    .wp-icon-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      color: #F8FAFC;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+    }
+
+    .wp-icon-chip.active {
+      background: rgba(0, 229, 255, 0.2);
+      border-color: #00E5FF;
+      color: #00E5FF;
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+    }
+
+    .wp-btn-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #F8FAFC;
+      padding: 4px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .wp-btn-action:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     /* FULL CYCLING METRICS DASHBOARD MODAL */
@@ -2152,9 +2193,49 @@
         <button class="modal-close-btn" data-close="waypoints-modal">✕</button>
       </div>
 
-      <button id="btn-add-quick-wp" class="btn-add-wp-now">
-        <span>➕</span> Afegir Punt a la Posició Actual
-      </button>
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <button id="btn-add-quick-wp" class="btn-add-wp-now" style="flex: 1; margin: 0; padding: 11px 8px;">
+          <span>➕</span> Afegir Punt a Posició Actual
+        </button>
+      </div>
+
+      <!-- EDIT/CREATE WAYPOINT FORM (Collapsible) -->
+      <div id="waypoint-edit-form" style="display: none; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span id="waypoint-form-title" style="font-size: 11px; font-weight: 800; color: #00E5FF; text-transform: uppercase; letter-spacing: 0.5px;">Nou Punt d'Interès</span>
+          <button id="btn-cancel-wp-edit" style="background: transparent; border: none; color: #94A3B8; font-size: 13px; cursor: pointer;">✕</button>
+        </div>
+
+        <!-- Quick Icon Chips Selector -->
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <span style="font-size: 10px; font-weight: 700; color: #94A3B8;">ICONA / CATEGORIA:</span>
+          <div id="wp-icon-selector" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" class="wp-icon-chip active" data-icon="📍">📍 General</button>
+            <button type="button" class="wp-icon-chip" data-icon="💧">💧 Font</button>
+            <button type="button" class="wp-icon-chip" data-icon="⛰️">⛰️ Cim</button>
+            <button type="button" class="wp-icon-chip" data-icon="⚠️">⚠️ Perill</button>
+            <button type="button" class="wp-icon-chip" data-icon="🛑">🛑 Cruïlla</button>
+            <button type="button" class="wp-icon-chip" data-icon="📸">📸 Foto</button>
+            <button type="button" class="wp-icon-chip" data-icon="🔧">🔧 Taller</button>
+            <button type="button" class="wp-icon-chip" data-icon="🥪">🥪 Menjar</button>
+          </div>
+        </div>
+
+        <input type="hidden" id="wp-edit-index" value="" />
+        <input type="text" id="wp-input-name" placeholder="Nom del punt (ex: Font Fresca, Cim...)" style="background: #0B132B; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: #F8FAFC; padding: 8px 10px; font-size: 13px; outline: none;" />
+        <input type="text" id="wp-input-desc" placeholder="Descripció opcional..." style="background: #0B132B; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: #F8FAFC; padding: 8px 10px; font-size: 12px; outline: none;" />
+
+        <div style="display: flex; gap: 6px; margin-top: 4px;">
+          <button id="btn-save-wp" style="flex: 1; background: #00E5FF; color: #051923; border: none; border-radius: 6px; padding: 9px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            <span>💾</span> Desar Punt
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Punts de la Ruta</span>
+        <span id="waypoints-count-badge" style="font-size: 11px; color: #00E5FF; font-weight: 700;">0 punts</span>
+      </div>
 
       <div id="waypoints-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;">
         <span style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">Cap waypoint definit a la ruta</span>
@@ -4105,15 +4186,137 @@
       renderWaypointsModalList();
     }
 
+    let selectedWpIcon = '📍';
+    let editingWpIndex = -1;
+    let pendingWpCoords = null;
+
+    function selectWpIcon(icon) {
+      selectedWpIcon = icon || '📍';
+      document.querySelectorAll('#wp-icon-selector .wp-icon-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.getAttribute('data-icon') === selectedWpIcon);
+      });
+    }
+
+    function openWaypointCreateForm(lat = null, lng = null) {
+      editingWpIndex = -1;
+      pendingWpCoords = (lat !== null && lng !== null) ? { lat, lng } : (userPosition ? { lat: userPosition.lat, lng: userPosition.lng } : null);
+      if (!pendingWpCoords && map) {
+        const center = map.getCenter();
+        pendingWpCoords = { lat: center.lat, lng: center.lng };
+      }
+
+      const form = document.getElementById('waypoint-edit-form');
+      const titleEl = document.getElementById('waypoint-form-title');
+      const nameInput = document.getElementById('wp-input-name');
+      const descInput = document.getElementById('wp-input-desc');
+      if (!form) return;
+
+      titleEl.textContent = '➕ Nou Punt d\'Interès';
+      nameInput.value = '';
+      descInput.value = '';
+      selectWpIcon('📍');
+      form.style.display = 'flex';
+      setTimeout(() => nameInput.focus(), 100);
+    }
+
+    function openWaypointEditForm(index) {
+      if (index < 0 || index >= waypoints.length) return;
+      const wp = waypoints[index];
+      editingWpIndex = index;
+      pendingWpCoords = { lat: wp.lat, lng: wp.lng };
+
+      const form = document.getElementById('waypoint-edit-form');
+      const titleEl = document.getElementById('waypoint-form-title');
+      const nameInput = document.getElementById('wp-input-name');
+      const descInput = document.getElementById('wp-input-desc');
+      if (!form) return;
+
+      titleEl.textContent = `✏️ Editar: ${wp.name}`;
+      nameInput.value = wp.name || '';
+      descInput.value = wp.desc || '';
+      selectWpIcon(wp.icon || '📍');
+      form.style.display = 'flex';
+      setTimeout(() => nameInput.focus(), 100);
+    }
+
+    function cancelWaypointEdit() {
+      const form = document.getElementById('waypoint-edit-form');
+      if (form) form.style.display = 'none';
+      editingWpIndex = -1;
+      pendingWpCoords = null;
+    }
+
+    function saveWaypointFormAction() {
+      const nameInput = document.getElementById('wp-input-name');
+      const descInput = document.getElementById('wp-input-desc');
+      if (!nameInput) return;
+
+      const rawName = nameInput.value.trim();
+      if (!rawName) {
+        showToast('⚠️ Cal introduir un nom per al punt');
+        nameInput.focus();
+        return;
+      }
+      const name = rawName.slice(0, MAX_GPX_NAME_LENGTH);
+      const desc = descInput ? descInput.value.trim() : '';
+      const icon = selectedWpIcon || getPoiIcon(name, desc);
+
+      if (editingWpIndex >= 0 && editingWpIndex < waypoints.length) {
+        waypoints[editingWpIndex].name = name;
+        waypoints[editingWpIndex].desc = desc;
+        waypoints[editingWpIndex].icon = icon;
+        showToast(`✅ Punt "${name}" actualitzat!`);
+      } else {
+        const coords = pendingWpCoords || (userPosition ? { lat: userPosition.lat, lng: userPosition.lng } : null);
+        if (!coords) {
+          showToast('⚠️ No es pot determinar la posició GPS del punt');
+          return;
+        }
+        waypoints.push({
+          lat: coords.lat,
+          lng: coords.lng,
+          name,
+          desc: desc || `Creat a les ${new Date().toLocaleTimeString('ca-ES')}`,
+          icon
+        });
+        showToast(`✅ Punt "${name}" afegit!`);
+      }
+
+      cancelWaypointEdit();
+      renderWaypointsOnMap();
+      if (track && track.points) {
+        trackTurns = detectTrackTurns(track.points, waypoints);
+      }
+    }
+
+    function deleteWaypointAction(index) {
+      if (index < 0 || index >= waypoints.length) return;
+      const wp = waypoints[index];
+      if (!confirm(`Vols eliminar el punt "${wp.name}"?`)) return;
+
+      waypoints.splice(index, 1);
+      cancelWaypointEdit();
+      renderWaypointsOnMap();
+      if (track && track.points) {
+        trackTurns = detectTrackTurns(track.points, waypoints);
+      }
+      showToast(`🗑️ Punt "${wp.name}" eliminat`);
+    }
+
     function renderWaypointsModalList() {
       const listEl = document.getElementById('waypoints-list');
+      const countBadge = document.getElementById('waypoints-count-badge');
+      if (countBadge) {
+        countBadge.textContent = `${waypoints.length} ${waypoints.length === 1 ? 'punt' : 'punts'}`;
+      }
+
       if (waypoints.length === 0) {
         listEl.innerHTML = '<span style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px;">Cap waypoint definit a la ruta</span>';
         return;
       }
 
       listEl.innerHTML = '';
-      waypoints.forEach(wp => {
+      waypoints.forEach((wp, idx) => {
         const dist = userPosition ? getDistanceMeters(userPosition.lat, userPosition.lng, wp.lat, wp.lng) : 0;
         const distStr = dist > 1000 ? `${(dist/1000).toFixed(1)} km` : `${Math.round(dist)} m`;
 
@@ -4122,12 +4325,17 @@
 
         const left = document.createElement('div');
         left.className = 'waypoint-left';
+        left.style.flex = '1';
+        left.style.minWidth = '0';
+        left.style.cursor = 'pointer';
 
         const iconSpan = document.createElement('span');
         iconSpan.className = 'waypoint-icon';
         iconSpan.textContent = wp.icon;
 
         const info = document.createElement('div');
+        info.style.minWidth = '0';
+
         const nameEl = document.createElement('div');
         nameEl.className = 'waypoint-name';
         nameEl.textContent = wp.name;
@@ -4135,42 +4343,50 @@
         const descEl = document.createElement('div');
         descEl.style.fontSize = '9px';
         descEl.style.color = 'var(--text-muted)';
+        descEl.style.overflow = 'hidden';
+        descEl.style.textOverflow = 'ellipsis';
+        descEl.style.whiteSpace = 'nowrap';
         descEl.textContent = wp.desc || '';
 
         info.append(nameEl, descEl);
         left.append(iconSpan, info);
 
+        left.addEventListener('click', () => {
+          map.setView([wp.lat, wp.lng], 17, { animate: true });
+          closeAllModals();
+        });
+
+        const right = document.createElement('div');
+        right.style.display = 'flex';
+        right.style.alignItems = 'center';
+        right.style.gap = '6px';
+
         const distSpan = document.createElement('span');
         distSpan.className = 'waypoint-dist';
         distSpan.textContent = distStr;
 
-        row.append(left, distSpan);
-        row.addEventListener('click', () => {
-          map.setView([wp.lat, wp.lng], 17, { animate: true });
-          closeAllModals();
+        const editBtn = document.createElement('button');
+        editBtn.className = 'wp-btn-action';
+        editBtn.title = 'Editar punt';
+        editBtn.innerHTML = '✏️';
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openWaypointEditForm(idx);
         });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'wp-btn-action';
+        delBtn.title = 'Eliminar punt';
+        delBtn.innerHTML = '🗑️';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteWaypointAction(idx);
+        });
+
+        right.append(distSpan, editBtn, delBtn);
+        row.append(left, right);
         listEl.appendChild(row);
       });
-    }
-
-    function addQuickWaypoint() {
-      if (!userPosition) return;
-      const rawName = prompt('Nom del Punt d\'Interès (ex: Font, Cim, Cruïlla):', 'Punt d\'Interès');
-      if (!rawName) return;
-      const name = rawName.slice(0, MAX_GPX_NAME_LENGTH).trim();
-      if (!name) return;
-
-      const icon = getPoiIcon(name);
-      waypoints.push({
-        lat: userPosition.lat,
-        lng: userPosition.lng,
-        name,
-        desc: `Creat a les ${new Date().toLocaleTimeString('ca-ES')}`,
-        icon
-      });
-
-      renderWaypointsOnMap();
-      showToast(`Punt "${name}" afegit!`);
     }
 
     // --- GPX PARSER ---
@@ -6297,7 +6513,27 @@
       // Audio Alerts Toggle (Global Master)
       bindAction('btn-audio-toggle', toggleAudioAlerts);
 
-      bindAction('btn-add-quick-wp', addQuickWaypoint);
+      // Waypoint Management & Icon Selector bindings
+      bindAction('btn-add-quick-wp', () => openWaypointCreateForm());
+      bindAction('btn-cancel-wp-edit', cancelWaypointEdit);
+      bindAction('btn-save-wp', saveWaypointFormAction);
+
+      document.querySelectorAll('#wp-icon-selector .wp-icon-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const icon = chip.getAttribute('data-icon');
+          selectWpIcon(icon);
+        });
+      });
+
+      const wpNameInput = document.getElementById('wp-input-name');
+      if (wpNameInput) {
+        wpNameInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            saveWaypointFormAction();
+          }
+        });
+      }
 
       // Routes Modal Toggle & URL Downloader
       const routesBtn = document.getElementById('btn-routes-lib');

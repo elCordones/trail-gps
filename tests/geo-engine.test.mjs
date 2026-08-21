@@ -110,6 +110,27 @@ test('Turn Detection: detectTrackTurns identifies normal, sharp, and U-turns', (
   assert.equal(turnsUTurn[0].badge, 'GIR EN U');
 });
 
+test('Turn Detection: integrates nearby custom waypoints into navigation cues', () => {
+  const pts = [
+    { lat: 41.4000, lng: 2.1000, ele: 100, distFromStartM: 0 },
+    { lat: 41.4005, lng: 2.1000, ele: 105, distFromStartM: 55 },
+    { lat: 41.4010, lng: 2.1000, ele: 110, distFromStartM: 110 },
+    { lat: 41.4010, lng: 2.1005, ele: 115, distFromStartM: 165 },
+    { lat: 41.4010, lng: 2.1010, ele: 120, distFromStartM: 220 }
+  ];
+
+  const waypoints = [
+    { lat: 41.4010, lng: 2.1000, name: 'Font de l\'Oreneta', desc: 'Aigua fresca', icon: '💧' }
+  ];
+
+  const turns = detectTrackTurns(pts, waypoints);
+  assert.ok(turns.length >= 1, 'Should detect turn near waypoint');
+  assert.ok(
+    turns[0].text.includes('Font de l\'Oreneta'),
+    'Turn text should reference the waypoint landmark'
+  );
+});
+
 test('Sanitization: escapeHtml escapes hazardous characters', () => {
   const dirty = '<script>alert("xss")</script> & \'test\'';
   const clean = escapeHtml(dirty);

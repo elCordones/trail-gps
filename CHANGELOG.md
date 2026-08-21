@@ -1,5 +1,22 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-21 — v2.4.8: Editor Complet de Waypoints, Selector d'Icones i 35 Proves Automatitzades
+
+### Canvis implementats
+
+- **📍 Editor Interactiu de Waypoints / POIs (`#waypoints-modal`)**:
+  - Afegit formulari desplegable per crear i editar waypoints amb camps per a títol, descripció i selector d'icones ràpides.
+  - **Selector d'icones i categories**: Selector visual amb xips per a 📍 General, 💧 Font d'aigua, ⛰️ Cim, ⚠️ Perill/Trialera, 🛑 Cruïlla, 📸 Mirador/Foto, 🔧 Taller/Mecànica i 🥪 Menjar/Refugi.
+  - **Accions a cada fila de waypoint**:
+    - ✏️ **Editar**: Obre el formulari amb les dades precarregades per modificar nom, text o icona.
+    - 🗑️ **Eliminar**: Elimina el punt de la col·lecció de forma segura amb confirmació.
+    - **Navegació al mapa**: Clicar a la fila centra automàticament el mapa i fa zoom sobre el punt.
+  - **Sincronització amb el motor de girs**: Qualsevol canvi en waypoints actualitza en temps real les fites i alertes del Turn-by-Turn (`detectTrackTurns`).
+- **🧪 Suite de proves ampliada a 35 tests (`npm test`)**:
+  - Nova prova unitària a `tests/geo-engine.test.mjs` que valida la integració de waypoints i fites personalitzades a les instruccions de gir (100% de tests passant).
+- **📱 Sincronització de Codi**:
+  - Fitxers `index.html` i `web-app/index.html` sincronitzats amb hash SHA256 idèntic.
+
 ## 2026-08-21 — v2.4.7: Botons de Còpia de Seguretat i Restauració de Rutes (JSON) i 34 Proves Automatitzades
 
 ### Canvis implementats
