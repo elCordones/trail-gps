@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
-import { GpxPoint, GpxTrack, GpxBounds } from '../types';
-import { haversineDistanceMeters } from './geoMath';
+import { GpxPoint, GpxTrack, GpxBounds, Waypoint } from '../types';
+import { haversineDistanceMeters, detectTrackTurns, getPoiIcon } from './geoMath';
 
 export function parseGpxString(xmlContent: string): GpxTrack {
   const parser = new XMLParser({
@@ -33,9 +33,35 @@ export function parseGpxString(xmlContent: string): GpxTrack {
     if (gpx.rte.name) trackName = String(gpx.rte.name);
     const pts = Array.isArray(gpx.rte.rtept) ? gpx.rte.rtept : [gpx.rte.rtept];
     rawPoints.push(...pts);
-  } else if (gpx.wpt) {
-    const pts = Array.isArray(gpx.wpt) ? gpx.wpt : [gpx.wpt];
-    rawPoints.push(...pts);
+  }
+
+  // Parse waypoints (<wpt>)
+  const waypoints: Waypoint[] = [];
+  if (gpx.wpt) {
+    const wpts = Array.isArray(gpx.wpt) ? gpx.wpt : [gpx.wpt];
+    wpts.forEach((w: any, idx: number) => {
+      const wLat = Number(w['@_lat'] ?? w.lat);
+      const wLng = Number(w['@_lon'] ?? w['@_lng'] ?? w.lon ?? w.lng);
+      if (!isNaN(wLat) && !isNaN(wLng)) {
+        const name = String(w.name || `Punt ${idx + 1}`);
+        const desc = w.desc ? String(w.desc) : undefined;
+        const icon = getPoiIcon(name, desc || '');
+        const ele = w.ele !== undefined ? Number(w.ele) : undefined;
+        waypoints.push({
+          id: `wpt-${idx + 1}`,
+          name,
+          desc,
+          icon,
+          lat: wLat,
+          lng: wLng,
+          ele: ele !== undefined && !isNaN(ele) ? Math.round(ele) : undefined,
+        });
+      }
+    });
+
+    if (rawPoints.length === 0) {
+      rawPoints = wpts;
+    }
   }
 
   if (rawPoints.length === 0) {
@@ -77,14 +103,14 @@ export function parseGpxString(xmlContent: string): GpxTrack {
       const dist = haversineDistanceMeters(prev.latitude, prev.longitude, lat, lng);
       totalDistMeters += dist;
 
-      // Desnivell acumulat amb llindar de deadband per filtrar soroll GPS
+      // Desnivell acumulat amb llindar de deadband de 2.0m
       if (ele !== undefined && prev.altitude !== undefined) {
         if (eleGainBaseline === undefined) eleGainBaseline = prev.altitude;
         if (eleLossBaseline === undefined) eleLossBaseline = prev.altitude;
 
         if (ele > eleGainBaseline) {
           const delta = ele - eleGainBaseline;
-          if (delta >= 1.5) {
+          if (delta >= 2.0) {
             eleGain += delta;
             eleGainBaseline = ele;
           }
@@ -94,7 +120,7 @@ export function parseGpxString(xmlContent: string): GpxTrack {
 
         if (ele < eleLossBaseline) {
           const delta = eleLossBaseline - ele;
-          if (delta >= 1.5) {
+          if (delta >= 2.0) {
             eleLoss += delta;
             eleLossBaseline = ele;
           }
@@ -146,9 +172,13 @@ export function parseGpxString(xmlContent: string): GpxTrack {
     maxLng: maxLng === -Infinity ? 0 : maxLng,
   };
 
+  const turns = detectTrackTurns(points, waypoints);
+
   return {
     name: trackName,
     points,
+    waypoints: waypoints.length > 0 ? waypoints : undefined,
+    turns: turns.length > 0 ? turns : undefined,
     totalDistanceKm: parseFloat((totalDistMeters / 1000).toFixed(1)),
     elevationGainM: Math.round(eleGain),
     elevationLossM: Math.round(eleLoss),

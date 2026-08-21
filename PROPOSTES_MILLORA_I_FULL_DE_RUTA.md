@@ -5,12 +5,14 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.10).
+> **Darrera actualització:** 21 d’agost de 2026 — Fase 0, Fase 1 i Fase 2 consolidades (v2.4.11).
 >
-> **Punt actual:** s’han implementat la gestió intel·ligent d'enllaços de Wikiloc i cadena de proxies fallback (`gpxFetcher`), el pla de validació de camp (`docs/PLA_VALIDACIO_CAMP.md`), el mode d'estalvi de bateria (Eco Mode) amb renderitzat intel·ligent (`BatteryRenderPolicy`), l'editor complet de waypoints (`#waypoints-modal`), els botons de còpia de seguretat JSON a la UI, el perfil interactiu d'altimetria (`getPointAtElevationProgress`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 38 proves automatitzades (`npm test` 100% OK).
+> **Punt actual:** s’han integrat els mòduls compartits a React Native / Expo (`trail-gps/src/utils/`), s'ha creat la col·lecció de GPX reals (`samples/`), la gestió d'enllaços de Wikiloc i cadena de proxies (`gpxFetcher`), el pla de validació de camp (`docs/PLA_VALIDACIO_CAMP.md`), el mode d'estalvi de bateria (`BatteryRenderPolicy`), l'editor de waypoints, els backups JSON a la UI, el perfil interactiu d'altimetria i 38 proves automatitzades (`npm test` 100% OK).
 
 ### Fites completades en aquesta sessió
 
+- [x] Integració completa dels mòduls compartits a React Native / Expo (`geoMath.ts`, `gpxParser.ts`, `gpxFetcher.ts`, `CockpitDashboard.tsx`).
+- [x] Col·lecció de GPX reals de prova a la carpeta `samples/` (`riudellots-caldes-btt.gpx`, `collserola-gravel-epic.gpx`).
 - [x] Detecció intel·ligent d'adreces de pàgines web de Wikiloc (`isWikilocUrl`) i cadena resilient de proxies CORS per a descàrregues de GPX directe.
 - [x] Redactat i estructurat el Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`) amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
 - [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i manual amb reducció de càrrega de GPU (`backdrop-filter: none`).
@@ -28,14 +30,14 @@
 - [x] Filtre de qualitat GPS (`GpsQualityFilter`) per detectar i descartar salts/teletransportacions impossibles ($> 100\text{ km/h}$ i $> 150\text{ m}$) i detectar aturades/deriva estàtica.
 - [x] Mostreig intel·ligent del gravador de rutes (`BreadcrumbSampler`) basat en distància ($\ge 3.5\text{ m}$), temps ($6\text{ s}$) i canvi d'angle en corbes ($\ge 18^\circ$).
 - [x] Sanejament del càlcul de desnivell a `trail-gps/src/utils/gpxParser.ts` (Expo).
-- [x] Ampliada la suite de proves a 36 tests unitaris (Node.js test runner, `npm test` 100% OK).
+- [x] Ampliada la suite de proves a 38 tests unitaris (Node.js test runner, `npm test` 100% OK).
 - [x] Còpies PWA `index.html` i `web-app/index.html` sincronitzades (SHA256 idèntic).
 
 ### Pendent immediat
 
-- [ ] Integració dels mòduls compartits a React Native / Expo (`trail-gps`).
 - [ ] Execució de la prova de camp seguint el protocol `docs/PLA_VALIDACIO_CAMP.md`.
-- [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
+- [ ] Empaquetament i signatura de l'aplicació nativa iOS (`.ipa`).
+- [ ] Ampliació de la col·lecció de GPX de prova amb més senders tècnics.
 
 ## Resum executiu
 

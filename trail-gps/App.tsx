@@ -139,7 +139,8 @@ export default function App() {
       userPos,
       track.points,
       track.totalDistanceKm,
-      40 // 40 metres de marge abans d'avisar
+      40, // 40 metres de marge abans d'avisar
+      track.turns
     );
 
     setTelemetry(telem);

@@ -1,3 +1,25 @@
+export interface Waypoint {
+  id: string;
+  name: string;
+  desc?: string;
+  icon: string;
+  lat: number;
+  lng: number;
+  ele?: number;
+}
+
+export interface TurnInstruction {
+  index: number;
+  lat: number;
+  lng: number;
+  distKm: number;
+  angle: number;
+  direction: 'left' | 'right' | 'slight_left' | 'slight_right' | 'sharp_left' | 'sharp_right' | 'uturn' | 'straight';
+  text: string;
+  icon: string;
+  poiName?: string;
+}
+
 export interface GpxPoint {
   latitude: number;
   longitude: number;
@@ -14,8 +36,11 @@ export interface GpxBounds {
 }
 
 export interface GpxTrack {
+  id?: string;
   name: string;
   points: GpxPoint[];
+  waypoints?: Waypoint[];
+  turns?: TurnInstruction[];
   totalDistanceKm: number;
   elevationGainM: number;
   elevationLossM: number;
@@ -43,4 +68,6 @@ export interface NavigationTelemetry {
   remainingDistanceKm: number;
   progressPercent: number;
   currentSlopePercent: number;
+  nextTurn?: TurnInstruction;
 }
+

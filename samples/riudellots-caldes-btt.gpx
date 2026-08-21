@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="TrailGPS MTB - David Cordones" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Riudellots - Sant Andreu Salou - Caldes de Malavella</name>
+    <desc>Ruta circular BTT per la comarca de la Selva passant per pistes, rieres i fonts.</desc>
+  </metadata>
+  <wpt lat="41.893132" lon="2.805121"><name>Ajuntament de Riudellots</name><desc>Punt de sortida</desc><ele>98</ele></wpt>
+  <wpt lat="41.879730" lon="2.825610"><name>Sant Andreu Salou</name><desc>Església romànica i font</desc><ele>132</ele></wpt>
+  <wpt lat="41.838279" lon="2.809140"><name>Balneari Prats - Caldes</name><desc>Font daigua termal</desc><ele>84</ele></wpt>
+  <wpt lat="41.834259" lon="2.795120"><name>Camp dels Ninots</name><desc>Espai dinterès natural</desc><ele>115</ele></wpt>
+  <wpt lat="41.873909" lon="2.781200"><name>Sant Mateu de Franciac</name><desc>Cruélla i pista cap a Riudellots</desc><ele>142</ele></wpt>
+  <trk>
+    <name>Riudellots - Sant Andreu Salou - Caldes de Malavella</name>
+    <trkseg>
+      <trkpt lat="41.893132" lon="2.805121"><ele>98</ele></trkpt>
+      <trkpt lat="41.891500" lon="2.808000"><ele>102</ele></trkpt>
+      <trkpt lat="41.888200" lon="2.814500"><ele>115</ele></trkpt>
+      <trkpt lat="41.883500" lon="2.821000"><ele>126</ele></trkpt>
+      <trkpt lat="41.879730" lon="2.825610"><ele>132</ele></trkpt>
+      <trkpt lat="41.871000" lon="2.822000"><ele>110</ele></trkpt>
+      <trkpt lat="41.860000" lon="2.818000"><ele>95</ele></trkpt>
+      <trkpt lat="41.848000" lon="2.812000"><ele>88</ele></trkpt>
+      <trkpt lat="41.838279" lon="2.809140"><ele>84</ele></trkpt>
+      <trkpt lat="41.834259" lon="2.795120"><ele>115</ele></trkpt>
+      <trkpt lat="41.845000" lon="2.788000"><ele>128</ele></trkpt>
+      <trkpt lat="41.860000" lon="2.782000"><ele>136</ele></trkpt>
+      <trkpt lat="41.873909" lon="2.781200"><ele>142</ele></trkpt>
+      <trkpt lat="41.885000" lon="2.792000"><ele>118</ele></trkpt>
+      <trkpt lat="41.893132" lon="2.805121"><ele>98</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

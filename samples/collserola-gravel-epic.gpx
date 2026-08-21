@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="TrailGPS MTB - David Cordones" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Collserola Gravel Epic - Tibidabo</name>
+    <desc>Ruta de desnivell sostingut per pistes de Collserola amb vistes panoràmiques.</desc>
+  </metadata>
+  <wpt lat="41.412000" lon="2.125000"><name>Plaça Mireia</name><desc>Inici de ruta</desc><ele>170</ele></wpt>
+  <wpt lat="41.419000" lon="2.115000"><name>Font de la Mandra</name><desc>Font daigua</desc><ele>260</ele></wpt>
+  <wpt lat="41.422500" lon="2.118600"><name>Tibidabo Cim</name><desc>Cota màxima 512m</desc><ele>512</ele></wpt>
+  <wpt lat="41.432000" lon="2.140000"><name>’ Perill Trialera Can Borrell</name><desc>Descens amb pedres soltes</desc><ele>220</ele></wpt>
+  <trk>
+    <name>Collserola Gravel Epic - Tibidabo</name>
+    <trkseg>
+      <trkpt lat="41.412000" lon="2.125000"><ele>170</ele></trkpt>
+      <trkpt lat="41.415000" lon="2.121000"><ele>210</ele></trkpt>
+      <trkpt lat="41.419000" lon="2.115000"><ele>260</ele></trkpt>
+      <trkpt lat="41.421000" lon="2.112000"><ele>340</ele></trkpt>
+      <trkpt lat="41.423000" lon="2.114000"><ele>420</ele></trkpt>
+      <trkpt lat="41.422500" lon="2.118600"><ele>512</ele></trkpt>
+      <trkpt lat="41.426000" lon="2.128000"><ele>430</ele></trkpt>
+      <trkpt lat="41.430000" lon="2.135000"><ele>310</ele></trkpt>
+      <trkpt lat="41.432000" lon="2.140000"><ele>220</ele></trkpt>
+      <trkpt lat="41.425000" lon="2.145000"><ele>190</ele></trkpt>
+      <trkpt lat="41.412000" lon="2.125000"><ele>170</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

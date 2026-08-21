@@ -1,5 +1,22 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-21 — v2.4.11: Sincronització de Mòduls Compartits a React Native (Expo) i Col·lecció de GPX de Prova
+
+### Canvis implementats
+
+- **🍏 Sincronització Completa dels Mòduls a React Native / Expo (`trail-gps/`)**:
+  - **Motor Geomètric i Altimètric**: Traslladat tot el nucli pur a TypeScript a `trail-gps/src/utils/geoMath.ts` (`ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`, `filterElevationSeries`, `getPointAtElevationProgress`, `BatteryRenderPolicy`).
+  - **Suport de Waypoints & Turn-by-Turn**: Actualitzat el parser GPX natiu (`gpxParser.ts`) per extraure waypoints (`<wpt>`) i calcular alertes de girs i cruïlles (`detectTrackTurns`).
+  - **Indicador HUD Turn-by-Turn**: Afegit panell de proper gir al ciclocomputador natiu (`CockpitDashboard.tsx`).
+  - **Mòdul de descàrrega GPX**: Creat `gpxFetcher.ts` amb detecció de Wikiloc i proxies múltiples per a l'app mòbil.
+  - **Compilació TypeScript Neta**: 0 errors a `npx tsc --noEmit`.
+- **🗂️ Col·lecció de Rutes GPX de Prova (`samples/`)**:
+  - Creada carpeta `samples/` amb rutes reals i completes:
+    - `riudellots-caldes-btt.gpx`: Circuit tancat BTT amb múltiples waypoints culturals i fites de cruïlla.
+    - `collserola-gravel-epic.gpx`: Ruta de desnivell sever (170m a 512m Cim Tibidabo) per validar ClimbPro i alertes de trialera.
+- **🧪 38 Proves Unitàries Automatitzades (`npm test`)**:
+  - 100% de proves superades.
+
 ## 2026-08-21 — v2.4.10: Detecció de Pàgines de Wikiloc, Cadena de Proxies Fallback i 38 Proves Automatitzades
 
 ### Canvis implementats

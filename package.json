@@ -1,6 +1,6 @@
 {
   "name": "trail-gps-pwa",
-  "version": "2.4.10",
+  "version": "2.4.11",
   "description": "TrailGPS MTB - Web PWA & GPS Bike Computer",
   "main": "server.js",
   "scripts": {

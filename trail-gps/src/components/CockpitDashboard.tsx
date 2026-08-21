@@ -103,6 +103,16 @@ export const CockpitDashboard: React.FC<CockpitDashboardProps> = ({
           </View>
         )}
 
+        {/* Indicador Turn-by-Turn de proper gir o fita */}
+        {telemetry.nextTurn && !telemetry.isOffTrack && (
+          <View style={styles.turnCueRow}>
+            <Text style={styles.turnCueIcon}>{telemetry.nextTurn.icon}</Text>
+            <Text style={styles.turnCueText} numberOfLines={1}>
+              {telemetry.nextTurn.text}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.metricsGrid}>
           {/* Velocitat gran */}
           <View style={styles.metricBig}>
@@ -260,6 +270,27 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontSize: 12,
     fontWeight: '700',
+  },
+  turnCueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#00E5FF',
+  },
+  turnCueIcon: {
+    fontSize: 18,
+  },
+  turnCueText: {
+    color: '#F8FAFC',
+    fontSize: 13,
+    fontWeight: '800',
+    flex: 1,
   },
   metricsGrid: {
     flexDirection: 'row',
