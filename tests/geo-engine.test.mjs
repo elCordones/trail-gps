@@ -266,6 +266,18 @@ test('Breadcrumb Sampler: samples on distance, turns, and time but suppresses st
   const resTurn = sampler.shouldSample(ptTurn, ptDist);
   assert.equal(resTurn.sample, true);
   assert.equal(resTurn.reason, 'turn_corner');
+
+  // Double-fix glitch suppression (< 0.45s interval e.g. 30ms rapid event)
+  const ptDoubleFix = { lat: 41.40015, lng: 2.10005, speed: 15, heading: 90, time: '2026-08-21T10:00:03.030Z' };
+  const resDoubleFix = sampler.shouldSample(ptDoubleFix, ptTurn);
+  assert.equal(resDoubleFix.sample, false);
+  assert.equal(resDoubleFix.reason, 'double_fix_suppression');
+
+  // Anomalous speed rejection (> 100 km/h)
+  const ptTeleport = { lat: 41.40500, lng: 2.10500, speed: 25, heading: 90, time: '2026-08-21T10:00:05Z' }; // 700m in 2s = 1260 km/h
+  const resTeleport = sampler.shouldSample(ptTeleport, ptTurn);
+  assert.equal(resTeleport.sample, false);
+  assert.equal(resTeleport.reason, 'anomalous_speed');
 });
 
 test('filterElevationSeries: removes high frequency noise and calculates clean ascent', () => {

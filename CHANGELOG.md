@@ -1,5 +1,31 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-21 — v2.4.12: Validació de Camp Real amb iPhone 12 Pro, Rotació Dinàmica Heading-Up, Wake Lock Resilient iOS i Filtre Doble-Fix
+
+### Canvis implementats
+
+- **🚴 Auditoria i Validació de Sortida Real de Camp (`Sortida_BTT_21_8_2026_PROVA_PARC.gpx`)**:
+  - Validació en ruta real amb iPhone 12 Pro (3,91 km, 1h 03m).
+  - **Èxit de supressió en repòs**: 0 punts gravats durant l'aturada de 36 minuts (15:50 a 16:26), eliminant completament les teranyines de soroll GPS.
+  - **Èxit de filtratge altimètric**: 22 m de desnivell fictici eliminats per l'algorisme EMA + deadband (+44 m reals vs +66 m bruts).
+  - Consum energètic molt baix i visibilitat excel·lent dels neons sobre fons fosc sota la llum solar.
+- **🧭 Rotació Dinàmica del Mapa en Mode Rumb (*Heading-Up Map Rotation*)**:
+  - Envoltat el mapa amb el contenidor `#map-viewport` (`overflow: hidden`) i `#map` sobredimensionat (150% x 150%) amb `transform-origin: 50% 50%`.
+  - En mode `headingUp`, el mapa sencer gira fluidament seguint el rumb de la bicicleta (`transform: rotate(-heading deg)`), mantenint la carretera o corriol apuntant cap a dalt de la pantalla.
+  - La fletxa cian es manté orientada amunt ($0^\circ$) en mode rumb i rota sobre el mapa en mode `northUp`.
+- **📱 Gestor de Pantalla Encesa Resilient per a iOS (*Screen Wake Lock Manager*)**:
+  - Re-adquisició automàtica garantida de `navigator.wakeLock` a qualsevol toc de pantalla (`touchstart`, `click`, `btn-rec`, `btn-recenter`), superant la restricció d'activació de Safari iOS.
+  - Re-activació en canvis de visibilitat (`visibilitychange`) i suport amb bucle d'àudio silenciós WebAudio per evitar que iOS congeli el GPS en suspendre la pantalla.
+  - Indicador visual d'estat a la barra superior (`🔆 PANTALLA ON`).
+- **⏱️ Filtre de Doble-Fix GPS (`BreadcrumbSampler`)**:
+  - Afegida guarda temporal mínima ($\Delta t \ge 0.45\text{ s}$) i topall de velocitat instantània ($100\text{ km/h}$) a `geoEngine.mjs`, `geoMath.ts` i `index.html`.
+  - Eliminats els pics artificials de velocitat punta provocats per dobles lectures consecutives de Safari/GPS en mil·lisegons.
+- **🧪 38 Proves Unitàries Automatitzades (`npm test` 100% OK)**:
+  - Suite de proves actualitzada per cobrir la supressió de double-fixes i salts anòmals de velocitat.
+- **📱 Sincronització de Codi i Compilació**:
+  - `index.html` i `web-app/index.html` sincronitzats.
+  - Compilació TypeScript Expo (`npx tsc --noEmit`) 100% neta.
+
 ## 2026-08-21 — v2.4.11: Sincronització de Mòduls Compartits a React Native (Expo) i Col·lecció de GPX de Prova
 
 ### Canvis implementats

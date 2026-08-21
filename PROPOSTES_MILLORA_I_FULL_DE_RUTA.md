@@ -5,39 +5,32 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 21 d’agost de 2026 — Fase 0, Fase 1 i Fase 2 consolidades (v2.4.11).
+> **Darrera actualització:** 21 d’agost de 2026 — Validació de Camp Real i v2.4.12 consolidada.
 >
-> **Punt actual:** s’han integrat els mòduls compartits a React Native / Expo (`trail-gps/src/utils/`), s'ha creat la col·lecció de GPX reals (`samples/`), la gestió d'enllaços de Wikiloc i cadena de proxies (`gpxFetcher`), el pla de validació de camp (`docs/PLA_VALIDACIO_CAMP.md`), el mode d'estalvi de bateria (`BatteryRenderPolicy`), l'editor de waypoints, els backups JSON a la UI, el perfil interactiu d'altimetria i 38 proves automatitzades (`npm test` 100% OK).
+> **Punt actual:** s’ha realitzat la primera sortida de validació de camp amb iPhone 12 Pro (`Sortida_BTT_21_8_2026_PROVA_PARC.gpx`), s'ha implementat la rotació real de mapa en mode Heading-Up (`#map-viewport` transform), el gestor de pantalla encesa (*Screen Wake Lock*) resilient a gestos de Safari iOS amb fallback d'àudio, el filtre de doble-fix GPS a `BreadcrumbSampler`, la col·lecció de GPX reals (`samples/`), la gestió de Wikiloc i 38 proves automatitzades (`npm test` 100% OK).
 
 ### Fites completades en aquesta sessió
 
+- [x] **Validació de camp real PWA**: Auditoria de la sortida real amb iPhone 12 Pro (3,91 km, 1h 03m, 0 punts de soroll en 36m d'aturada, 22m de desnivell fictici purgat).
+- [x] **Rotació dinàmica de mapa Heading-Up**: El mapa gira en directe (`-heading`) orientant el camí cap a dalt de la pantalla amb la fletxa amunt.
+- [x] **Screen Wake Lock resilient per a iOS Safari**: Re-adquisició garantida a qualsevol toc/botó i bucle silenciós d'àudio per evitar que iOS apagui la pantalla i congeli el GPS en segon pla.
+- [x] **Filtre de seguretat de doble-fix GPS**: Supressió de mostres ultra-ràpides ($\Delta t < 0.45\text{ s}$) al `BreadcrumbSampler` per evitar pics puntuals de velocitat punta.
 - [x] Integració completa dels mòduls compartits a React Native / Expo (`geoMath.ts`, `gpxParser.ts`, `gpxFetcher.ts`, `CockpitDashboard.tsx`).
-- [x] Col·lecció de GPX reals de prova a la carpeta `samples/` (`riudellots-caldes-btt.gpx`, `collserola-gravel-epic.gpx`).
+- [x] Col·lecció de GPX reals de prova a la carpeta `samples/` (`Sortida_BTT_21_8_2026_PROVA_PARC.gpx`, `riudellots-caldes-btt.gpx`, `collserola-gravel-epic.gpx`).
 - [x] Detecció intel·ligent d'adreces de pàgines web de Wikiloc (`isWikilocUrl`) i cadena resilient de proxies CORS per a descàrregues de GPX directe.
-- [x] Redactat i estructurat el Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`) amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
-- [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i manual amb reducció de càrrega de GPU (`backdrop-filter: none`).
-- [x] Renderitzat cartogràfic intel·ligent (`BatteryRenderPolicy`) amb throttling de refresc de mapa en aturada ($< 2.5\text{ km/h}$) i supressió de jitter de compàs ($< 4^\circ$).
-- [x] Editor complet de Waypoints / POIs amb formulari desplegable, selector de xips d'icones (💧 Font, ⛰️ Cim, ⚠️ Perill, 🛑 Cruïlla, 📸 Foto, 🔧 Taller, 🥪 Menjar, 📍 General) i botons d'edició/eliminació (`✏️` / `🗑️`).
-- [x] Sincronització de waypoints amb el motor de girs i fites (`detectTrackTurns`).
-- [x] Botons de còpia de seguretat JSON (`trailgps_backup_rutes_YYYY-MM-DD.json`) i restauració directa a la interfície de la biblioteca de rutes (`#routes-modal`).
-- [x] Perfil d'altimetria interactiu (Scrubbing / Tap al gràfic SVG `#elevation-svg`) amb marcador sincronitzat en temps real al mapa Leaflet (`getPointAtElevationProgress`).
-- [x] Descàrrega directa de rutes per URL web (`gpxFetcher.mjs`) amb suport de proxy CORS per a servidors oberts i Wikiloc.
-- [x] Formulari d'importació per URL integrable al modal de la biblioteca de rutes (`#routes-modal`).
-- [x] Migració de la biblioteca de rutes a IndexedDB (`trailgps_db_v1`) amb migració automàtica de dades de `localStorage` i fallback en memòria.
-- [x] Suport per a còpies de seguretat de rutes en format JSON (`exportBackupJson` / `importBackupJson`).
-- [x] Implementat filtre d'altimetria EMA i càlcul de desnivell acumulat (+D) per deadband de 2.0 m (`ElevationFilter`), evitant l'ascens fictici en repòs o terreny pla.
-- [x] Limitador de velocitat vertical màxima ($1.5\text{ m/s}$) per descartar pics anòmals de sensor d'elevació.
-- [x] Filtre de qualitat GPS (`GpsQualityFilter`) per detectar i descartar salts/teletransportacions impossibles ($> 100\text{ km/h}$ i $> 150\text{ m}$) i detectar aturades/deriva estàtica.
-- [x] Mostreig intel·ligent del gravador de rutes (`BreadcrumbSampler`) basat en distància ($\ge 3.5\text{ m}$), temps ($6\text{ s}$) i canvi d'angle en corbes ($\ge 18^\circ$).
-- [x] Sanejament del càlcul de desnivell a `trail-gps/src/utils/gpxParser.ts` (Expo).
-- [x] Ampliada la suite de proves a 38 tests unitaris (Node.js test runner, `npm test` 100% OK).
-- [x] Còpies PWA `index.html` i `web-app/index.html` sincronitzades (SHA256 idèntic).
+- [x] Redactat i estructurat el Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`).
+- [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i renderitzat intel·ligent (`BatteryRenderPolicy`).
+- [x] Editor complet de Waypoints / POIs i sincronització de girs.
+- [x] Còpies de seguretat JSON a la UI i migració a IndexedDB.
+- [x] Perfil d'altimetria interactiu amb scrubbing al mapa.
+- [x] Filtre d'altimetria EMA + deadband $2.0\text{ m}$ (`ElevationFilter`) i filtre de qualitat GPS (`GpsQualityFilter`).
+- [x] Suite de 38 proves unitàries (Node.js test runner, `npm test` 100% OK).
+- [x] Còpies PWA `index.html` i `web-app/index.html` sincronitzades.
 
 ### Pendent immediat
 
-- [ ] Execució de la prova de camp de la PWA seguint el protocol `docs/PLA_VALIDACIO_CAMP.md`.
-- [ ] Ampliació de la col·lecció de GPX de prova amb més senders tècnics (`samples/`).
-- [ ] Fase futura: Portar la interfície d'Ajustos, Rutes i Waypoints a React Native / Expo (`trail-gps/`).
+- [ ] **Segona sortida de camp PWA**: Verificar que la pantalla es manté encesa permanentment i la fluïdesa de la rotació de mapa en corbes.
+- [ ] **Fase futura Expo**: Portar la interfície d'Ajustos, Rutes i Waypoints a React Native / Expo (`trail-gps/`).
 
 ## Resum executiu
 

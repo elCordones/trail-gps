@@ -431,11 +431,20 @@ export class BreadcrumbSampler {
     }
 
     const dist = getDistanceMeters(lastPoint.lat, lastPoint.lng, newPoint.lat, newPoint.lng);
-    const newTime = newPoint.timestamp ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
-    const prevTime = lastPoint.timestamp ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
-    const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+    const newTime = (newPoint.time || newPoint.timestamp) ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
+    const prevTime = (lastPoint.time || lastPoint.timestamp) ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
+    const dtSec = Math.max(0.001, (newTime - prevTime) / 1000);
 
     const speed = newPoint.speed || 0;
+
+    // 0. Double-fix guard and anomalous jump suppression
+    if (dtSec < 0.45) {
+      return { sample: false, reason: 'double_fix_suppression' };
+    }
+    const instantSpeedKmh = (dist / dtSec) * 3.6;
+    if (instantSpeedKmh > MAX_VALID_CYCLING_SPEED_KMH) {
+      return { sample: false, reason: 'anomalous_speed' };
+    }
 
     // 1. Stationary filter: don't record jitter if standing still
     if (speed < MIN_MOVING_SPEED_KMH && dist < this.minDist) {

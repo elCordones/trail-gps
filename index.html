@@ -84,8 +84,8 @@
       overflow: hidden;
     }
 
-    /* MAP CONTAINER */
-    #map {
+    /* MAP VIEWPORT & ROTATION CONTAINER */
+    #map-viewport {
       position: absolute;
       top: 0;
       left: 0;
@@ -93,8 +93,22 @@
       bottom: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
       z-index: 1;
       background-color: var(--bg-dark);
+    }
+
+    #map {
+      position: absolute;
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      height: 150%;
+      z-index: 1;
+      background-color: var(--bg-dark);
+      transform-origin: 50% 50%;
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+      will-change: transform;
     }
 
     /* INTERACTIVE ELEMENTS COMMON STYLE FOR IOS TOUCH */
@@ -2031,8 +2045,10 @@
 <body>
 
   <div id="app-container">
-    <!-- LEAFLET MAP -->
-    <div id="map"></div>
+    <!-- LEAFLET MAP VIEWPORT -->
+    <div id="map-viewport">
+      <div id="map"></div>
+    </div>
 
     <!-- FLOATING MAP THUMB CONTROLS (RIGHT DOCK) -->
     <div class="map-floating-controls">
@@ -2060,6 +2076,9 @@
       </div>
 
       <div class="top-actions">
+        <div id="wakelock-status-badge" class="wakelock-badge" title="Estat de la pantalla encesa" style="font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 999px; background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 4px; cursor: pointer;">
+          <span>🔆</span><span id="wakelock-text">PANTALLA ON</span>
+        </div>
         <button id="btn-top-eco" class="btn-top btn-eco-top" title="Mode Estalvi de Bateria (Eco)" style="display: none; padding: 6px 10px; font-size: 11px;">
           <span id="top-eco-icon">🔋</span> <span id="top-eco-text">ECO</span>
         </button>
@@ -2962,11 +2981,20 @@
         }
 
         const dist = getDistanceMeters(lastPoint.lat, lastPoint.lng, newPoint.lat, newPoint.lng);
-        const newTime = newPoint.timestamp ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
-        const prevTime = lastPoint.timestamp ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
-        const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+        const newTime = (newPoint.time || newPoint.timestamp) ? new Date(newPoint.time || newPoint.timestamp).getTime() : Date.now();
+        const prevTime = (lastPoint.time || lastPoint.timestamp) ? new Date(lastPoint.time || lastPoint.timestamp).getTime() : (newTime - 1000);
+        const dtSec = Math.max(0.001, (newTime - prevTime) / 1000);
 
         const speed = newPoint.speed || 0;
+
+        // 0. Double-fix guard and anomalous jump suppression
+        if (dtSec < 0.45) {
+          return { sample: false, reason: 'double_fix_suppression' };
+        }
+        const instantSpeedKmh = (dist / dtSec) * 3.6;
+        if (instantSpeedKmh > MAX_VALID_CYCLING_SPEED_KMH) {
+          return { sample: false, reason: 'anomalous_speed' };
+        }
 
         if (speed < MIN_MOVING_SPEED_KMH && dist < this.minDist) {
           return { sample: false, reason: 'stationary_idle' };
@@ -3794,22 +3822,84 @@
       }
     }
 
-    // --- SCREEN WAKE LOCK API ---
+    // --- SCREEN WAKE LOCK MANAGER ---
+    let wakeLock = null;
+    let isWakeLockActive = false;
+    let silentAudioContext = null;
+
     async function requestWakeLock() {
       if ('wakeLock' in navigator) {
         try {
           wakeLock = await navigator.wakeLock.request('screen');
-        } catch (err) {}
+          isWakeLockActive = true;
+          wakeLock.addEventListener('release', () => {
+            isWakeLockActive = false;
+            updateWakeLockUI();
+          });
+          updateWakeLockUI();
+        } catch (err) {
+          isWakeLockActive = false;
+          updateWakeLockUI();
+        }
       }
+      startSilentAudioKeepAlive();
+    }
+
+    function ensureWakeLock() {
+      if (!isWakeLockActive || !wakeLock || wakeLock.released) {
+        requestWakeLock();
+      }
+      startSilentAudioKeepAlive();
+    }
+
+    function updateWakeLockUI() {
+      const badge = document.getElementById('wakelock-status-badge');
+      const text = document.getElementById('wakelock-text');
+      if (!badge || !text) return;
+      if (isWakeLockActive) {
+        badge.style.display = 'flex';
+        badge.style.background = 'rgba(16,185,129,0.15)';
+        badge.style.color = '#10B981';
+        badge.style.borderColor = 'rgba(16,185,129,0.3)';
+        text.textContent = 'PANTALLA ON';
+      } else {
+        badge.style.display = 'flex';
+        badge.style.background = 'rgba(245,158,11,0.15)';
+        badge.style.color = '#F59E0B';
+        badge.style.borderColor = 'rgba(245,158,11,0.3)';
+        text.textContent = 'PANTALLA TOCA';
+      }
+    }
+
+    function startSilentAudioKeepAlive() {
+      try {
+        if (!silentAudioContext) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            silentAudioContext = new AudioContextClass();
+            const buffer = silentAudioContext.createBuffer(1, 1, 22050);
+            const source = silentAudioContext.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(silentAudioContext.destination);
+            source.start(0);
+          }
+        } else if (silentAudioContext.state === 'suspended') {
+          silentAudioContext.resume();
+        }
+      } catch (e) {}
     }
 
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState === 'visible') {
-        if (wakeLock !== null) {
-          await requestWakeLock();
-        }
+        await requestWakeLock();
         if (map) map.invalidateSize();
       }
+    });
+
+    // Re-acquire on user gesture across the app
+    ['touchstart', 'pointerdown', 'click'].forEach(evt => {
+      document.addEventListener(evt, () => ensureWakeLock(), { passive: true });
     });
 
     // --- MAP LAYERS & STYLING ---
@@ -4722,12 +4812,33 @@
       if (tnEl) tnEl.textContent = '📍 ' + track.name;
     }
 
+    // --- MAP ROTATION & HEADING CONTROLLER ---
+    function updateMapRotation(heading) {
+      const mapEl = document.getElementById('map');
+      if (!mapEl) return;
+
+      const safeHeading = (heading !== null && heading !== undefined && !isNaN(heading)) ? heading : 0;
+
+      if (cameraMode === 'headingUp') {
+        mapEl.style.transform = `rotate(${-safeHeading}deg)`;
+        const arrowEl = document.getElementById('arrow-icon');
+        if (arrowEl) arrowEl.style.transform = 'rotate(0deg)';
+      } else {
+        mapEl.style.transform = 'none';
+        const arrowEl = document.getElementById('arrow-icon');
+        if (arrowEl && heading !== null && heading !== undefined && !isNaN(heading)) {
+          arrowEl.style.transform = `rotate(${safeHeading}deg)`;
+        }
+      }
+    }
+
     // --- USER MARKER WITH DELTA HEADING ARROW ---
     function updateUserMarker() {
       if (!map) return;
 
+      const initialArrowRot = (cameraMode === 'headingUp') ? 0 : (userPosition.heading || 0);
       const svgArrow = `
-        <div class="user-arrow-wrapper" id="arrow-icon" style="transform: rotate(${userPosition.heading}deg);">
+        <div class="user-arrow-wrapper" id="arrow-icon" style="transform: rotate(${initialArrowRot}deg);">
           <svg width="64" height="64" viewBox="0 0 100 100">
             <defs>
               <radialGradient id="beamGrad" cx="50%" cy="100%" r="90%">
@@ -4753,12 +4864,12 @@
           iconAnchor: [32, 32]
         });
         userMarker = L.marker([userPosition.lat, userPosition.lng], { icon, zIndexOffset: 1000 }).addTo(map);
+        updateMapRotation(userPosition.heading);
       } else {
         userMarker.setLatLng([userPosition.lat, userPosition.lng]);
         const now = Date.now();
         if (batteryRenderPolicy.shouldUpdateHeading(lastRenderedHeading, userPosition.heading, lastHeadingRenderTime, now)) {
-          const arrowEl = document.getElementById('arrow-icon');
-          if (arrowEl) arrowEl.style.transform = `rotate(${userPosition.heading}deg)`;
+          updateMapRotation(userPosition.heading);
           lastRenderedHeading = userPosition.heading;
           lastHeadingRenderTime = now;
         }
@@ -6830,7 +6941,9 @@
         cameraMode = 'headingUp';
         updateCameraModeUI();
         requestGpsPermission();
+        ensureWakeLock();
         if (userPosition && map) {
+          updateMapRotation(userPosition.heading);
           map.setView([userPosition.lat, userPosition.lng], 16, { animate: true });
           document.getElementById('btn-recenter').classList.add('recenter-active');
           setTimeout(() => {
@@ -6843,7 +6956,14 @@
       bindAction('btn-heading', () => {
         cameraMode = (cameraMode === 'headingUp') ? 'northUp' : 'headingUp';
         updateCameraModeUI();
-        showToast(cameraMode === 'headingUp' ? '🧭 Mode Rumb actiu' : '🧭 Mode Nord Fix');
+        updateMapRotation(userPosition.heading);
+        showToast(cameraMode === 'headingUp' ? '🧭 Mode Rumb (Gira amb la bici)' : '🧭 Mode Nord Fix');
+      });
+
+      // Wakelock manual toggle/re-acquire
+      bindAction('wakelock-status-badge', () => {
+        ensureWakeLock();
+        showToast(isWakeLockActive ? '🔆 Pantalla sempre activa (WakeLock ON)' : '⚠️ Bloqueig de pantalla no disponible');
       });
 
       // Profile elevation toggle

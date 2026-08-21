@@ -419,10 +419,19 @@ export class BreadcrumbSampler {
     }
 
     const dist = haversineDistanceMeters(lastPoint.lat, lastPoint.lng, newPoint.lat, newPoint.lng);
-    const newTime = newPoint.timestamp || Date.now();
-    const prevTime = lastPoint.timestamp || (newTime - 1000);
-    const dtSec = Math.max(0.1, (newTime - prevTime) / 1000);
+    const newTime = (newPoint.timestamp || (newPoint as any).time) ? new Date((newPoint as any).time || newPoint.timestamp!).getTime() : Date.now();
+    const prevTime = (lastPoint.timestamp || (lastPoint as any).time) ? new Date((lastPoint as any).time || lastPoint.timestamp!).getTime() : (newTime - 1000);
+    const dtSec = Math.max(0.001, (newTime - prevTime) / 1000);
     const speed = newPoint.speed || 0;
+
+    // 0. Double-fix guard and anomalous jump suppression
+    if (dtSec < 0.45) {
+      return { sample: false, reason: 'double_fix_suppression' };
+    }
+    const instantSpeedKmh = (dist / dtSec) * 3.6;
+    if (instantSpeedKmh > MAX_VALID_CYCLING_SPEED_KMH) {
+      return { sample: false, reason: 'anomalous_speed' };
+    }
 
     if (speed < MIN_MOVING_SPEED_KMH && dist < this.minDist) {
       return { sample: false, reason: 'stationary_idle' };

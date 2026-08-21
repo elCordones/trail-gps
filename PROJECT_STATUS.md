@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 21 d'agost de 2026 (v2.4.11 — Integració de Mòduls a React Native / Expo, Col·lecció de GPX i 38 Tests Unitaris)
-> **Estat general:** PWA v2.4.11 amb Fase 0, Fase 1 i Fase 2 consolidades. Integració completa dels mòduls matemàtics purs a React Native / Expo (`trail-gps/src/utils/`), col·lecció de GPX reals de prova (`samples/`), pla de validació de camp (`docs/PLA_VALIDACIO_CAMP.md`), gestió avançada de Wikiloc i 38 proves automatitzades (`npm test` al 100%).
+> **Darrera actualització:** 21 d'agost de 2026 (v2.4.12 — Validació de Camp Real amb iPhone 12 Pro, Rotació Dinàmica de Mapa Heading-Up, Wake Lock Resilient iOS i Filtre de Doble-Fix GPS)
+> **Estat general:** PWA v2.4.12 i React Native / Expo amb Fase 0, Fase 1, Fase 2 i Fase 3 en marxa. Primera prova de camp real superada amb èxit (`samples/Sortida_BTT_21_8_2026_PROVA_PARC.gpx`). Implementada la rotació real del mapa en rumb, el gestor de pantalla encesa (*Screen Wake Lock*) multi-gest amb fallback per a Safari iOS, el filtre de doble fix ultra-ràpid al `BreadcrumbSampler` i 38 proves automatitzades (`npm test` al 100%).
 
 > **Font de continuïtat:** [full de ruta i seguiment](PROPOSTES_MILLORA_I_FULL_DE_RUTA.md) · [registre de canvis](CHANGELOG.md)
 
@@ -12,7 +12,7 @@
 - **Objectiu principal**: Aplicació de navegació GPS per a ciclisme/MTB i ciclocomputador d'alt contrast, 100% autònoma, privada (sense comptes, núvol ni telemetria) i optimitzada per a manillar de bicicleta amb guants i sota llum solar directa.
 - **Públic destinatari**: Ciclistes de muntanya (MTB / Gravel / Carretera) que necessiten seguir tracks GPX amb precisió (sense snapping a asfalt) i consultar dades clau d'altimetria i telemetria sense dependre de cobertura mòbil.
 - **Stack tecnològic**:
-  - **PWA Web App**: HTML5, Vanilla CSS3 (disseny fluid d'alt contrast, paleta fosca Slate/OLED i neons cian/taronja), JavaScript modern, Leaflet 1.9.4, IndexedDB API (`trailgps_db_v1`), Battery Status API (`navigator.getBattery`), Web Bluetooth API (GATT Standard), Web Audio API, Screen Wake Lock API, Cache Storage API.
+  - **PWA Web App**: HTML5, Vanilla CSS3 (disseny fluid d'alt contrast, paleta fosca Slate/OLED i neons cian/taronja), JavaScript modern, Leaflet 1.9.4, IndexedDB API (`trailgps_db_v1`), Battery Status API (`navigator.getBattery`), Web Bluetooth API (GATT Standard), Web Audio API (keep-alive i alertes acústiques), Screen Wake Lock API, Cache Storage API.
   - **Servidor local**: Node.js HTTP server autònom (`server.js`) per a proves en xarxa local (Port 3000).
   - **Base Nativa iOS**: React Native (Expo) amb MapKit, Expo Location, SVG delta arrow, Turn-by-Turn HUD i TypeScript (`trail-gps/`).
   - **Motor de Geometria, Altimetria, GPX, Descàrregues, Bateria i Persistència**: Mòduls purs `src/core/geoEngine.mjs` (`BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`), `src/core/gpxParser.mjs`, `src/core/routeStorage.mjs` i `src/core/gpxFetcher.mjs` validats amb 38 tests unitaris (`npm test`).
@@ -23,60 +23,56 @@
   - [PROJECT_STATUS.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/PROJECT_STATUS.md): Punt de control i continuïtat entre sessions.
   - [docs/DOCUMENTACIO_PROJECTE.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/DOCUMENTACIO_PROJECTE.md): Documentació exhaustiva d'especificacions i arquitectura.
   - [docs/PLA_VALIDACIO_CAMP.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/docs/PLA_VALIDACIO_CAMP.md): Protocol operatiu i matriu de casos de prova per a sortides reals de camp (bateria, offline, histèresi d'alertes).
-  - [samples/](file:///C:/Users/David/Desktop/App%20bici%20GPS/samples/): Col·lecció de fitxers GPX reals de prova (`riudellots-caldes-btt.gpx`, `collserola-gravel-epic.gpx`).
-  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, gestor de bateria / Eco Mode, editor interactiu de Waypoints, ClimbPro amb scrubbing, persistència IndexedDB, descàrrega GPX per URL, còpies JSON, filtres GPS/altimetria i gravador GPX.
-  - [src/core/geoEngine.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/geoEngine.mjs): Motor matemàtic pur: Haversine, azimuth, distància perpendicular, girs, `BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`, `filterElevationSeries` i `getPointAtElevationProgress`.
+  - [samples/](file:///C:/Users/David/Desktop/App%20bici%20GPS/samples/): Col·lecció de fitxers GPX reals de prova (`Sortida_BTT_21_8_2026_PROVA_PARC.gpx`, `riudellots-caldes-btt.gpx`, `collserola-gravel-epic.gpx`).
+  - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb rotació de mapa Heading-Up, gestor de pantalla encesa resilient, Leaflet, motor Turn-by-Turn, gestor de bateria / Eco Mode, editor interactiu de Waypoints, ClimbPro amb scrubbing, persistència IndexedDB, descàrrega GPX per URL, còpies JSON, filtres GPS/altimetria i gravador GPX.
+  - [src/core/geoEngine.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/geoEngine.mjs): Motor matemàtic pur: Haversine, azimuth, distància perpendicular, girs, `BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler` (amb protecció de double-fix $\Delta t < 0.45\text{ s}$), `filterElevationSeries` i `getPointAtElevationProgress`.
   - [src/core/gpxParser.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxParser.mjs): Parser GPX pur i sanejat per a Node.js i navegadors.
   - [src/core/gpxFetcher.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxFetcher.mjs): Validador d'enllaços, extractor de títols, detecció de Wikiloc (`isWikilocUrl`) i descàrrega de fitxers GPX per xarxa/proxy.
   - [src/core/routeStorage.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/routeStorage.mjs): Gestor asíncron d'IndexedDB amb migració de `localStorage`, fallback en memòria i còpies de seguretat JSON.
   - [tests/](file:///C:/Users/David/Desktop/App%20bici%20GPS/tests/): Suite de 38 proves automatitzades (`geo-engine.test.mjs`, `gpx-parser.test.mjs`, `route-storage.test.mjs`, `gpx-fetcher.test.mjs`).
-  - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
-  - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
-  - [scripts/generate-icons.js](file:///C:/Users/David/Desktop/App%20bici%20GPS/scripts/generate-icons.js): Generador automàtic de tot el paquet d'icones iOS / PWA / Expo amb `sharp`.
-  - [server.js](file:///C:/Users/David/Desktop/App%20bici%20GPS/server.js) / [web-app/server.js](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/server.js): Servidor Node.js per a proves locals (Port 3000).
   - [trail-gps/](file:///C:/Users/David/Desktop/App%20bici%20GPS/trail-gps/): Projecte mòbil Expo / React Native amb TypeScript 100% net.
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 21/08/2026 - v2.4.11)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 21/08/2026 - v2.4.12)
 
 - **Feina realitzada en aquesta sessió**:
-  - [x] **🍏 Integració dels Mòduls Compartits a React Native / Expo (`trail-gps`)**:
-    - Traslladat tot el nucli geomètric i altimètric pur a TypeScript (`trail-gps/src/utils/geoMath.ts`).
-    - Suport de waypoints i càlcul de girs automàtics a `gpxParser.ts` i visualització Turn-by-Turn a `CockpitDashboard.tsx`.
-    - Mòdul natiu `gpxFetcher.ts` amb detecció de Wikiloc i proxies fallbacks.
-    - Compilació TypeScript (`npx tsc --noEmit`) 100% neta sense errors.
-  - [x] **🗂️ Col·lecció de Rutes GPX Reals de Prova (`samples/`)**:
-    - `riudellots-caldes-btt.gpx` (circular BTT amb waypoints) i `collserola-gravel-epic.gpx` (desnivell sever 170m-512m).
-  - [x] **🌐 Detecció Específica d'Enllaços de Wikiloc & Proxies Resilients (`gpxFetcher.mjs`)**:
-    - Detecció d'adreces de pàgines web de Wikiloc (`wikiloc.com/rutas-...`) amb explicació guiada a l'usuari sobre la descàrrega del fitxer `.gpx` amb sessió oberta.
-    - Cadena de fallada de proxies CORS per a descàrregues d'enllaços GPX directes.
-  - [x] **📋 Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`)**:
-    - Document operatiu amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
-  - [x] **🔋 Mode d'Estalvi de Bateria & Renderitzat Intel·ligent (`BatteryRenderPolicy`)**:
-    - Suport de Battery API amb autoactivació del mode Eco per sota del 20% sense connexió de càrrega.
-    - Throttling dinàmic de Leaflet `map.panTo()` en aturada ($< 2.5\text{ km/h}$) i en mode Eco per minimitzar el consum de CPU.
-    - Filtre de rumb amb supressió de jitter de compàs ($< 4^\circ$) i desactivació d'efectes pesats de GPU `backdrop-filter: blur()`.
-  - [x] **🧪 Suite Ampliada a 38 Proves Unitàries Automatitzades (`npm test`)**:
-    - 38 tests passant al 100% verificant geometria, altimetria, GPX, persistència IndexedDB, descàrrega per URL, scrubbing, validació de backups, waypoints a Turn-by-Turn, polítiques de bateria i detecció de Wikiloc.
-  - [x] **Sincronització de Codi i Compilació**:
-    - Còpies PWA `index.html` i `web-app/index.html` amb hash SHA256 idèntic (`8fbb372d...`).
+  - [x] **🚴 Auditoria Tècnica de Sortida Real de Camp (`Sortida_BTT_21_8_2026_PROVA_PARC.gpx`)**:
+    - Dispositiu: iPhone 12 Pro.
+    - Recorregut: 3,91 km, temps total 1h 03m (26,6 min en moviment, velocitat mitjana 8,8 km/h).
+    - **Validació de repòs**: Durant la parada de 36 minuts (15:50 a 16:26), el `BreadcrumbSampler` va registrar **0 punts**, suprimint completament el soroll i la teranyina GPS en aturada.
+    - **Validació d'altimetria**: El filtre EMA i deadband $2.0\text{ m}$ va purgar 22 m de desnivell fictici (+44 m reals vs +66 m bruts).
+    - **Visibilitat i bateria**: Verificada una visibilitat excel·lent sota el sol amb colors neó i fons fosc, i consum de bateria mínim.
+  - [x] **🧭 Rotació Dinàmica del Mapa en Mode Rumb (*Heading-Up Map Rotation*)**:
+    - Creat el contenidor `#map-viewport` amb tall de desbordament (`overflow: hidden`) i `#map` sobredimensionat (150% x 150%) amb `transform-origin: 50% 50%`.
+    - En mode `headingUp`, el mapa rota dinàmicament (`transform: rotate(-heading deg)`) seguint el rumb de la bicicleta, mantenint el corriol/carretera apuntant cap a dalt de la pantalla.
+    - La fletxa cian es manté orientada amunt ($0^\circ$) en mode rumb i gira sobre el mapa en mode `northUp`.
+  - [x] **📱 Gestor de Pantalla Encesa Resilient per a iOS (*Screen Wake Lock Manager*)**:
+    - Re-adquisició garantida del `navigator.wakeLock` en qualsevol gest tàctil (`touchstart`, `click`, botó `REC`, `🎯 ON SÓC`, etc.), evitant el bloqueig de seguretat de Safari.
+    - Re-activació automàtica quan l'aplicació torna a primer pla (`visibilitychange`).
+    - Fallback multimèdia/àudio silenciós per impedir que Safari apagui la pantalla i congeli el GPS en segon pla.
+    - Afegit indicador d'estat a la barra superior (`🔆 PANTALLA ON`).
+  - [x] **⏱️ Filtre de Doble-Fix i Salts Instantanis (`BreadcrumbSampler`)**:
+    - Incorporada guarda temporal mínima ($\Delta t \ge 0.45\text{ s}$) i comprovació de velocitat màxima ($100\text{ km/h}$) a `src/core/geoEngine.mjs`, `trail-gps/src/utils/geoMath.ts` i `index.html`.
+    - Eliminats els pics artificials de velocitat punta provocats per dobles lectures de xarxa/GPS a iOS.
+  - [x] **🧪 Proves Unitàries i Sincronització**:
+    - Suite de 38 proves passant al 100% (`npm test`).
     - Compilació TypeScript Expo (`npx tsc --noEmit`) 100% neta.
+    - `index.html` i `web-app/index.html` perfectament sincronitzats.
 
 - **Punt exacte on ens hem quedat**:
-  - Fase 0, Fase 1 i Fase 2 completades i consolidades.
-  - Els mòduls matemàtics, d'altimetria, girs i descàrrega estan sincronitzats al 100% tant a la PWA com a l'aplicació nativa Expo / React Native.
-  - Pla de validació de camp i col·lecció de GPX preparats per a sortides reals de prova.
+  - Les millores crítiques identificades a la prova de camp real (rotació de mapa, pantalla encesa a iOS i protecció de doble fix) estan implementades i verificades.
+  - La PWA està a punt per a una nova sortida de camp amb la pantalla sempre encesa i orientació de rumb en directe.
 
 ---
 
 ## 3. Full de Ruta per a Properes Sessions (Roadmap)
 
 - **Tasques immediates per reprendre**:
-  - [ ] **🚴 Validació de navegació en sortida real de camp (PWA)**:
-    - Execució del protocol `docs/PLA_VALIDACIO_CAMP.md` amb la PWA instal·lada a la pantalla d'inici de l'iPhone.
-    - Prova en moviment de la histèresi de fora de ruta (40 m / 25 m), consum de bateria en Mode Eco i alertes sonores de gir.
-  - [ ] **🗺️ Ampliar col·lecció de GPX de prova reals**:
-    - Proves amb tracks de més de 50 km, múltiples segments i descensos tècnics.
-  - [ ] **🍏 Fase futura: Portar la UI completa a React Native (`trail-gps/`)**:
-    - Replicar els modals d'Ajustos, Biblioteca de rutes i Editor de Waypoints a components JSX natius per equiparar l'app nativa al 100% amb la PWA.
+  - [ ] **🚴 Segona sortida de validació de camp (PWA v2.4.12)**:
+    - Comprovar que la pantalla es manté encesa durant tota la sortida a l'iPhone 12 Pro sense cap tall de GPS.
+    - Verificar la fluïdesa de la rotació del mapa en corbes ràpides i senders revirats.
+  - [ ] **🗺️ Proves amb tracks llargs**:
+    - Carregar rutes de més de 30 km i perfils amb rampes pronunciades.
+  - [ ] **🍏 Fase Expo / React Native (`trail-gps/`)**:
+    - Portar els modals d'Ajustos, Biblioteca de Rutes i Waypoints a components JSX natius.
