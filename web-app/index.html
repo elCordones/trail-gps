@@ -244,15 +244,37 @@
       animation: pulseRec 1.2s infinite;
     }
 
-    .btn-rec.paused {
-      background: #D97706;
-      border-color: #FBBF24;
-      color: #FFFFFF;
+    .btn-eco-top {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.6);
+      color: #6EE7B7;
     }
 
-    @keyframes pulseRec {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    .btn-eco-top.active {
+      background: #059669;
+      border-color: #34D399;
+      color: #FFFFFF;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    /* BATTERY ECO MODE PERFORMANCE & GPU OPTIMIZATIONS */
+    body.eco-mode .hud-card,
+    body.eco-mode .hud-card-strip,
+    body.eco-mode .cockpit-dock,
+    body.eco-mode .top-bar .brand-badge,
+    body.eco-mode .btn-top,
+    body.eco-mode .control-btn,
+    body.eco-mode .app-modal,
+    body.eco-mode .recorder-banner,
+    body.eco-mode .turn-banner {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: rgba(15, 23, 42, 0.96) !important;
+    }
+
+    body.eco-mode .gps-dot,
+    body.eco-mode .btn-rec.recording {
+      animation: none !important;
     }
 
     .btn-sim.active {
@@ -2038,6 +2060,9 @@
       </div>
 
       <div class="top-actions">
+        <button id="btn-top-eco" class="btn-top btn-eco-top" title="Mode Estalvi de Bateria (Eco)" style="display: none; padding: 6px 10px; font-size: 11px;">
+          <span id="top-eco-icon">🔋</span> <span id="top-eco-text">ECO</span>
+        </button>
         <button id="btn-rec" class="btn-top btn-rec" title="Gravar recorregut propi en directe">
           <span>⏺️</span> <span id="rec-btn-text">REC</span>
         </button>
@@ -2693,6 +2718,10 @@
           <span class="icon" id="audio-icon-span">🔇</span>
           <span class="label" id="audio-label-span">SILENCI</span>
         </button>
+        <button id="btn-eco-toggle" class="drawer-btn" title="Mode estalvi de bateria i refresc intel·ligent">
+          <span class="icon" id="eco-drawer-icon">🔋</span>
+          <span class="label" id="eco-drawer-label">ESTALVI</span>
+        </button>
         <button id="btn-sim" class="drawer-btn" title="Simulació virtual de ruta">
           <span class="icon">▶️</span>
           <span class="label">SIMULAR</span>
@@ -3208,6 +3237,55 @@
       }
     }
 
+    class BatteryRenderPolicy {
+      constructor(options = {}) {
+        this.ecoMode = options.ecoMode || false;
+        this.minMovingSpeedKmh = options.minMovingSpeedKmh || 2.5;
+        this.stationaryThrottleMs = options.stationaryThrottleMs || 1500;
+        this.normalThrottleMs = options.normalThrottleMs || 250;
+        this.ecoThrottleMs = options.ecoThrottleMs || 2000;
+        this.minHeadingDeltaDeg = options.minHeadingDeltaDeg || 4.0;
+      }
+
+      setEcoMode(enabled) {
+        this.ecoMode = Boolean(enabled);
+      }
+
+      shouldUpdateMapPosition(speedKmh, lastUpdateTime, now = Date.now()) {
+        const isMoving = Number(speedKmh) >= this.minMovingSpeedKmh;
+        const elapsed = now - (lastUpdateTime || 0);
+
+        if (this.ecoMode) {
+          return elapsed >= this.ecoThrottleMs;
+        }
+        if (!isMoving) {
+          return elapsed >= this.stationaryThrottleMs;
+        }
+        return elapsed >= this.normalThrottleMs;
+      }
+
+      shouldUpdateHeading(lastHeading, newHeading, lastUpdateTime, now = Date.now()) {
+        if (lastHeading === null || lastHeading === undefined) return true;
+        const elapsed = now - (lastUpdateTime || 0);
+        const minInterval = this.ecoMode ? 1000 : 300;
+        if (elapsed < minInterval) return false;
+
+        let diff = Math.abs((Number(newHeading) || 0) - (Number(lastHeading) || 0)) % 360;
+        if (diff > 180) diff = 360 - diff;
+
+        const threshold = this.ecoMode ? (this.minHeadingDeltaDeg * 2) : this.minHeadingDeltaDeg;
+        return diff >= threshold;
+      }
+
+      evaluateAutoEco(batteryLevel, isCharging) {
+        if (isCharging) return false;
+        if (batteryLevel !== null && batteryLevel !== undefined && Number(batteryLevel) <= 0.20) {
+          return true;
+        }
+        return false;
+      }
+    }
+
     // --- GPX URL FETCHER & PROXY UTILS ---
     const MAX_GPX_URL_SIZE_BYTES = 10 * 1024 * 1024;
     const FETCH_TIMEOUT_MS = 12000;
@@ -3590,9 +3668,10 @@
       // Load initial route
       parseAndDisplayGpx(SAMPLE_GPX, false, 'Corriols del Bosc Fosc - BTT');
 
-      // Request Geolocation & Screen Wake Lock
+      // Request Geolocation, Battery & Screen Wake Lock
       requestGpsPermission();
       requestWakeLock();
+      initBatteryManager();
       initRideStatsTimer();
       initElevationScrubbing();
       routeStorage.init().then(() => renderRoutesHistoryList());
@@ -3609,6 +3688,96 @@
       });
     }
 
+    // --- BATTERY SAVER & ADAPTIVE RENDERING POLICY ---
+    const batteryRenderPolicy = new BatteryRenderPolicy({
+      minMovingSpeedKmh: 2.5,
+      normalThrottleMs: 250,
+      stationaryThrottleMs: 1500,
+      ecoThrottleMs: 2000,
+      minHeadingDeltaDeg: 4.0
+    });
+
+    let batteryState = {
+      supported: false,
+      level: 1.0,
+      charging: false,
+      isEcoMode: false
+    };
+
+    let lastMapPanTime = 0;
+    let lastHeadingRenderTime = 0;
+    let lastRenderedHeading = null;
+
+    async function initBatteryManager() {
+      try {
+        if ('getBattery' in navigator) {
+          const battery = await navigator.getBattery();
+          batteryState.supported = true;
+          batteryState.level = battery.level;
+          batteryState.charging = battery.charging;
+
+          const updateBatteryStatus = () => {
+            batteryState.level = battery.level;
+            batteryState.charging = battery.charging;
+            checkAutoEcoMode();
+            updateBatteryUi();
+          };
+
+          battery.addEventListener('levelchange', updateBatteryStatus);
+          battery.addEventListener('chargingchange', updateBatteryStatus);
+          updateBatteryStatus();
+        }
+      } catch (e) {}
+    }
+
+    function checkAutoEcoMode() {
+      if (batteryState.supported && !batteryState.charging && batteryState.level <= 0.20) {
+        if (!batteryState.isEcoMode) {
+          setEcoMode(true, true);
+        }
+      }
+    }
+
+    function setEcoMode(enable, isAuto = false) {
+      batteryState.isEcoMode = Boolean(enable);
+      batteryRenderPolicy.setEcoMode(batteryState.isEcoMode);
+
+      const topEcoBtn = document.getElementById('btn-top-eco');
+      const drawerEcoBtn = document.getElementById('btn-eco-toggle');
+      const drawerEcoLbl = document.getElementById('eco-drawer-label');
+
+      if (batteryState.isEcoMode) {
+        document.body.classList.add('eco-mode');
+        if (topEcoBtn) {
+          topEcoBtn.style.display = 'inline-flex';
+          topEcoBtn.classList.add('active');
+        }
+        if (drawerEcoBtn) drawerEcoBtn.classList.add('active');
+        if (drawerEcoLbl) drawerEcoLbl.textContent = 'ECO ON';
+        showToast(isAuto ? '🔋 Mode Eco activat automàticament (<20% bateria)' : '🔋 Mode Eco d\'estalvi activat');
+      } else {
+        document.body.classList.remove('eco-mode');
+        if (topEcoBtn) {
+          topEcoBtn.style.display = 'none';
+          topEcoBtn.classList.remove('active');
+        }
+        if (drawerEcoBtn) drawerEcoBtn.classList.remove('active');
+        if (drawerEcoLbl) drawerEcoLbl.textContent = 'ESTALVI';
+        showToast('⚡ Mode Normal de rendiment restablert');
+      }
+    }
+
+    function toggleEcoMode() {
+      setEcoMode(!batteryState.isEcoMode);
+    }
+
+    function updateBatteryUi() {
+      const topEcoText = document.getElementById('top-eco-text');
+      if (topEcoText && batteryState.supported) {
+        topEcoText.textContent = `${Math.round(batteryState.level * 100)}%`;
+      }
+    }
+
     // --- SCREEN WAKE LOCK API ---
     async function requestWakeLock() {
       if ('wakeLock' in navigator) {
@@ -3619,8 +3788,11 @@
     }
 
     document.addEventListener('visibilitychange', async () => {
-      if (wakeLock !== null && document.visibilityState === 'visible') {
-        await requestWakeLock();
+      if (document.visibilityState === 'visible') {
+        if (wakeLock !== null) {
+          await requestWakeLock();
+        }
+        if (map) map.invalidateSize();
       }
     });
 
@@ -4567,12 +4739,22 @@
         userMarker = L.marker([userPosition.lat, userPosition.lng], { icon, zIndexOffset: 1000 }).addTo(map);
       } else {
         userMarker.setLatLng([userPosition.lat, userPosition.lng]);
-        const arrowEl = document.getElementById('arrow-icon');
-        if (arrowEl) arrowEl.style.transform = `rotate(${userPosition.heading}deg)`;
+        const now = Date.now();
+        if (batteryRenderPolicy.shouldUpdateHeading(lastRenderedHeading, userPosition.heading, lastHeadingRenderTime, now)) {
+          const arrowEl = document.getElementById('arrow-icon');
+          if (arrowEl) arrowEl.style.transform = `rotate(${userPosition.heading}deg)`;
+          lastRenderedHeading = userPosition.heading;
+          lastHeadingRenderTime = now;
+        }
       }
 
       if (cameraMode !== 'free') {
-        map.panTo([userPosition.lat, userPosition.lng], { animate: true, duration: 0.3 });
+        const now = Date.now();
+        const currentSpeedKmh = userPosition.speed !== undefined ? (userPosition.speed * 3.6) : 0;
+        if (batteryRenderPolicy.shouldUpdateMapPosition(currentSpeedKmh, lastMapPanTime, now)) {
+          map.panTo([userPosition.lat, userPosition.lng], { animate: !batteryState.isEcoMode, duration: 0.3 });
+          lastMapPanTime = now;
+        }
       }
 
       updateTelemetry();
@@ -6512,6 +6694,10 @@
 
       // Audio Alerts Toggle (Global Master)
       bindAction('btn-audio-toggle', toggleAudioAlerts);
+
+      // Battery Saver & Eco Mode Toggle bindings
+      bindAction('btn-top-eco', toggleEcoMode);
+      bindAction('btn-eco-toggle', toggleEcoMode);
 
       // Waypoint Management & Icon Selector bindings
       bindAction('btn-add-quick-wp', () => openWaypointCreateForm());

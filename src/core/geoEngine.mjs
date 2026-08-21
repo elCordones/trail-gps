@@ -536,3 +536,56 @@ export function getPointAtElevationProgress(points, ratio) {
   };
 }
 
+/**
+ * Battery & Adaptive Render Policy Evaluator
+ */
+export class BatteryRenderPolicy {
+  constructor(options = {}) {
+    this.ecoMode = options.ecoMode || false;
+    this.minMovingSpeedKmh = options.minMovingSpeedKmh || 2.5;
+    this.stationaryThrottleMs = options.stationaryThrottleMs || 1500;
+    this.normalThrottleMs = options.normalThrottleMs || 250;
+    this.ecoThrottleMs = options.ecoThrottleMs || 2000;
+    this.minHeadingDeltaDeg = options.minHeadingDeltaDeg || 4.0;
+  }
+
+  setEcoMode(enabled) {
+    this.ecoMode = Boolean(enabled);
+  }
+
+  shouldUpdateMapPosition(speedKmh, lastUpdateTime, now = Date.now()) {
+    const isMoving = Number(speedKmh) >= this.minMovingSpeedKmh;
+    const elapsed = now - (lastUpdateTime || 0);
+
+    if (this.ecoMode) {
+      return elapsed >= this.ecoThrottleMs;
+    }
+    if (!isMoving) {
+      return elapsed >= this.stationaryThrottleMs;
+    }
+    return elapsed >= this.normalThrottleMs;
+  }
+
+  shouldUpdateHeading(lastHeading, newHeading, lastUpdateTime, now = Date.now()) {
+    if (lastHeading === null || lastHeading === undefined) return true;
+    const elapsed = now - (lastUpdateTime || 0);
+    const minInterval = this.ecoMode ? 1000 : 300;
+    if (elapsed < minInterval) return false;
+
+    let diff = Math.abs((Number(newHeading) || 0) - (Number(lastHeading) || 0)) % 360;
+    if (diff > 180) diff = 360 - diff;
+
+    const threshold = this.ecoMode ? (this.minHeadingDeltaDeg * 2) : this.minHeadingDeltaDeg;
+    return diff >= threshold;
+  }
+
+  evaluateAutoEco(batteryLevel, isCharging) {
+    if (isCharging) return false;
+    if (batteryLevel !== null && batteryLevel !== undefined && Number(batteryLevel) <= 0.20) {
+      return true;
+    }
+    return false;
+  }
+}
+
+

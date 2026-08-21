@@ -12,7 +12,8 @@ import {
   GpsQualityFilter,
   BreadcrumbSampler,
   filterElevationSeries,
-  getPointAtElevationProgress
+  getPointAtElevationProgress,
+  BatteryRenderPolicy
 } from '../src/core/geoEngine.mjs';
 
 test('Geometry: getDistanceMeters returns 0 for identical points', () => {
@@ -311,3 +312,38 @@ test('Elevation Scrubbing: getPointAtElevationProgress resolves exact point, km,
   assert.equal(end.eleM, 450);
   assert.equal(end.slope, 10);
 });
+
+test('Battery & Render Policy: throttles map updates and heading when stationary or in eco mode', () => {
+  const policy = new BatteryRenderPolicy({
+    minMovingSpeedKmh: 2.5,
+    normalThrottleMs: 250,
+    stationaryThrottleMs: 1500,
+    ecoThrottleMs: 2000
+  });
+
+  const now = 100000;
+
+  // 1. Moving normal mode (15 km/h)
+  assert.equal(policy.shouldUpdateMapPosition(15.0, now - 100, now), false, 'Should throttle fast updates < 250ms');
+  assert.equal(policy.shouldUpdateMapPosition(15.0, now - 300, now), true, 'Should allow update after 300ms');
+
+  // 2. Stationary normal mode (0.5 km/h)
+  assert.equal(policy.shouldUpdateMapPosition(0.5, now - 500, now), false, 'Should throttle stationary updates < 1500ms');
+  assert.equal(policy.shouldUpdateMapPosition(0.5, now - 1600, now), true, 'Should allow stationary update after 1600ms');
+
+  // 3. Eco mode active
+  policy.setEcoMode(true);
+  assert.equal(policy.shouldUpdateMapPosition(20.0, now - 1000, now), false, 'Should throttle eco updates < 2000ms');
+  assert.equal(policy.shouldUpdateMapPosition(20.0, now - 2100, now), true, 'Should allow eco update after 2100ms');
+
+  // 4. Heading throttle & delta filtering
+  policy.setEcoMode(false);
+  assert.equal(policy.shouldUpdateHeading(100, 102, now - 500, now), false, 'Should suppress small heading jitter (<4 deg)');
+  assert.equal(policy.shouldUpdateHeading(100, 115, now - 500, now), true, 'Should accept clear heading change (15 deg)');
+
+  // 5. Auto Eco evaluation
+  assert.equal(policy.evaluateAutoEco(0.15, false), true, 'Should trigger auto eco under 20% when not charging');
+  assert.equal(policy.evaluateAutoEco(0.15, true), false, 'Should not trigger auto eco when charging');
+  assert.equal(policy.evaluateAutoEco(0.85, false), false, 'Should not trigger auto eco on high battery');
+});
+

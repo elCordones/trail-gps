@@ -1,5 +1,22 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-21 — v2.4.9: Mode d'Estalvi de Bateria (Eco), Renderitzat Intel·ligent i 36 Proves Automatitzades
+
+### Canvis implementats
+
+- **🔋 Gestor de Bateria i Mode Eco Automàtic (`BatteryRenderPolicy`)**:
+  - Integració de la Battery Status API (`navigator.getBattery()`) amb monitoratge en temps real de percentatge i estat de càrrega.
+  - **Activació intel·ligent automàtica**: Quan la bateria baixa de $\le 20\%$ i el dispositiu no està connectat a càrrega, s'activa automàticament el mode Eco per evitar que el telèfon s'apagui a meitat de ruta.
+  - **Selector i indicador manual**: Botó ràpid d'estalvi a la graella d'ajustos (`#btn-eco-toggle`) i xip indicador verd a la barra superior (`#btn-top-eco`).
+- **⚡ Renderitzat Cartogràfic Intel·ligent (Throttling)**:
+  - **Filtre de moviment**: Quan el ciclista està aturat o en repòs ($< 2.5\text{ km/h}$), s'espaien els refrescos del mapa i es redueixen les crides a `map.panTo()` de mil·lisegons continus a $1.5\text{ s}$ ($2.0\text{ s}$ en mode Eco).
+  - **Filtre de rumb de compàs**: Suprimeix el soroll i oscil·lacions residuals d'orientació ($< 4^\circ$) per evitar repintats innecessaris del vector direccional.
+  - **Optimització de GPU**: En mode Eco es desactiven automàticament els filtres `backdrop-filter: blur()` i animacions de fons a tot el CSS de l'aplicació, allargant dràsticament l'autonomia en pantalles OLED/Retina durant sortides de 4 a 6 hores.
+- **🧪 Suite de proves ampliada a 36 tests (`npm test`)**:
+  - Nova prova unitària a `tests/geo-engine.test.mjs` que valida les polítiques de refresc de `BatteryRenderPolicy` (100% de tests passant).
+- **📱 Sincronització de Codi**:
+  - Fitxers `index.html` i `web-app/index.html` sincronitzats amb hash SHA256 idèntic.
+
 ## 2026-08-21 — v2.4.8: Editor Complet de Waypoints, Selector d'Icones i 35 Proves Automatitzades
 
 ### Canvis implementats

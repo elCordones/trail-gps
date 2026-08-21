@@ -5,12 +5,14 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.8).
+> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.9).
 >
-> **Punt actual:** s’han implementat l'editor interactiu de waypoints amb selector d'icones (`#waypoints-modal`), els botons de còpia de seguretat JSON a la UI, el perfil interactiu d'altimetria (`getPointAtElevationProgress`), la descàrrega directa de rutes per URL (`gpxFetcher`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 35 proves automatitzades (`npm test` 100% OK).
+> **Punt actual:** s’han implementat el mode d'estalvi de bateria (Eco Mode) amb renderitzat intel·ligent (`BatteryRenderPolicy`), l'editor complet de waypoints (`#waypoints-modal`), els botons de còpia de seguretat JSON a la UI, el perfil interactiu d'altimetria (`getPointAtElevationProgress`), la descàrrega directa de rutes per URL (`gpxFetcher`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 36 proves automatitzades (`npm test` 100% OK).
 
 ### Fites completades en aquesta sessió
 
+- [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i manual amb reducció de càrrega de GPU (`backdrop-filter: none`).
+- [x] Renderitzat cartogràfic intel·ligent (`BatteryRenderPolicy`) amb throttling de refresc de mapa en aturada ($< 2.5\text{ km/h}$) i supressió de jitter de compàs ($< 4^\circ$).
 - [x] Editor complet de Waypoints / POIs amb formulari desplegable, selector de xips d'icones (💧 Font, ⛰️ Cim, ⚠️ Perill, 🛑 Cruïlla, 📸 Foto, 🔧 Taller, 🥪 Menjar, 📍 General) i botons d'edició/eliminació (`✏️` / `🗑️`).
 - [x] Sincronització de waypoints amb el motor de girs i fites (`detectTrackTurns`).
 - [x] Botons de còpia de seguretat JSON (`trailgps_backup_rutes_YYYY-MM-DD.json`) i restauració directa a la interfície de la biblioteca de rutes (`#routes-modal`).
@@ -24,12 +26,12 @@
 - [x] Filtre de qualitat GPS (`GpsQualityFilter`) per detectar i descartar salts/teletransportacions impossibles ($> 100\text{ km/h}$ i $> 150\text{ m}$) i detectar aturades/deriva estàtica.
 - [x] Mostreig intel·ligent del gravador de rutes (`BreadcrumbSampler`) basat en distància ($\ge 3.5\text{ m}$), temps ($6\text{ s}$) i canvi d'angle en corbes ($\ge 18^\circ$).
 - [x] Sanejament del càlcul de desnivell a `trail-gps/src/utils/gpxParser.ts` (Expo).
-- [x] Ampliada la suite de proves a 35 tests unitaris (Node.js test runner, `npm test` 100% OK).
+- [x] Ampliada la suite de proves a 36 tests unitaris (Node.js test runner, `npm test` 100% OK).
 - [x] Còpies PWA `index.html` i `web-app/index.html` sincronitzades (SHA256 idèntic).
 
 ### Pendent immediat
 
-- [ ] Mode d'estalvi de bateria i refresc intel·ligent en repòs.
+- [ ] Integració dels mòduls compartits a React Native / Expo (`trail-gps`).
 - [ ] Prova manual en dispositiu real del comportament GPS i de la histèresi d'alertes en ruta.
 - [ ] Preparar col·lecció de GPX reals (circulars, llargs, multi-segment).
 
