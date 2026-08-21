@@ -1,5 +1,19 @@
 # TrailGPS MTB — Registre de canvis
 
+## 2026-08-21 — v2.4.10: Detecció de Pàgines de Wikiloc, Cadena de Proxies Fallback i 38 Proves Automatitzades
+
+### Canvis implementats
+
+- **🌐 Detecció Específica d'Enllaços de Wikiloc (`isWikilocUrl`)**:
+  - Detecció d'adreces de pàgines web de Wikiloc (`wikiloc.com/rutas-...`) que contenen pàgines HTML protegides per inici de sessió i no pas fitxers `.gpx` directes.
+  - **Missatges d'ajuda ergonòmics**: Indicació clara a l'usuari sobre com descarregar el GPX des de Wikiloc (*"Descargar > Archivo > GPX"*) i carregar-lo directament des del mòbil amb el botó **📂 Tria Fitxer (.gpx)**.
+- **🔄 Cadena de Proxies CORS Fallback Resilient**:
+  - Implementat sistema de fallada en cascada (*failover*) amb múltiples servidors proxy públics (`api.allorigins.win`, `api.codetabs.com`) per a enllaços GPX directes d'altres servidors oberts que bloquegen CORS.
+- **🧪 Suite de proves ampliada a 38 tests (`npm test`)**:
+  - Noves proves unitàries a `tests/gpx-fetcher.test.mjs` validant la detecció d'enllaços de Wikiloc i la resposta controlada davant de pàgines HTML protegides (100% de tests passant).
+- **📱 Sincronització de Codi**:
+  - Fitxers `index.html` i `web-app/index.html` sincronitzats amb hash SHA256 idèntic.
+
 ## 2026-08-21 — v2.4.9: Mode d'Estalvi de Bateria (Eco), Renderitzat Intel·ligent i 36 Proves Automatitzades
 
 ### Canvis implementats

@@ -5,12 +5,13 @@
 
 ## Seguiment de procés
 
-> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.9).
+> **Darrera actualització:** 21 d’agost de 2026 — Fase 0 completada, Fase 1 consolidada i Fase 2 molt avançada (v2.4.10).
 >
-> **Punt actual:** s’han implementat el mode d'estalvi de bateria (Eco Mode) amb renderitzat intel·ligent (`BatteryRenderPolicy`), l'editor complet de waypoints (`#waypoints-modal`), els botons de còpia de seguretat JSON a la UI, el perfil interactiu d'altimetria (`getPointAtElevationProgress`), la descàrrega directa de rutes per URL (`gpxFetcher`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 36 proves automatitzades (`npm test` 100% OK).
+> **Punt actual:** s’han implementat la gestió intel·ligent d'enllaços de Wikiloc i cadena de proxies fallback (`gpxFetcher`), el pla de validació de camp (`docs/PLA_VALIDACIO_CAMP.md`), el mode d'estalvi de bateria (Eco Mode) amb renderitzat intel·ligent (`BatteryRenderPolicy`), l'editor complet de waypoints (`#waypoints-modal`), els botons de còpia de seguretat JSON a la UI, el perfil interactiu d'altimetria (`getPointAtElevationProgress`), la persistència asíncrona a IndexedDB (`RouteStorage`), els filtres de qualitat GPS i altimetria i 38 proves automatitzades (`npm test` 100% OK).
 
 ### Fites completades en aquesta sessió
 
+- [x] Detecció intel·ligent d'adreces de pàgines web de Wikiloc (`isWikilocUrl`) i cadena resilient de proxies CORS per a descàrregues de GPX directe.
 - [x] Redactat i estructurat el Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`) amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
 - [x] Mode d'estalvi de bateria (Eco Mode) automàtic ($\le 20\%$) i manual amb reducció de càrrega de GPU (`backdrop-filter: none`).
 - [x] Renderitzat cartogràfic intel·ligent (`BatteryRenderPolicy`) amb throttling de refresc de mapa en aturada ($< 2.5\text{ km/h}$) i supressió de jitter de compàs ($< 4^\circ$).

@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {  isValidGpxUrl,  extractRouteNameFromUrl,  isGpxContent,  fetchGpxFromUrl,  MAX_GPX_URL_SIZE_BYTES} from '../src/core/gpxFetcher.mjs';
+import {
+  isValidGpxUrl,
+  extractRouteNameFromUrl,
+  isGpxContent,
+  fetchGpxFromUrl,
+  isWikilocUrl,
+  MAX_GPX_URL_SIZE_BYTES
+} from '../src/core/gpxFetcher.mjs';
 
 test('GPX Fetcher: isValidGpxUrl validates HTTP and HTTPS schemes', () => {
   assert.equal(isValidGpxUrl('https://example.com/track.gpx'), true);
@@ -70,6 +77,27 @@ test('GPX Fetcher: fetchGpxFromUrl falls back to CORS proxy when direct fetch fa
   assert.equal(res.xml, sampleGpx);
   assert.equal(res.name, 'route btt');
   assert.equal(res.fromProxy, true);
+});
+
+test('GPX Fetcher: isWikilocUrl identifies Wikiloc web links', () => {
+  assert.equal(isWikilocUrl('https://es.wikiloc.com/rutas-mountain-bike/riudellots-22804843'), true);
+  assert.equal(isWikilocUrl('https://wikiloc.com/track.gpx'), true);
+  assert.equal(isWikilocUrl('https://strava.com/routes/123'), false);
+  assert.equal(isWikilocUrl(''), false);
+});
+
+test('GPX Fetcher: fetchGpxFromUrl throws informative error on protected Wikiloc web pages', async () => {
+  const mockFetch = async () => ({
+    ok: false,
+    text: async () => '<html>login required</html>'
+  });
+
+  await assert.rejects(
+    async () => await fetchGpxFromUrl('https://es.wikiloc.com/rutas-mountain-bike/riudellots-22804843', {
+      fetch: mockFetch
+    }),
+    /Els enllaços de la web de Wikiloc requereixen sessió d'usuari/
+  );
 });
 
 test('GPX Fetcher: fetchGpxFromUrl throws on invalid URL protocol', async () => {

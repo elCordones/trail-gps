@@ -56,6 +56,14 @@ function decodeURIKey(str) {
 }
 
 /**
+ * Checks whether a URL is from Wikiloc
+ */
+export function isWikilocUrl(urlStr) {
+  if (typeof urlStr !== 'string') return false;
+  return urlStr.toLowerCase().includes('wikiloc.com');
+}
+
+/**
  * Checks whether a response string looks like a GPX xml document
  */
 export function isGpxContent(str) {
@@ -112,30 +120,41 @@ export async function fetchGpxFromUrl(urlStr, options = {}) {
 
   // 2. Attempt CORS Proxy Fallback if Direct Fetch Did Not Succeed
   if (!xml && allowProxy) {
-    try {
-      const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    const proxyList = [
+      'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+      'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+    ];
 
-      const proxyRes = await fetchFn(proxyUrl, {
-        signal: ctrl.signal
-      });
-      clearTimeout(timer);
+    for (const proxyUrl of proxyList) {
+      if (xml) break;
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
-      if (proxyRes.ok) {
-        const text = await proxyRes.text();
-        if (isGpxContent(text)) {
-          xml = text;
-          fromProxy = true;
+        const proxyRes = await fetchFn(proxyUrl, {
+          signal: ctrl.signal
+        });
+        clearTimeout(timer);
+
+        if (proxyRes.ok) {
+          const text = await proxyRes.text();
+          if (isGpxContent(text)) {
+            xml = text;
+            fromProxy = true;
+            break;
+          }
         }
+      } catch (proxyErr) {
+        // Continue to next proxy
       }
-    } catch (proxyErr) {
-      // Proxy failed
     }
   }
 
   if (!xml) {
-    throw new Error('No s\'ha pogut descarregar el fitxer GPX. Comprova l\'enllaç o descarrega el fitxer localment per importar-lo.');
+    if (isWikilocUrl(url)) {
+      throw new Error('Els enllaços de la web de Wikiloc requereixen sessió d\'usuari per descarregar el GPX. A la web o app de Wikiloc, prem "Descargar > Archivo > GPX" i després obre el fitxer amb "📂 Tria Fitxer (.gpx)".');
+    }
+    throw new Error('No s\'ha pogut descarregar el fitxer GPX. Comprova que l\'enllaç apunti directament a un fitxer .gpx o descarrega\'l manualment.');
   }
 
   if (xml.length > MAX_GPX_URL_SIZE_BYTES) {

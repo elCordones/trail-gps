@@ -3318,6 +3318,11 @@
       }
     }
 
+    function isWikilocUrl(urlStr) {
+      if (typeof urlStr !== 'string') return false;
+      return urlStr.toLowerCase().includes('wikiloc.com');
+    }
+
     function isGpxContent(str) {
       if (typeof str !== 'string') return false;
       const t = str.slice(0, 1024).toLowerCase();
@@ -3355,24 +3360,35 @@
 
       // 2. CORS Proxy Fallback
       if (!xml && allowProxy) {
-        try {
-          const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-          const proxyRes = await fetch(proxyUrl, { signal: ctrl.signal });
-          clearTimeout(timer);
-          if (proxyRes.ok) {
-            const text = await proxyRes.text();
-            if (isGpxContent(text)) {
-              xml = text;
-              fromProxy = true;
+        const proxyList = [
+          'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+          'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+        ];
+
+        for (const proxyUrl of proxyList) {
+          if (xml) break;
+          try {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+            const proxyRes = await fetch(proxyUrl, { signal: ctrl.signal });
+            clearTimeout(timer);
+            if (proxyRes.ok) {
+              const text = await proxyRes.text();
+              if (isGpxContent(text)) {
+                xml = text;
+                fromProxy = true;
+                break;
+              }
             }
-          }
-        } catch (e) {}
+          } catch (e) {}
+        }
       }
 
       if (!xml) {
-        throw new Error('No s\'ha pogut descarregar el fitxer GPX. Comprova l\'enllaç o descarrega\'l manualment.');
+        if (isWikilocUrl(url)) {
+          throw new Error('Els enllaços de la web de Wikiloc requereixen sessió d\'usuari per descarregar el GPX. A la web o app de Wikiloc, prem "Descargar > Archivo > GPX" i després carrega el fitxer des del mòbil amb "📂 Tria Fitxer (.gpx)".');
+        }
+        throw new Error('No s\'ha pogut descarregar el fitxer GPX. Comprova que l\'enllaç apunti directament a un fitxer .gpx o descarrega\'l manualment.');
       }
 
       if (xml.length > MAX_GPX_URL_SIZE_BYTES) {

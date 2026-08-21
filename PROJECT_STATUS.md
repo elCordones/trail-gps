@@ -1,7 +1,7 @@
 # TrailGPS MTB - Estat i Documentació del Projecte
 
-> **Darrera actualització:** 21 d'agost de 2026 (v2.4.9 — Mode d'Estalvi de Bateria, Renderitzat Intel·ligent, Editor de Waypoints i 36 Tests Unitaris)
-> **Estat general:** PWA v2.4.9 amb Fase 0 i Fase 2 molt consolidades. Mode d'estalvi de bateria automàtic (<20%) i manual amb renderitzat intel·ligent per a sortides de 4-6 hores (`BatteryRenderPolicy`), editor de waypoints, backups JSON a la UI, perfil interactiu d'altimetria, descàrrega de GPX per URL, persistència a IndexedDB i 36 proves automatitzades (`npm test` al 100%).
+> **Darrera actualització:** 21 d'agost de 2026 (v2.4.10 — Detecció de Wikiloc, Cadena de Proxies, Validació de Camp i 38 Tests Unitaris)
+> **Estat general:** PWA v2.4.10 amb Fase 0 i Fase 2 molt consolidades. Pla de validació de camp completat (`docs/PLA_VALIDACIO_CAMP.md`), gestió avançada d'enllaços web de Wikiloc i proxies CORS (`isWikilocUrl`), mode d'estalvi de bateria (`BatteryRenderPolicy`), editor de waypoints, backups JSON a la UI, perfil interactiu d'altimetria, descàrrega de GPX per URL, persistència a IndexedDB i 38 proves automatitzades (`npm test` al 100%).
 
 > **Font de continuïtat:** [full de ruta i seguiment](PROPOSTES_MILLORA_I_FULL_DE_RUTA.md) · [registre de canvis](CHANGELOG.md)
 
@@ -15,7 +15,7 @@
   - **PWA Web App**: HTML5, Vanilla CSS3 (disseny fluid d'alt contrast, paleta fosca Slate/OLED i neons cian/taronja), JavaScript modern, Leaflet 1.9.4, IndexedDB API (`trailgps_db_v1`), Battery Status API (`navigator.getBattery`), Web Bluetooth API (GATT Standard), Web Audio API, Screen Wake Lock API, Cache Storage API.
   - **Servidor local**: Node.js HTTP server autònom (`server.js`) per a proves en xarxa local (Port 3000).
   - **Base Nativa iOS**: React Native (Expo) amb MapKit, Expo Location, SVG delta arrow i TypeScript (`trail-gps/`).
-  - **Motor de Geometria, Altimetria, GPX, Descàrregues, Bateria i Persistència**: Mòduls purs `src/core/geoEngine.mjs` (`BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`), `src/core/gpxParser.mjs`, `src/core/routeStorage.mjs` i `src/core/gpxFetcher.mjs` validats amb 36 tests unitaris (`npm test`).
+  - **Motor de Geometria, Altimetria, GPX, Descàrregues, Bateria i Persistència**: Mòduls purs `src/core/geoEngine.mjs` (`BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`), `src/core/gpxParser.mjs`, `src/core/routeStorage.mjs` i `src/core/gpxFetcher.mjs` validats amb 38 tests unitaris (`npm test`).
 
 - **Estructura i Fitxers Clau del Projecte**:
   - [README.md](file:///C:/Users/David/Desktop/App%20bici%20GPS/README.md): Guia ràpida de desplegament, característiques i instal·lació PWA.
@@ -26,9 +26,9 @@
   - [index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/index.html) / [web-app/index.html](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/index.html): Nucli de l'aplicació PWA amb Leaflet, motor Turn-by-Turn, gestor de bateria / Eco Mode, editor interactiu de Waypoints, ClimbPro amb scrubbing, persistència IndexedDB, descàrrega GPX per URL, còpies JSON, filtres GPS/altimetria i gravador GPX.
   - [src/core/geoEngine.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/geoEngine.mjs): Motor matemàtic pur: Haversine, azimuth, distància perpendicular, girs, `BatteryRenderPolicy`, `ElevationFilter`, `GpsQualityFilter`, `BreadcrumbSampler`, `filterElevationSeries` i `getPointAtElevationProgress`.
   - [src/core/gpxParser.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxParser.mjs): Parser GPX pur i sanejat per a Node.js i navegadors.
-  - [src/core/gpxFetcher.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxFetcher.mjs): Validador d'enllaços, extractor de títols i descàrrega de fitxers GPX per xarxa/proxy.
+  - [src/core/gpxFetcher.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/gpxFetcher.mjs): Validador d'enllaços, extractor de títols, detecció de Wikiloc (`isWikilocUrl`) i descàrrega de fitxers GPX per xarxa/proxy.
   - [src/core/routeStorage.mjs](file:///C:/Users/David/Desktop/App%20bici%20GPS/src/core/routeStorage.mjs): Gestor asíncron d'IndexedDB amb migració de `localStorage`, fallback en memòria i còpies de seguretat JSON.
-  - [tests/](file:///C:/Users/David/Desktop/App%20bici%20GPS/tests/): Suite de 36 proves automatitzades (`geo-engine.test.mjs`, `gpx-parser.test.mjs`, `route-storage.test.mjs`, `gpx-fetcher.test.mjs`).
+  - [tests/](file:///C:/Users/David/Desktop/App%20bici%20GPS/tests/): Suite de 38 proves automatitzades (`geo-engine.test.mjs`, `gpx-parser.test.mjs`, `route-storage.test.mjs`, `gpx-fetcher.test.mjs`).
   - [manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/manifest.json) / [web-app/manifest.json](file:///C:/Users/David/Desktop/App%20bici%20GPS/web-app/manifest.json): Web App Manifest per a instal·lació PWA autònoma a pantalla completa.
   - [assets/icons/](file:///C:/Users/David/Desktop/App%20bici%20GPS/assets/icons/): Paquet complet d'icones PWA, favicons i Apple Touch Icons d'alta resolució.
   - [scripts/generate-icons.js](file:///C:/Users/David/Desktop/App%20bici%20GPS/scripts/generate-icons.js): Generador automàtic de tot el paquet d'icones iOS / PWA / Expo amb `sharp`.
@@ -37,9 +37,14 @@
 
 ---
 
-## 2. Estat Actual i Punt de Control (Tancament de Sessió: 21/08/2026 - v2.4.9)
+## 2. Estat Actual i Punt de Control (Tancament de Sessió: 21/08/2026 - v2.4.10)
 
 - **Feina realitzada en aquesta sessió**:
+  - [x] **🌐 Detecció Específica d'Enllaços de Wikiloc & Proxies Resilients (`gpxFetcher.mjs`)**:
+    - Detecció d'adreces de pàgines web de Wikiloc (`wikiloc.com/rutas-...`) amb explicació guiada a l'usuari sobre la descàrrega del fitxer `.gpx` amb sessió oberta.
+    - Cadena de fallada de proxies CORS per a descàrregues d'enllaços GPX directes.
+  - [x] **📋 Pla de Validació de Camp (`docs/PLA_VALIDACIO_CAMP.md`)**:
+    - Document operatiu amb 6 casos de prova (offline, histèresi 40m/25m, Turn-by-Turn, ClimbPro, consum de bateria i gravador GPX).
   - [x] **🔋 Mode d'Estalvi de Bateria & Renderitzat Intel·ligent (`BatteryRenderPolicy`)**:
     - Suport de Battery API amb autoactivació del mode Eco per sota del 20% sense connexió de càrrega.
     - Throttling dinàmic de Leaflet `map.panTo()` en aturada ($< 2.5\text{ km/h}$) i en mode Eco per minimitzar el consum de CPU.
